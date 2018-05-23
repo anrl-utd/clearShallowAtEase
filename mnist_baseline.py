@@ -71,7 +71,7 @@ def main(_):
 
   # output of first layer
   out_1 = tf.matmul(x, W_1) + b_1
-  out_1 = tf.sigmoid(out_1)
+  out_1 = tf.nn.relu(out_1)
   
   W_2 = tf.Variable(tf.truncated_normal([256, 256]))
   b_2 = tf.Variable(tf.truncated_normal([256]))
@@ -79,13 +79,13 @@ def main(_):
   P_2 = tf.Variable(tf.random_uniform([256, 256], minval=0, maxval=25600))
 
   out_2 = tf.matmul(out_1, W_2) + b_2
-  out_2 = tf.sigmoid(out_2)
+  out_2 = tf.nn.relu(out_2)
 
   W_3 = tf.Variable(tf.truncated_normal([256, 256]))
   b_3 = tf.Variable(tf.truncated_normal([256]))
 
   out_3 = tf.matmul(out_2, W_3) + b_3
-  out_3 = tf.sigmoid(out_3)
+  out_3 = tf.nn.relu(out_3)
 
   P_3 = tf.Variable(tf.random_uniform([256, 256], minval=0, maxval=25600))
 
@@ -93,7 +93,7 @@ def main(_):
   b_4 = tf.Variable(tf.truncated_normal([10]))
 
   out_4 = tf.matmul(out_3, W_4) + b_4
-  y = tf.sigmoid(out_4)
+  y = tf.nn.softmax(out_4)
   #y = tf.sigmoid(out_3)
   
   # Define loss and optimizer
@@ -110,7 +110,7 @@ def main(_):
   # outputs of 'y', and then average across the batch.
 
   cross_entropy = tf.losses.sparse_softmax_cross_entropy(labels=y_, logits=y)
-  train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
+  train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
   sess = tf.InteractiveSession()
   tf.global_variables_initializer().run()
