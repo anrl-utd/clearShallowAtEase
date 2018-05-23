@@ -37,7 +37,7 @@ input_size = 784
 classes = 10
 
 # later use
-# architecture = [256,256,256,128,128,64,64,32,32] 
+# architecture = [100,100,100,128,128,64,64,32,32] 
 
 def weight_init(shape):
   weight = tf.Variable(tf.random_normal(shape))
@@ -63,37 +63,37 @@ def main(_):
   # x is input placeholder
   x = tf.placeholder(tf.float32, [None, 784])
 
-  W_1 = tf.Variable(tf.truncated_normal([784, 256]))
-  b_1 = tf.Variable(tf.truncated_normal([256]))
+  W_1 = tf.Variable(tf.truncated_normal([784, 100]))
+  b_1 = tf.Variable(tf.truncated_normal([100]))
 
   # random tensor for "probability" of each weight
-  P_1 = tf.Variable(tf.random_uniform([784, 256], minval=0, maxval=25600))
+  #P_1 = tf.Variable(tf.random_uniform([784, 100], minval=0, maxval=10000))
 
   # output of first layer
   out_1 = tf.matmul(x, W_1) + b_1
   out_1 = tf.nn.relu(out_1)
   
-  W_2 = tf.Variable(tf.truncated_normal([256, 256]))
-  b_2 = tf.Variable(tf.truncated_normal([256]))
+  W_2 = tf.Variable(tf.truncated_normal([100, 100]))
+  b_2 = tf.Variable(tf.truncated_normal([100]))
 
-  P_2 = tf.Variable(tf.random_uniform([256, 256], minval=0, maxval=25600))
+  #P_2 = tf.Variable(tf.random_uniform([100, 100], minval=0, maxval=10000))
 
   out_2 = tf.matmul(out_1, W_2) + b_2
   out_2 = tf.nn.relu(out_2)
 
-  W_3 = tf.Variable(tf.truncated_normal([256, 256]))
-  b_3 = tf.Variable(tf.truncated_normal([256]))
+  W_3 = tf.Variable(tf.truncated_normal([100, 10]))
+  b_3 = tf.Variable(tf.truncated_normal([10]))
 
   out_3 = tf.matmul(out_2, W_3) + b_3
   out_3 = tf.nn.relu(out_3)
 
-  P_3 = tf.Variable(tf.random_uniform([256, 256], minval=0, maxval=25600))
+  #P_3 = tf.Variable(tf.random_uniform([100, 100], minval=0, maxval=10000))
 
-  W_4 = tf.Variable(tf.truncated_normal([256, 10]))
-  b_4 = tf.Variable(tf.truncated_normal([10]))
+  #W_4 = tf.Variable(tf.truncated_normal([100, 10]))
+  #b_4 = tf.Variable(tf.truncated_normal([10]))
 
-  out_4 = tf.matmul(out_3, W_4) + b_4
-  y = tf.nn.softmax(out_4)
+  #out_4 = tf.matmul(out_3, W_4) + b_4
+  y = tf.nn.softmax(out_3)
   #y = tf.sigmoid(out_3)
   
   # Define loss and optimizer
@@ -110,7 +110,7 @@ def main(_):
   # outputs of 'y', and then average across the batch.
 
   cross_entropy = tf.losses.sparse_softmax_cross_entropy(labels=y_, logits=y)
-  train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
+  train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
 
   sess = tf.InteractiveSession()
   tf.global_variables_initializer().run()
@@ -118,7 +118,7 @@ def main(_):
   # Train
   for _ in range(iterations):
     progressBar(_, iterations)
-    batch_xs, batch_ys = mnist.train.next_batch(256)
+    batch_xs, batch_ys = mnist.train.next_batch(100)
     sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
   # Test trained model
