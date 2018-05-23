@@ -31,7 +31,7 @@ import tensorflow as tf
 FLAGS = None
 
 # hyper params
-iterations = 4000
+iterations = 10000
 learning_rate = 0.5
 input_size = 784
 classes = 10
@@ -81,11 +81,21 @@ def main(_):
   out_2 = tf.matmul(out_1, W_2) + b_2
   out_2 = tf.sigmoid(out_2)
 
-  W_3 = tf.Variable(tf.truncated_normal([256, 10]))
-  b_3 = tf.Variable(tf.truncated_normal([10]))
+  W_3 = tf.Variable(tf.truncated_normal([256, 256]))
+  b_3 = tf.Variable(tf.truncated_normal([256]))
 
   out_3 = tf.matmul(out_2, W_3) + b_3
-  y = tf.sigmoid(out_3)
+  out_3 = tf.sigmoid(out_3)
+
+  P_3 = tf.Variable(tf.random_uniform([256, 256], minval=0, maxval=25600))
+
+  W_4 = tf.Variable(tf.truncated_normal([256, 10]))
+  b_4 = tf.Variable(tf.truncated_normal([10]))
+
+  out_4 = tf.matmul(out_3, W_4) + b_4
+  y = tf.sigmoid(out_4)
+  #y = tf.sigmoid(out_3)
+  
   # Define loss and optimizer
   y_ = tf.placeholder(tf.int64, [None])
 
@@ -114,7 +124,7 @@ def main(_):
   # Test trained model
   correct_prediction = tf.equal(tf.argmax(y, 1), y_)
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-  print("test acc")
+  print("\ntest acc")
   print(sess.run(
       accuracy, feed_dict={
           x: mnist.test.images,
