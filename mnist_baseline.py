@@ -63,29 +63,29 @@ def main(_):
   # x is input placeholder
   x = tf.placeholder(tf.float32, [None, 784])
 
-  W_1 = tf.Variable(tf.truncated_normal([784, 100]))
-  b_1 = tf.Variable(tf.truncated_normal([100]))
+  W_1 = tf.Variable(tf.truncated_normal([784, 256]))
+  b_1 = tf.Variable(tf.truncated_normal([256]))
 
   # random tensor for "probability" of each weight
   #P_1 = tf.Variable(tf.random_uniform([784, 100], minval=0, maxval=10000))
 
   # output of first layer
   out_1 = tf.matmul(x, W_1) + b_1
-  out_1 = tf.nn.relu(out_1)
+  out_1 = tf.sigmoid(out_1)
   
-  W_2 = tf.Variable(tf.truncated_normal([100, 100]))
-  b_2 = tf.Variable(tf.truncated_normal([100]))
+  W_2 = tf.Variable(tf.truncated_normal([256, 256]))
+  b_2 = tf.Variable(tf.truncated_normal([256]))
 
   #P_2 = tf.Variable(tf.random_uniform([100, 100], minval=0, maxval=10000))
 
   out_2 = tf.matmul(out_1, W_2) + b_2
-  out_2 = tf.nn.relu(out_2)
+  out_2 = tf.sigmoid(out_2)
 
-  W_3 = tf.Variable(tf.truncated_normal([100, 10]))
+  W_3 = tf.Variable(tf.truncated_normal([256, 10]))
   b_3 = tf.Variable(tf.truncated_normal([10]))
 
   out_3 = tf.matmul(out_2, W_3) + b_3
-  out_3 = tf.nn.relu(out_3)
+  out_3 = tf.sigmoid(out_3)
 
   #P_3 = tf.Variable(tf.random_uniform([100, 100], minval=0, maxval=10000))
 
@@ -93,8 +93,8 @@ def main(_):
   #b_4 = tf.Variable(tf.truncated_normal([10]))
 
   #out_4 = tf.matmul(out_3, W_4) + b_4
-  y = tf.nn.softmax(out_3)
-  #y = tf.sigmoid(out_3)
+  #y = tf.nn.softmax(out_3)
+  y = tf.sigmoid(out_3)
   
   # Define loss and optimizer
   y_ = tf.placeholder(tf.int64, [None])
@@ -112,14 +112,18 @@ def main(_):
   cross_entropy = tf.losses.sparse_softmax_cross_entropy(labels=y_, logits=y)
   train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
 
+  correct_prediction = tf.equal(tf.argmax(y, 1), y_)
+  accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
   sess = tf.InteractiveSession()
   tf.global_variables_initializer().run()
 
   # Train
   for _ in range(iterations):
     progressBar(_, iterations)
-    batch_xs, batch_ys = mnist.train.next_batch(100)
-    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+    batch_xs, batch_ys = mnist.train.next_batch(512)
+    __train_step , acc = sess.run([train_step, accuracy], feed_dict={x: batch_xs, y_: batch_ys})
+    print(acc)
 
   # Test trained model
   correct_prediction = tf.equal(tf.argmax(y, 1), y_)
