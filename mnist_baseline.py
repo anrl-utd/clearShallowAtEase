@@ -32,7 +32,7 @@ FLAGS = None
 
 # hyper params
 iterations = 10000
-learning_rate = 0.5
+learning_rate = 0.05
 input_size = 784
 classes = 10
 
