@@ -1,69 +1,92 @@
-"""
-make_cifar10.py: Create training data from raw CIFAR-10 batches.
-"""
+# Download/Saving CIFAR-10 images in Inception format
+#---------------------------------------
+#
+# In this script, we download the CIFAR-10 images and
+# transform/save them in the Inception Retrianing Format
+#
+# The end purpose of the files is for retrianing the
+# Google Inception tensorflow model to work on the CIFAR-10.
 
-import cPickle as pkl
-import glob
 import os
-
+import tarfile
+import _pickle as cPickle
 import numpy as np
-from skimage.io import imsave
+import urllib.request
+import scipy.misc
+
+cifar_link = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
+data_dir = 'temp'
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
+
+# Download tar file
+target_file = os.path.join(data_dir, 'cifar-10-python.tar.gz')
+if not os.path.isfile(target_file):
+    print('CIFAR-10 file not found. Downloading CIFAR data (Size = 163MB)')
+    print('This may take a few minutes, please wait.')
+    filename, headers = urllib.request.urlretrieve(cifar_link, target_file)
+
+# Extract into memory
+tar = tarfile.open(target_file)
+tar.extractall(path=data_dir)
+tar.close()
+objects = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+
+# Create train image folders
+train_folder = 'train_dir'
+if not os.path.isdir(os.path.join(data_dir, train_folder)):
+    for i in range(10):
+        folder = os.path.join(data_dir, train_folder, objects[i])
+        os.makedirs(folder)
+# Create test image folders
+test_folder = 'validation_dir'
+if not os.path.isdir(os.path.join(data_dir, test_folder)):
+    for i in range(10):
+        folder = os.path.join(data_dir, test_folder, objects[i])
+        os.makedirs(folder)
+
+# Extract images accordingly
+data_location = os.path.join(data_dir, 'cifar-10-batches-py')
+train_names = ['data_batch_' + str(x) for x in range(1,6)]
+test_names = ['test_batch']
 
 
-PIXELS_DIR = "pixel_data"
-LABEL_FILE = "labels.txt"
+def load_batch_from_file(file):
+    file_conn = open(file, 'rb')
+    image_dictionary = cPickle.load(file_conn, encoding='latin1')
+    file_conn.close()
+    return(image_dictionary)
 
 
-def unpack_file(fname):
-    """
-        Unpacks a CIFAR-10 file.
-    """
+def save_images_from_dict(image_dict, folder='data_dir'):
+    # image_dict.keys() = 'labels', 'filenames', 'data', 'batch_label'
+    for ix, label in enumerate(image_dict['labels']):
+        folder_path = os.path.join(data_dir, folder, objects[label])
+        filename = image_dict['filenames'][ix]
+        #Transform image data
+        image_array = image_dict['data'][ix]
+        image_array.resize([3, 32, 32])
+        # Save image
+        output_location = os.path.join(folder_path, filename)
+        scipy.misc.imsave(output_location,image_array.transpose())
 
-    with open(fname, "r") as f:
-        result = pkl.load(f)
+# Sort train images
+for file in train_names:
+    print('Saving images from file: {}'.format(file))
+    file_location = os.path.join(data_dir, 'cifar-10-batches-py', file)
+    image_dict = load_batch_from_file(file_location)
+    save_images_from_dict(image_dict, folder=train_folder)
 
-    return result
-
-
-def save_as_image(img_flat, fname):
-    """
-        Saves a data blob as an image file.
-    """
-
-    # consecutive 1024 entries store color channels of 32x32 image 
-    img_R = img_flat[0:1024].reshape((32, 32))
-    img_G = img_flat[1024:2048].reshape((32, 32))
-    img_B = img_flat[2048:3072].reshape((32, 32))
-    img = np.dstack((img_R, img_G, img_B))
-
-    imsave(os.path.join(PIXELS_DIR, fname), img)
-
-
-def main():
-    """
-        Entry point.
-    """
-
-    labels = {}
-
-    # use "data_batch_*" for just the training set
-    for fname in glob.glob("*_batch*"):
-        data = unpack_file(fname)
-
-        for i in range(10000):
-            img_flat = data["data"][i]
-            fname = data["filenames"][i]
-            label = data["labels"][i]
-
-            # save the image and store the label
-            save_as_image(img_flat, fname)
-            labels[fname] = label
-
-    # write out labels file
-    with open(LABEL_FILE, "w") as f:
-        for (fname, label) in labels.iteritems():
-            f.write("{0} {1}\n".format(fname, label))
-
-
-if __name__ == "__main__":
-    main()
+# Sort test images
+for file in test_names:
+    print('Saving images from file: {}'.format(file))
+    file_location = os.path.join(data_dir, 'cifar-10-batches-py', file)
+    image_dict = load_batch_from_file(file_location)
+    save_images_from_dict(image_dict, folder=test_folder)
+    
+# Create labels file
+cifar_labels_file = os.path.join(data_dir,'cifar10_labels.txt')
+print('Writing labels file, {}'.format(cifar_labels_file))
+with open(cifar_labels_file, 'w') as labels_file:
+    for item in objects:
+        labels_file.write("{}\n".format(item))
