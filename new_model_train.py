@@ -130,7 +130,8 @@ def create_fc_layer(input,
     layer = tf.matmul(input, weights) + biases
     if use_relu:
         layer = tf.nn.relu(layer)
-
+    else:
+        layer = tf.nn.sigmoid(layer)
     return layer
 
 def create_fc_layer_dropout(input,          
@@ -150,7 +151,6 @@ def create_fc_layer_dropout(input,
     layer = tf.matmul(input, weights) + biases
     if use_relu:
         layer = tf.nn.relu(layer)
-
     return layer
 
 flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
@@ -186,7 +186,7 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
 layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc6_layer_size,
                      num_outputs=num_classes,
-                     use_relu=True)
+                     use_relu=False)
 
 y_pred = tf.nn.softmax(layer_fc6, name='y_pred')
 
