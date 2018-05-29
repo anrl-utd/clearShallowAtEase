@@ -142,7 +142,7 @@ def create_fc_layer_dropout(input,
 
     #Let's define trainable weights and biases.
     weights = create_weights(shape=[num_inputs, num_outputs])
-    weights = tf.layers.dropout(inputs=weights, rate=dropout, training=true)
+    weights = tf.layers.dropout(inputs=weights, rate=dropout, training=True)
 
     biases = create_biases(num_outputs)
 
