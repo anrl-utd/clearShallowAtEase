@@ -138,7 +138,7 @@ def create_fc_layer_dropout(input,
              num_outputs,
              dropout,
              use_relu=True):
-    # dropout = probability of failure. 
+    # dropout = 1 - probability of failure. 
 
     #Let's define trainable weights and biases.
     weights = create_weights(shape=[num_inputs, num_outputs])
@@ -146,25 +146,12 @@ def create_fc_layer_dropout(input,
 
     biases = create_biases(num_outputs)
 
-    # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
+    # Fully connected layer takes input x and produces wx+b. Since, these are matrices, we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
     if use_relu:
         layer = tf.nn.relu(layer)
 
     return layer
-
-'''
-layer_conv1 = create_convolutional_layer(input=x,
-               num_input_channels=num_channels,
-               conv_filter_size=filter_size_conv1,
-               num_filters=num_filters_conv1)
-layer_conv2 = create_convolutional_layer(input=layer_conv1,
-               num_input_channels=num_filters_conv1,
-               conv_filter_size=filter_size_conv2,
-               num_filters=num_filters_conv2)
-
-layer_flat = create_flatten_layer(layer_conv2)
-'''
 
 flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
 
@@ -178,15 +165,17 @@ layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_outputs=fc2_layer_size,
                      use_relu=True)
 
+# with dropout layer
 layer_fc3 = create_fc_layer_dropout(input=layer_fc2,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
-                     dropout=0.1,
+                     dropout=0.9,
                      use_relu=True)
 
 layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
+                     dropout=0.9,
                      use_relu=True)
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
@@ -245,11 +234,11 @@ def train(num_iteration):
             val_loss = session.run(cost, feed_dict=feed_dict_val)
             epoch = int(i / int(data.train.num_examples/batch_size))    
             
-            show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)    
-            #saver.save(session, "models/test_model"+"_"+str(i)+".ckpt")
+            show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
             print(int(i))
 
     print(int(num_iteration))
     total_iterations += num_iteration
 
-train(num_iteration=40000)
+train(num_iteration=100000)
+saver.save(session, "models/test_model"+"_"+".ckpt")
