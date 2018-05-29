@@ -56,9 +56,12 @@ num_filters_conv2 = 64
 filter_size_conv3 = 3
 num_filters_conv3 = 128 #64
 
-fc1_layer_size = 128
-
-fc2_layer_size = 128
+fc1_layer_size = 128 
+fc2_layer_size = 128 
+fc3_layer_size = 128 
+fc4_layer_size = 128 
+fc5_layer_size = 128 
+fc6_layer_size = 10
 
 
 def create_weights(shape):
@@ -156,15 +159,30 @@ layer_fc2 = create_fc_layer(input=layer_fc1,
                      use_relu=True)
 
 layer_fc3 = create_fc_layer(input=layer_fc2,
-                     num_inputs=fc2_layer_size,
+                     num_inputs=fc3_layer_size,
+                     num_outputs=fc4_layer_size,
+                     use_relu=True)
+
+layer_fc4 = create_fc_layer(input=layer_fc3,
+                     num_inputs=fc4_layer_size,
+                     num_outputs=fc5_layer_size,
+                     use_relu=True)
+
+layer_fc5 = create_fc_layer(input=layer_fc4,
+                     num_inputs=fc5_layer_size,
+                     num_outputs=fc6_layer_size,
+                     use_relu=True)
+
+layer_fc6 = create_fc_layer(input=layer_fc5,
+                     num_inputs=fc6_layer_size,
                      num_outputs=num_classes,
                      use_relu=True)
 
-y_pred = tf.nn.softmax(layer_fc3, name='y_pred')
+y_pred = tf.nn.softmax(layer_fc6, name='y_pred')
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
 session.run(tf.global_variables_initializer())
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc3,
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc6,
                                                     labels=y_true)
 cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)  #1e-4
