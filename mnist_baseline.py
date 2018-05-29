@@ -121,16 +121,13 @@ def main(_):
   # Train
   for _ in range(iterations):
     progressBar(_, iterations)
-<<<<<<< HEAD
     batch_xs, batch_ys = mnist.train.next_batch(100)
     sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
     sess.run(accuracy, feed_dict={x: batch_xs, y_: batch_ys})
-=======
     batch_xs, batch_ys = mnist.train.next_batch(512)
     __train_step , acc = sess.run([train_step, accuracy], feed_dict={x: batch_xs, y_: batch_ys})
     print(acc)
 
->>>>>>> f5d3ecdb0c380651a1d490a362ac711c17b49632
   # Test trained model
   correct_prediction = tf.equal(tf.argmax(y, 1), y_)
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
