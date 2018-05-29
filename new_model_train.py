@@ -172,7 +172,7 @@ layer_fc3 = create_fc_layer_dropout(input=layer_fc2,
                      dropout=0.9,
                      use_relu=True)
 
-layer_fc4 = create_fc_layer(input=layer_fc3,
+layer_fc4 = create_fc_layer_dropout(input=layer_fc3,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
                      dropout=0.9,
