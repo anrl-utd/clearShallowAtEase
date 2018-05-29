@@ -56,36 +56,16 @@ num_filters_conv2 = 64
 filter_size_conv3 = 3
 num_filters_conv3 = 128 #64
 
-# added
-filter_size_conv4 = 3
-num_filters_conv4 = 128
+fc1_layer_size = 128 
 
-filter_size_conv5 = 3
-num_filters_conv5 = 128
+fc2_layer_size = 10
 
-filter_size_conv6 = 3
-num_filters_conv6 = 128
-
-filter_size_conv7 = 3
-num_filters_conv7 = 128
-
-filter_size_conv8 = 3
-num_filters_conv8 = 128
-
-filter_size_conv9 = 3
-num_filters_conv9 = 128
-
-filter_size_conv10 = 3
-num_filters_conv10 = 128
-
-fc1_layer_size = 128 #128
 
 def create_weights(shape):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05))
 
 def create_biases(size):
     return tf.Variable(tf.constant(0.05, shape=[size]))
-
 
 
 def create_convolutional_layer(input,
@@ -118,16 +98,18 @@ def create_convolutional_layer(input,
 
     
 
-def create_flatten_layer(layer):
+def create_flatten_layer(input, batch_size, img_size, num_channels):
     #We know that the shape of the layer will be [batch_size img_size img_size num_channels] 
     # But let's get it from the previous layer.
-    layer_shape = layer.get_shape()
+    #layer_shape = layer.get_shape()
+    layer_shape = [batch_size, img_size, img_size, num_channels]
 
     ## Number of features will be img_height * img_width* num_channels. But we shall calculate it in place of hard-coding it.
-    num_features = layer_shape[1:4].num_elements()
+    #num_features = layer_shape[1:4].num_elements()
+    num_features = img_size * img_size * num_channels
 
     ## Now, we Flatten the layer so we shall have to reshape to num_features
-    layer = tf.reshape(layer, [-1, num_features])
+    layer = tf.reshape(input, [-1, num_features])
 
     return layer
 
@@ -148,7 +130,7 @@ def create_fc_layer(input,
 
     return layer
 
-
+'''
 layer_conv1 = create_convolutional_layer(input=x,
                num_input_channels=num_channels,
                conv_filter_size=filter_size_conv1,
@@ -158,59 +140,27 @@ layer_conv2 = create_convolutional_layer(input=layer_conv1,
                conv_filter_size=filter_size_conv2,
                num_filters=num_filters_conv2)
 
-layer_conv3= create_convolutional_layer(input=layer_conv2,
-               num_input_channels=num_filters_conv2,
-               conv_filter_size=filter_size_conv3,
-               num_filters=num_filters_conv3)
+layer_flat = create_flatten_layer(layer_conv2)
+'''
 
-layer_conv4 = create_convolutional_layer(input=layer_conv3,
-	       num_input_channels=num_filters_conv3,
-	       conv_filter_size=filter_size_conv4,
-	       num_filters=num_filters_conv4)
+flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
 
-layer_conv5 = create_convolutional_layer(input=layer_conv4,
-	       num_input_channels=num_filters_conv4,
-	       conv_filter_size=filter_size_conv5,
-	       num_filters=num_filters_conv5)
-
-layer_conv6 = create_convolutional_layer(input=layer_conv5,
-	       num_input_channels=num_filters_conv5,
-	       conv_filter_size=filter_size_conv6,
-	       num_filters=num_filters_conv6)
-
-layer_conv7 = create_convolutional_layer(input=layer_conv6,
-	       num_input_channels=num_filters_conv6,
-	       conv_filter_size=filter_size_conv7,
-	       num_filters=num_filters_conv7)
-
-layer_conv8 = create_convolutional_layer(input=layer_conv7,
-	       num_input_channels=num_filters_conv7,
-	       conv_filter_size=filter_size_conv8,
-	       num_filters=num_filters_conv8)
-
-layer_conv9 = create_convolutional_layer(input=layer_conv8,
-	       num_input_channels=num_filters_conv8,
-	       conv_filter_size=filter_size_conv9,
-	       num_filters=num_filters_conv9)
-
-layer_conv10 = create_convolutional_layer(input=layer_conv9,
-	       num_input_channels=num_filters_conv9,
-	       conv_filter_size=filter_size_conv10,
-	       num_filters=num_filters_conv10)
-
-layer_flat = create_flatten_layer(layer_conv10)
-
-layer_fc1 = create_fc_layer(input=layer_flat,
-                     num_inputs=layer_flat.get_shape()[1:4].num_elements(),
+layer_fc1 = create_fc_layer(input=flatten,
+                     num_inputs=img_size*img_size*num_channels,
                      num_outputs=fc1_layer_size,
                      use_relu=True)
 
 layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
+                     num_outputs=fc2_layer_size,
+                     use_relu=True)
+
+layer_fc3 = create_fc_layer(input=layer_fc2,
+                     num_inputs=fc2_layer_size,
                      num_outputs=num_classes,
                      use_relu=True)
 
-y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
+y_pred = tf.nn.softmax(layer_fc3, name='y_pred')
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
 session.run(tf.global_variables_initializer())

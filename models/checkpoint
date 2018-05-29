@@ -1,2 +1,6 @@
-model_checkpoint_path: "test_model_0.ckpt"
-all_model_checkpoint_paths: "test_model_0.ckpt"
+model_checkpoint_path: "test_model_702.ckpt"
+all_model_checkpoint_paths: "test_model_546.ckpt"
+all_model_checkpoint_paths: "test_model_585.ckpt"
+all_model_checkpoint_paths: "test_model_624.ckpt"
+all_model_checkpoint_paths: "test_model_663.ckpt"
+all_model_checkpoint_paths: "test_model_702.ckpt"
