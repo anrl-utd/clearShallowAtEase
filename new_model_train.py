@@ -56,9 +56,9 @@ num_filters_conv2 = 64
 filter_size_conv3 = 3
 num_filters_conv3 = 128 #64
 
-fc1_layer_size = 128 
+fc1_layer_size = 128
 
-fc2_layer_size = 10
+fc2_layer_size = 128
 
 
 def create_weights(shape):
