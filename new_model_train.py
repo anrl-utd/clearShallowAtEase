@@ -133,6 +133,26 @@ def create_fc_layer(input,
 
     return layer
 
+def create_fc_layer_dropout(input,          
+             num_inputs,    
+             num_outputs,
+             dropout,
+             use_relu=True):
+    # dropout = probability of failure. 
+
+    #Let's define trainable weights and biases.
+    weights = create_weights(shape=[num_inputs, num_outputs])
+    weights = tf.layers.dropout(inputs=weights, rate=dropout, training=true)
+
+    biases = create_biases(num_outputs)
+
+    # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
+    layer = tf.matmul(input, weights) + biases
+    if use_relu:
+        layer = tf.nn.relu(layer)
+
+    return layer
+
 '''
 layer_conv1 = create_convolutional_layer(input=x,
                num_input_channels=num_channels,
@@ -158,9 +178,10 @@ layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_outputs=fc2_layer_size,
                      use_relu=True)
 
-layer_fc3 = create_fc_layer(input=layer_fc2,
+layer_fc3 = create_fc_layer_dropout(input=layer_fc2,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
+                     dropout=0.1,
                      use_relu=True)
 
 layer_fc4 = create_fc_layer(input=layer_fc3,
