@@ -16,7 +16,7 @@ batch_size = 256
 val_batch_size = 2000
 
 #Prepare input data
-classes = ['dogs','cats']
+classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
 num_classes = len(classes)
 
 # 20% of the data will automatically be used for validation
@@ -24,8 +24,8 @@ num_classes = len(classes)
 validation_size = 0
 img_size = 32
 num_channels = 3
-train_path="train"
-val_path = "test"
+train_path="train_dir"
+val_path = "validation_dir"
 
 # We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
