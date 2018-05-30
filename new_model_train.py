@@ -87,18 +87,19 @@ def create_fc_layer(input,
     
     #Let's define trainable weights and biases.
     weights = create_weights(name=identifier + str("_weights"), shape=[num_inputs, num_outputs])
-
-    if dropout:
-        weights = tf.layers.dropout(input=weights, rate=dropout_rate, training=True)
-
     biases = create_biases(name=identifier + str("_bias"), num_outputs)
 
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
+    
     if use_relu:
         layer = tf.nn.relu(layer)
     else:
         layer = tf.nn.sigmoid(layer)
+
+    if dropout:
+        layer = tf.layers.dropout(input=layer, rate=dropout_rate, training=True)
+
     return layer
 
 flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
@@ -133,7 +134,6 @@ layer_fc4 = create_fc_layer_dropout(input=layer_fc3,
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
-                     use_relu=True,
                      identifier="fc5")
 
 layer_fc6 = create_fc_layer(input=layer_fc5,
@@ -161,13 +161,14 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
     msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-   # msg = "Training Epoch {0} --- Training Accuracy: {1:4%}, Validation Accuracy: {2:4%},  Validation Loss: {3:.5f}"
   
     print(msg.format(epoch + 1, acc, val_acc, val_loss))
 
 total_iterations = 0
 
-saver = tf.train.Saver()
+# Save non-dropout layers
+saver = tf.train.Saver({fc1_weights, fc1_bias, fc2_weights, fc2_bias, fc5_weights, fc5_bias, fc6_weights, fc6_bias})
+
 def train(num_iteration):
     global total_iterations
     
