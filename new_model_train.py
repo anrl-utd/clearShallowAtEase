@@ -85,9 +85,11 @@ def create_fc_layer(input,
              dropout=False,
              dropout_rate=0):
     
+    token_weights = identifier + str("_weights")
+    token_bias = identifier + str("_bias")
     #Let's define trainable weights and biases.
-    weights = create_weights(shape=[num_inputs, num_outputs], name=identifier + str("_weights"))
-    biases = create_biases(num_outputs, name=identifier + str("_bias"))
+    weights = create_weights(shape=[num_inputs, num_outputs], name=token_weights)
+    biases = create_biases(num_outputs, name=token_bias)
 
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
