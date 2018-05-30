@@ -85,8 +85,8 @@ def create_fc_layer(input,
              dropout=False,
              dropout_rate=0):
     
-    token_weights = identifier + str("_weights")
-    token_bias = identifier + str("_bias")
+    token_weights = str(identifier + str("_weights"))
+    token_bias = str(identifier + str("_bias"))
     #Let's define trainable weights and biases.
     weights = create_weights(shape=[num_inputs, num_outputs], name=token_weights)
     biases = create_biases(num_outputs, name=token_bias)
