@@ -47,60 +47,21 @@ y_true_cls = tf.argmax(y_true, dimension=1)
 
 
 ##Network graph params
-filter_size_conv1 = 3
-num_filters_conv1 = 32
-
-filter_size_conv2 = 3
-num_filters_conv2 = 64
-
-filter_size_conv3 = 3
-num_filters_conv3 = 128 #64
-
-fc1_layer_size = 128 
-fc2_layer_size = 128 
-fc3_layer_size = 128 
-fc4_layer_size = 128 
-fc5_layer_size = 128 
-fc6_layer_size = 128
+fc1_layer_size = 256 
+fc2_layer_size = 256
+fc3_layer_size = 256 
+fc4_layer_size = 256 
+fc5_layer_size = 256 
+fc6_layer_size = 256
 
 
-def create_weights(shape):
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.05))
+def create_weights(name, shape):
+    return tf.Variable(name=name, tf.truncated_normal(shape, stddev=0.05))
 
-def create_biases(size):
-    return tf.Variable(tf.constant(0.05, shape=[size]))
+def create_biases(name, size):
+    return tf.Variable(name=name, tf.constant(0.05, shape=[size]))
 
-
-def create_convolutional_layer(input,
-               num_input_channels, 
-               conv_filter_size,        
-               num_filters):  
-    
-    ## We shall define the weights that will be trained using create_weights function.
-    weights = create_weights(shape=[conv_filter_size, conv_filter_size, num_input_channels, num_filters])
-    ## We create biases using the create_biases function. These are also trained.
-    biases = create_biases(num_filters)
-
-    ## Creating the convolutional layer
-    layer = tf.nn.conv2d(input=input,
-                     filter=weights,
-                     strides=[1, 1, 1, 1],
-                     padding='SAME')
-
-    layer += biases
-
-    ## We shall be using max-pooling.  
-    layer = tf.nn.max_pool(value=layer,
-                            ksize=[1, 2, 2, 1],
-                            strides=[1, 2, 2, 1],
-                            padding='SAME')
-    ## Output of pooling is fed to Relu which is the activation function for us.
-    layer = tf.nn.relu(layer)
-
-    return layer
-
-    
-
+# First layer must be a flatten layer
 def create_flatten_layer(input, batch_size, img_size, num_channels):
     #We know that the shape of the layer will be [batch_size img_size img_size num_channels] 
     # But let's get it from the previous layer.
@@ -116,15 +77,21 @@ def create_flatten_layer(input, batch_size, img_size, num_channels):
 
     return layer
 
-
-def create_fc_layer(input,          
+def create_fc_layer(input,
              num_inputs,    
              num_outputs,
-             use_relu=True):
+             use_relu=True,
+             identifier,
+             dropout=False,
+             dropout_rate=0):
     
     #Let's define trainable weights and biases.
-    weights = create_weights(shape=[num_inputs, num_outputs])
-    biases = create_biases(num_outputs)
+    weights = create_weights(name=identifier + str("_weights"), shape=[num_inputs, num_outputs])
+
+    if dropout:
+        weights = tf.layers.dropout(input=weights, rate=dropout_rate, training=True)
+
+    biases = create_biases(name=identifier + str("_bias"), num_outputs)
 
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
@@ -134,59 +101,46 @@ def create_fc_layer(input,
         layer = tf.nn.sigmoid(layer)
     return layer
 
-def create_fc_layer_dropout(input,          
-             num_inputs,    
-             num_outputs,
-             dropout,
-             use_relu=True):
-    # dropout = 1 - probability of failure. 
-
-    #Let's define trainable weights and biases.
-    weights = create_weights(shape=[num_inputs, num_outputs])
-    weights = tf.layers.dropout(inputs=weights, rate=dropout, training=True)
-
-    biases = create_biases(num_outputs)
-
-    # Fully connected layer takes input x and produces wx+b. Since, these are matrices, we use matmul function in Tensorflow
-    layer = tf.matmul(input, weights) + biases
-    if use_relu:
-        layer = tf.nn.relu(layer)
-    return layer
-
 flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
 
+# fc1_layer_size neurons with relu activation
 layer_fc1 = create_fc_layer(input=flatten,
                      num_inputs=img_size*img_size*num_channels,
                      num_outputs=fc1_layer_size,
-                     use_relu=True)
+                     identifier="fc1")
 
 layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
-                     use_relu=True)
+                     identifier="fc2")
 
 # with dropout layer
-layer_fc3 = create_fc_layer_dropout(input=layer_fc2,
+layer_fc3 = create_fc_layer(input=layer_fc2,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
-                     dropout=0.9,
-                     use_relu=True)
+                     identifier="fc3",
+                     dropout=True,
+                     dropout_rate=0.9)
 
 layer_fc4 = create_fc_layer_dropout(input=layer_fc3,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
-                     dropout=0.9,
-                     use_relu=True)
+                     use_relu=True,
+                     identifier="fc4",
+                     dropout=True,
+                     dropout_rate=0.9)
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
-                     use_relu=True)
+                     use_relu=True,
+                     identifier="fc5")
 
 layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc6_layer_size,
                      num_outputs=num_classes,
-                     use_relu=False)
+                     use_relu=False,
+                     identifier="fc6")
 
 y_pred = tf.nn.softmax(layer_fc6, name='y_pred')
 
