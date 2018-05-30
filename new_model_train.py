@@ -16,7 +16,7 @@ batch_size = 256
 val_batch_size = 2000
 
 #Prepare input data
-classes = ['airplane', 'automobile']#,'bird','cat','deer','dog','frog','horse','ship','truck']
+classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
 num_classes = len(classes)
 
 # 20% of the data will automatically be used for validation
