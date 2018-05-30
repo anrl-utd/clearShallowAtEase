@@ -192,5 +192,5 @@ def train(num_iteration):
     print(int(num_iteration))
     total_iterations += num_iteration
 
-train(num_iteration=100000)
+train(num_iteration=300000)
 saver.save(session, "models/test_model"+"_"+".ckpt")
