@@ -16,7 +16,7 @@ batch_size = 256
 val_batch_size = 2000
 
 #Prepare input data
-classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
+classes = ['airplane', 'automobile']#,'bird','cat','deer','dog','frog','horse','ship','truck']
 num_classes = len(classes)
 
 # 20% of the data will automatically be used for validation
@@ -44,8 +44,6 @@ x = tf.placeholder(tf.float32, shape=[None, img_size,img_size,num_channels], nam
 y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
 y_true_cls = tf.argmax(y_true, dimension=1)
 
-
-
 ##Network graph params
 fc1_layer_size = 256 
 fc2_layer_size = 256
@@ -54,11 +52,10 @@ fc4_layer_size = 256
 fc5_layer_size = 256 
 fc6_layer_size = 256
 
-
-def create_weights(name, shape):
+def create_weights(shape, name):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=name)
 
-def create_biases(name, size):
+def create_biases(size, name):
     return tf.Variable(tf.constant(0.05, shape=[size]), name=name)
 
 # First layer must be a flatten layer
@@ -85,8 +82,8 @@ def create_fc_layer(input,
              dropout=False,
              dropout_rate=0):
     
-    token_weights = str(identifier + str("_weights"))
-    token_bias = str(identifier + str("_bias"))
+    token_weights = identifier + "_weights"
+    token_bias = identifier + "_bias"
     #Let's define trainable weights and biases.
     weights = create_weights(shape=[num_inputs, num_outputs], name=token_weights)
     biases = create_biases(num_outputs, name=token_bias)
@@ -100,7 +97,7 @@ def create_fc_layer(input,
         layer = tf.nn.sigmoid(layer)
 
     if dropout:
-        layer = tf.layers.dropout(input=layer, rate=dropout_rate, training=True)
+        layer = tf.layers.dropout(layer, rate=dropout_rate, training=True)
 
     return layer
 
@@ -155,9 +152,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-
 session.run(tf.global_variables_initializer()) 
-
 
 def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
@@ -169,7 +164,7 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
 total_iterations = 0
 
 # Save non-dropout layers
-saver = tf.train.Saver({fc1_weights, fc1_bias, fc2_weights, fc2_bias, fc5_weights, fc5_bias, fc6_weights, fc6_bias})
+saver = tf.train.Saver()
 
 def train(num_iteration):
     global total_iterations
