@@ -56,10 +56,10 @@ fc6_layer_size = 256
 
 
 def create_weights(name, shape):
-    return tf.Variable(name=name, tf.truncated_normal(shape, stddev=0.05))
+    return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=name)
 
 def create_biases(name, size):
-    return tf.Variable(name=name, tf.constant(0.05, shape=[size]))
+    return tf.Variable(tf.constant(0.05, shape=[size]), name=name)
 
 # First layer must be a flatten layer
 def create_flatten_layer(input, batch_size, img_size, num_channels):
@@ -80,14 +80,14 @@ def create_flatten_layer(input, batch_size, img_size, num_channels):
 def create_fc_layer(input,
              num_inputs,    
              num_outputs,
-             use_relu=True,
              identifier,
+             use_relu=True,
              dropout=False,
              dropout_rate=0):
     
     #Let's define trainable weights and biases.
-    weights = create_weights(name=identifier + str("_weights"), shape=[num_inputs, num_outputs])
-    biases = create_biases(name=identifier + str("_bias"), num_outputs)
+    weights = create_weights(shape=[num_inputs, num_outputs], name=identifier + str("_weights"))
+    biases = create_biases(num_outputs, name=identifier + str("_bias"))
 
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
