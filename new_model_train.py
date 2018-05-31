@@ -14,7 +14,7 @@ set_random_seed(2)
 
 batch_size = 256
 val_batch_size = 2000
-load_model = True
+load_model = sys.argv[1]
 
 #Prepare input data
 classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
