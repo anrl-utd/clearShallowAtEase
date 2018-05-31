@@ -169,12 +169,11 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
 saver = tf.train.Saver()
 
 # if we load the model, we restore it from the ckpt
-if load_model:
-    saver.restore(session, "models/test_model_" + ".ckpt")
-
+#if load_model:
+#    saver.restore(session, "models/test_model_" + ".ckpt")
 # otherwise, initialize all variables accordingly
-else:
-    session.run(tf.global_variables_initializer())
+#else:
+session.run(tf.global_variables_initializer())
 
 total_iterations = 0
 
