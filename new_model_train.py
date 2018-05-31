@@ -175,6 +175,8 @@ if load_model:
 else:
     session.run(tf.global_variables_initializer())
 
+total_iterations = 0
+
 def train(num_iteration):
     global total_iterations
     
