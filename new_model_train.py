@@ -14,14 +14,12 @@ set_random_seed(2)
 
 batch_size = 256
 val_batch_size = 2000
+load_model = True
 
 #Prepare input data
 classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
 num_classes = len(classes)
 
-# 20% of the data will automatically be used for validation
-# We've modified this so it pulls from training and testing_data respectively
-validation_size = 0
 img_size = 32
 num_channels = 3
 train_path="train_dir"
@@ -114,21 +112,27 @@ layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_outputs=fc2_layer_size,
                      identifier="fc2")
 
-# with dropout layer
-layer_fc3 = create_fc_layer(input=layer_fc2,
-                     num_inputs=fc3_layer_size,
-                     num_outputs=fc4_layer_size,
-                     identifier="fc3",
-                     dropout=True,
-                     dropout_rate=0.9)
+# if we aren't loading a model, we want to keep these two layers
+if load_model is not True:
+    # with dropout layer
+    layer_fc3 = create_fc_layer(input=layer_fc2,
+                         num_inputs=fc3_layer_size,
+                         num_outputs=fc4_layer_size,
+                         identifier="fc3",
+                         dropout=True,
+                         dropout_rate=0.9)
 
-layer_fc4 = create_fc_layer(input=layer_fc3,
-                     num_inputs=fc4_layer_size,
-                     num_outputs=fc5_layer_size,
-                     use_relu=True,
-                     identifier="fc4",
-                     dropout=True,
-                     dropout_rate=0.9)
+    layer_fc4 = create_fc_layer(input=layer_fc3,
+                         num_inputs=fc4_layer_size,
+                         num_outputs=fc5_layer_size,
+                         use_relu=True,
+                         identifier="fc4",
+                         dropout=True,
+                         dropout_rate=0.9)
+
+# If we load a model, we skip them to see accuracy without them
+else:
+    layer_fc4 = layer_fc2
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc5_layer_size,
@@ -152,7 +156,6 @@ optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-session.run(tf.global_variables_initializer()) 
 
 def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
@@ -161,10 +164,16 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
   
     print(msg.format(epoch + 1, acc, val_acc, val_loss))
 
-total_iterations = 0
-
 # Save non-dropout layers
 saver = tf.train.Saver()
+
+# if we load the model, we restore it from the ckpt
+if load_model:
+    saver.restore(session, "models/test_model_" + ".ckpt")
+
+# otherwise, initialize all variables accordingly
+else:
+    session.run(tf.global_variables_initializer())
 
 def train(num_iteration):
     global total_iterations
