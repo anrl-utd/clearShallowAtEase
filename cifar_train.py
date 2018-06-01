@@ -14,7 +14,6 @@ set_random_seed(2)
 
 batch_size = 256
 val_batch_size = 2000
-load_model = sys.argv[1]
 
 #Prepare input data
 classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
@@ -110,29 +109,22 @@ layer_fc1 = create_fc_layer(input=flatten,
 layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
-                     identifier="fc2")
+                 identifier="fc2")
 
-# if we aren't loading a model, we want to keep these two layers
-if load_model is not True:
-    # with dropout layer
-    layer_fc3 = create_fc_layer(input=layer_fc2,
-                         num_inputs=fc3_layer_size,
-                         num_outputs=fc4_layer_size,
-                         identifier="fc3",
-                         dropout=True,
-                         dropout_rate=0.9)
+layer_fc3 = create_fc_layer(input=layer_fc2,
+                     num_inputs=fc3_layer_size,
+                     num_outputs=fc4_layer_size,
+                     identifier="fc3",
+                     dropout=True,
+                     dropout_rate=0.9)
 
-    layer_fc4 = create_fc_layer(input=layer_fc3,
-                         num_inputs=fc4_layer_size,
-                         num_outputs=fc5_layer_size,
-                         use_relu=True,
-                         identifier="fc4",
-                         dropout=True,
-                         dropout_rate=0.9)
-
-# If we load a model, we skip them to see accuracy without them
-else:
-    layer_fc4 = layer_fc2
+layer_fc4 = create_fc_layer(input=layer_fc3,
+                     num_inputs=fc4_layer_size,
+                     num_outputs=fc5_layer_size,
+                     use_relu=True,
+                     identifier="fc4",
+                     dropout=True,
+                     dropout_rate=0.9)
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc5_layer_size,
@@ -170,8 +162,7 @@ saver = tf.train.Saver()
 # if we load the model, we restore it from the ckpt
 #if load_model:
 #    saver.restore(session, "models/test_model_" + ".ckpt")
-# otherwise, initialize all variables accordingly
-#else:
+
 session.run(tf.global_variables_initializer())
 
 total_iterations = 0
