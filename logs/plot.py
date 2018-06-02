@@ -1,6 +1,10 @@
 import re
 import sys
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
+from pylab import rcParams
+rcParams['figure.figsize'] = 10, 5
 import glob, os
 
 # A script that takes in a training file as input, and outputs a pyplot of val_acc v. epoch
@@ -45,7 +49,7 @@ def graph_all(files):
 # ------------------------------------------------------------
 
 # graph
-DIR = "/home/sid/rddnn/"
+DIR = "/home/sid/rddnn/logs/"
 file_list = []
 os.chdir(DIR)
 for file in glob.glob("*.txt"):
@@ -58,8 +62,8 @@ for key, value in all_vals.iteritems():
 	plt.plot(value)
 	legend.append(key)
 
-plt.legend(legend, loc='upper left')
+plt.legend(legend, loc='lower right')
 plt.xlabel("epoch")
-plt.ylabel("Validation accuracy")
+plt.ylabel("Validation accuracy (%)")
 plt.savefig(DIR + "graph.png", bbox_inches='tight')
-plt.show()
+#plt.show()

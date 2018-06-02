@@ -33,8 +33,6 @@ print("Complete reading input data. Will Now print a snippet of it")
 print("Number of files in Training-set:\t\t{}".format(len(data.train.labels)))
 print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
 
-
-
 session = tf.Session()
 x = tf.placeholder(tf.float32, shape=[None, img_size,img_size,num_channels], name='x')
 
@@ -43,12 +41,20 @@ y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
 y_true_cls = tf.argmax(y_true, dimension=1)
 
 ##Network graph params
-fc1_layer_size = 256 
-fc2_layer_size = 256
-fc3_layer_size = 256 
-fc4_layer_size = 256 
-fc5_layer_size = 256 
-fc6_layer_size = 256
+fc1_layer_size = 1024
+fc2_layer_size = 1024
+fc3_layer_size = 1024
+fc4_layer_size = 1024
+fc5_layer_size = 1024
+fc6_layer_size = 1024
+fc7_layer_size = 1024
+fc8_layer_size = 1024
+'''
+fc9_layer_size = 512
+fc10_layer_size = 512
+fc11_layer_size = 1024
+fc12_layer_size = 1024
+'''
 
 def create_weights(shape, name):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=name)
@@ -110,39 +116,85 @@ layer_fc1 = create_fc_layer(input=flatten,
 layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
-                 identifier="fc2")
+                 identifier="fc2",
+			dropout=True,
+			dropout_rate=0.3)
 
 layer_fc3 = create_fc_layer(input=layer_fc2,
-                     num_inputs=fc3_layer_size,
-                     num_outputs=fc4_layer_size,
+                     num_inputs=fc2_layer_size,
+                     num_outputs=fc3_layer_size,
                      identifier="fc3",
-                     dropout=True,
-                     dropout_rate=0.9)
+			dropout=True,
+			dropout_rate=0.3)
 
 layer_fc4 = create_fc_layer(input=layer_fc3,
-                     num_inputs=fc4_layer_size,
-                     num_outputs=fc5_layer_size,
-                     use_relu=True,
+                     num_inputs=fc3_layer_size,
+                     num_outputs=fc4_layer_size,
                      identifier="fc4",
-                     dropout=True,
-                     dropout_rate=0.9)
+			dropout=True,
+			dropout_rate=0.3)
+
+#layer_fc4 = layer_fc2 + layer_fc4
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
-                     num_inputs=fc5_layer_size,
-                     num_outputs=fc6_layer_size,
-                     identifier="fc5")
+                     num_inputs=fc4_layer_size,
+                     num_outputs=fc5_layer_size,
+                     identifier="fc5",
+			dropout=True,
+			dropout_rate=0.3)
 
 layer_fc6 = create_fc_layer(input=layer_fc5,
+                     num_inputs=fc5_layer_size,
+                     num_outputs=fc6_layer_size,            
+                     identifier="fc6",
+			dropout=True,
+			dropout_rate=0.3)
+
+layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_inputs=fc6_layer_size,
+                     num_outputs=fc7_layer_size,
+			dropout=True,
+			dropout_rate=0.3,		
+                     identifier="fc7")
+
+layer_fc8 = create_fc_layer(input=layer_fc7,
+                     num_inputs=fc7_layer_size,
+                     num_outputs=num_classes,   
+                     identifier="fc8",
+			use_relu=False)
+'''
+layer_fc9 = create_fc_layer(input=layer_fc8,
+                     num_inputs=fc8_layer_size,
+                     num_outputs=fc9_layer_size,
+                     identifier="fc9",
+		dropout=True,
+		dropout_rate=0.5)
+
+layer_fc10 = create_fc_layer(input=layer_fc9,
+                     num_inputs=fc9_layer_size,
+                     num_outputs=fc10_layer_size,                     
+                     identifier="fc10",
+		dropout=True,
+		dropout_rate=0.5)
+
+layer_fc11 = create_fc_layer(input=layer_fc10,
+                     num_inputs=fc10_layer_size,
+                     num_outputs=fc11_layer_size,
+                     identifier="fc11",
+		dropout=True,
+		dropout_rate=0.5)
+
+layer_fc12 = create_fc_layer(input=layer_fc11,
+                     num_inputs=fc11_layer_size,
                      num_outputs=num_classes,
                      use_relu=False,
-                     identifier="fc6")
-
-y_pred = tf.nn.softmax(layer_fc6, name='y_pred')
+                     identifier="fc12")
+'''
+y_pred = tf.nn.softmax(layer_fc8, name='y_pred')
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
 session.run(tf.global_variables_initializer())
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc6,
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc8,
                                                     labels=y_true)
 cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)  #1e-4
@@ -194,5 +246,5 @@ def train(num_iteration):
     print(int(num_iteration))
     total_iterations += num_iteration
 
-train(num_iteration=300000)
+train(num_iteration=60000)
 saver.save(session, "models/test_model"+"_"+".ckpt")
