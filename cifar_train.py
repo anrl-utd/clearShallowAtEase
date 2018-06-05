@@ -82,6 +82,7 @@ def create_fc_layer(input,
              num_inputs,    
              num_outputs,
              identifier,
+	     probability,
              use_relu=True,
              dropout=False,
              dropout_rate=0):
@@ -90,6 +91,7 @@ def create_fc_layer(input,
     token_bias = identifier + "_bias"
     #Let's define trainable weights and biases.
     weights = create_weights(shape=[num_inputs, num_outputs], name=token_weights)
+    weights = probability * weights
     biases = create_biases(num_outputs, name=token_bias)
 
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
@@ -111,50 +113,42 @@ flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
 layer_fc1 = create_fc_layer(input=flatten,
                      num_inputs=img_size*img_size*num_channels,
                      num_outputs=fc1_layer_size,
+		     probability=1,
                      identifier="fc1")
 
 layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
                  identifier="fc2",
-			dropout=True,
-			dropout_rate=0.3)
+			probability=.3)
+			
 
 layer_fc3 = create_fc_layer(input=layer_fc2,
                      num_inputs=fc2_layer_size,
                      num_outputs=fc3_layer_size,
                      identifier="fc3",
-			dropout=True,
-			dropout_rate=0.3)
+			probability=0.3)
 
 layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
-                     identifier="fc4",
-			dropout=True,
-			dropout_rate=0.3)
+                     identifier="fc4")
 
 #layer_fc4 = layer_fc2 + layer_fc4
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
-                     identifier="fc5",
-			dropout=True,
-			dropout_rate=0.3)
+                     identifier="fc5")
 
 layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,            
-                     identifier="fc6",
-			dropout=True,
-			dropout_rate=0.3)
+                     identifier="fc6")
 
 layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_inputs=fc6_layer_size,
                      num_outputs=fc7_layer_size,
-			dropout=True,
-			dropout_rate=0.3,		
                      identifier="fc7")
 
 layer_fc8 = create_fc_layer(input=layer_fc7,
