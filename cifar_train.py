@@ -93,6 +93,13 @@ def create_fc_layer(input,
     token_bias = identifier + "_bias"
     #Let's define trainable weights and biases.
     weights = create_weights(shape=[num_inputs, num_outputs], name=token_weights)
+    '''
+    if weights < 1:
+        weights = 1 - probability * (weights - 1)
+    elif weights > 1:
+        weights = 1 + probability * (weights - 1)
+    else:
+    ''' 
     weights = probability * weights
     biases = create_biases(num_outputs, name=token_bias)
 
@@ -139,7 +146,7 @@ layer_fc4 = create_fc_layer(input=layer_fc3,
                      probability=0.3)
 
 # identity mapping
-layer_fc4 = 3*layer_fc3 + layer_fc4
+layer_fc4 = 5*layer_fc3 + layer_fc4
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
@@ -245,5 +252,5 @@ def train(num_iteration):
     print(int(num_iteration))
     total_iterations += num_iteration
 
-train(num_iteration=30000)
+train(num_iteration=15000)
 saver.save(session, "models/test_model"+"_"+".ckpt")
