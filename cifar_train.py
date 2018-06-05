@@ -82,7 +82,7 @@ def create_fc_layer(input,
              num_inputs,    
              num_outputs,
              identifier,
-	     probability,
+	     probability=1,
              use_relu=True,
              dropout=False,
              dropout_rate=0):
@@ -240,5 +240,5 @@ def train(num_iteration):
     print(int(num_iteration))
     total_iterations += num_iteration
 
-train(num_iteration=60000)
+train(num_iteration=30000)
 saver.save(session, "models/test_model"+"_"+".ckpt")
