@@ -82,7 +82,7 @@ def create_fc_layer(input,
              num_inputs,    
              num_outputs,
              identifier,
-	     probability=1,
+             probability=1,
              use_relu=True,
              dropout=False,
              dropout_rate=0):
@@ -113,21 +113,20 @@ flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
 layer_fc1 = create_fc_layer(input=flatten,
                      num_inputs=img_size*img_size*num_channels,
                      num_outputs=fc1_layer_size,
-		     probability=1,
                      identifier="fc1")
 
 layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
-                 identifier="fc2",
-			probability=.3)
+                     identifier="fc2",
+			         probability=.3)
 			
 
 layer_fc3 = create_fc_layer(input=layer_fc2,
                      num_inputs=fc2_layer_size,
                      num_outputs=fc3_layer_size,
                      identifier="fc3",
-			probability=0.3)
+			         probability=0.3)
 
 layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc3_layer_size,
@@ -155,7 +154,7 @@ layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=num_classes,   
                      identifier="fc8",
-			use_relu=False)
+			         use_relu=False)
 '''
 layer_fc9 = create_fc_layer(input=layer_fc8,
                      num_inputs=fc8_layer_size,
