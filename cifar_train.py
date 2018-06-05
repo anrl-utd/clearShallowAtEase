@@ -58,7 +58,9 @@ fc12_layer_size = 1024
 
 def create_weights(shape, name):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=name)
+    #return tf.Variable(tf.truncated_normal(shape, mean=1, stddev=0.05), name=name)
 
+# originally 0.05 bias initiliaztion
 def create_biases(size, name):
     return tf.Variable(tf.constant(0.05, shape=[size]), name=name)
 
@@ -83,7 +85,7 @@ def create_fc_layer(input,
              num_outputs,
              identifier,
              probability=1,
-             use_relu=True,
+             activation="relu",
              dropout=False,
              dropout_rate=0):
     
@@ -97,10 +99,13 @@ def create_fc_layer(input,
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
     
-    if use_relu:
+    
+    if activation == "relu":
         layer = tf.nn.relu(layer)
-    else:
+    if activation == "sigmoid":
         layer = tf.nn.sigmoid(layer)
+    
+    # if neither relu nor sigmoid, no activation function required
 
     if dropout:
         layer = tf.layers.dropout(layer, rate=dropout_rate, training=True)
@@ -125,13 +130,16 @@ layer_fc3 = create_fc_layer(input=layer_fc2,
                      num_outputs=fc3_layer_size,
                      identifier="fc3")
 
+# no activation probability layer
 layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
                      identifier="fc4",
+		     activation="",
                      probability=0.3)
 
-#layer_fc4 = layer_fc2 + layer_fc4
+# identity mapping
+layer_fc4 = 3*layer_fc3 + layer_fc4
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
@@ -152,7 +160,7 @@ layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=num_classes,   
                      identifier="fc8",
-			         use_relu=False)
+	             activation="sigmoid")
 '''
 layer_fc9 = create_fc_layer(input=layer_fc8,
                      num_inputs=fc8_layer_size,
