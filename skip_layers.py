@@ -118,30 +118,30 @@ layer_fc1 = create_fc_layer(input=flatten,
                      num_outputs=fc1_layer_size,
                      identifier="fc1")
 
-# testing without layers of probability
-'''
 layer_fc2 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
-                     identifier="fc2",
-                     probability=.3)
+                     identifier="fc2")
             
 
 layer_fc3 = create_fc_layer(input=layer_fc2,
                      num_inputs=fc2_layer_size,
                      num_outputs=fc3_layer_size,
-                     identifier="fc3",
-                     probability=0.3)
+                     identifier="fc3")
+
+# without probability layer
 '''
 layer_fc4 = create_fc_layer(input=layer_fc1,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc4_layer_size,
-                     identifier="fc4")
+                     identifier="fc4",
+                     probability=0.3)
 
 #layer_fc4 = layer_fc2 + layer_fc4
+'''
 
-layer_fc5 = create_fc_layer(input=layer_fc4,
-                     num_inputs=fc4_layer_size,
+layer_fc5 = create_fc_layer(input=layer_fc3,
+                     num_inputs=fc3_layer_size,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
