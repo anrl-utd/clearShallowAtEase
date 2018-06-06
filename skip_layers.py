@@ -195,8 +195,8 @@ y_pred_cls = tf.argmax(y_pred, dimension=1)
 session.run(tf.global_variables_initializer())
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc8,
                                                     labels=y_true)
-cost = tf.reduce_mean(cross_entropy)
-optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)  #1e-4
+#cost = tf.reduce_mean(cross_entropy)
+#optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -222,10 +222,10 @@ total_iterations = 0
 def train(num_iteration):
     global total_iterations
     
-    for i in range(total_iterations,
-                   total_iterations + num_iteration):
+   
+     
 
-        x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
+    
         x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
 
         feed_dict_tr = {x: x_batch,
