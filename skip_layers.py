@@ -15,6 +15,7 @@ set_random_seed(2)
 
 batch_size = 256
 val_batch_size = 10000
+restore_name = "plain_fcnet"
 
 #Prepare input data
 classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
@@ -213,7 +214,7 @@ def show_progress(epoch, feed_dict_validate, val_loss):
 saver = tf.train.Saver()
 
 session.run(tf.global_variables_initializer())
-saver.restore(session, "models/trained" + ".ckpt")
+saver.restore(session, "models/"+ restore_name + ".ckpt")
 
 def test():    
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)

@@ -11,7 +11,7 @@ for key in var_to_shape_map:
 print("===========fc3_wieghts(test)================")
 print(reader.get_tensor("fc3_weights"))
 print("===========fc6_wieghts(test)================")
-print(reader.get_tensor("fc6_weights"))
+#print(reader.get_tensor("fc6_weights"))
 
 train_checkpoint_path = os.path.join(model_dir, "trained.ckpt")
 reader_train = pywrap_tensorflow.NewCheckpointReader(train_checkpoint_path)

@@ -136,7 +136,7 @@ layer_fc3 = create_fc_layer(input=layer_fc2,
                      num_inputs=fc2_layer_size,
                      num_outputs=fc3_layer_size,
                      identifier="fc3")
-
+'''
 layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
@@ -160,8 +160,8 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_outputs=fc7_layer_size,
                      activation="",
                      identifier="fc7")
-
-layer_fc8 = create_fc_layer(input=layer_fc7,
+'''
+layer_fc8 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,   
                      identifier="fc8")
@@ -238,7 +238,7 @@ def train(num_iteration):
     print(int(num_iteration))
     total_iterations += num_iteration
 
-train(num_iteration=15000)
+train(num_iteration=30000)
 saver.save(session, "models/plain_fcnet" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
@@ -261,5 +261,3 @@ def test():
     show_progress_test(0, feed_dict_val, val_loss)
 
 test()
-
-
