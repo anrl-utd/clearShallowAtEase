@@ -228,7 +228,7 @@ def train(num_iteration):
                           y_true: y_valid_batch}
     val_loss = session.run(cost, feed_dict=feed_dict_val)
         
-    show_progress(0, feed_dict_tr, feed_dict_val, val_loss)
+    show_progress(0, feed_dict_val, val_loss)
 
 
 train(num_iteration=1)
