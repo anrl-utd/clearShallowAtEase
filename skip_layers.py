@@ -206,7 +206,7 @@ def show_progress(epoch, feed_dict_validate, val_loss):
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
     msg = "Training Epoch {0} -- Validation Accuracy: {1:>6.1%},  Validation Loss: {2:.3f}"
   
-    print(msg.format(epoch + 1, acc, val_acc, val_loss))
+    print(msg.format(epoch + 1, val_acc, val_loss))
 
 # Save non-dropout layers
 saver = tf.train.Saver()
