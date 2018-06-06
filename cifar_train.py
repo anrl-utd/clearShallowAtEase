@@ -49,12 +49,10 @@ fc5_layer_size = 512
 fc6_layer_size = 512
 fc7_layer_size = 512
 fc8_layer_size = 512
-'''
 fc9_layer_size = 512
 fc10_layer_size = 512
 fc11_layer_size = 1024
 fc12_layer_size = 1024
-'''
 
 def create_weights(shape, name):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=name)
