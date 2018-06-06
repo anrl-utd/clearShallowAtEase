@@ -273,7 +273,7 @@ def test():
     val_loss = session.run(cost, feed_dict=feed_dict_val)
     
     # print acc    
-    show_progress(0, feed_dict_val, val_loss)
+    show_progress_test(0, feed_dict_val, val_loss)
 
 test()
 
