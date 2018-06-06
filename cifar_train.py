@@ -91,9 +91,12 @@ def create_fc_layer(input,
     
     token_weights = identifier + "_weights"
     token_bias = identifier + "_bias"
-    #Let's define trainable weights and biases.
+    
     weights = create_weights(shape=[num_inputs, num_outputs], name=token_weights)
+
     '''
+    # Alan learning mathematics
+
     if weights < 1:
         weights = 1 - probability * (weights - 1)
     elif weights > 1:
@@ -105,7 +108,6 @@ def create_fc_layer(input,
 
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
-    
     
     if activation == "relu":
         layer = tf.nn.relu(layer)
@@ -142,68 +144,66 @@ layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
                      identifier="fc4",
-		     activation="",
-	             probability=0.3)
+		             activation="",
+	                 probability=0.3)
 
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
                      identifier="fc5",
-		     probability=0.3)
-# identity mapping
-layer_fc5 = 5*layer_fc3 + layer_fc5
-
+                     activation="",
+		             probability=0.3)
 
 layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,            
-                     identifier="fc6")
+                     identifier="fc6",
+                     activation="",
+                     probability=0.3)
 
 layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_inputs=fc6_layer_size,
                      num_outputs=fc7_layer_size,
-                     identifier="fc7")
+                     activation="",
+                     identifier="fc7",
+                     probability=0.3)
+
+# identity mapping
+layer_fc7 = 5*layer_fc3 + layer_fc7
 
 layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
-                     num_outputs=num_classes,   
-                     identifier="fc8",
-	             activation="sigmoid")
-'''
+                     num_outputs=fc8_layer_size,   
+                     identifier="fc8")
+
 layer_fc9 = create_fc_layer(input=layer_fc8,
                      num_inputs=fc8_layer_size,
                      num_outputs=fc9_layer_size,
-                     identifier="fc9",
-		dropout=True,
-		dropout_rate=0.5)
+                     identifier="fc9")
 
 layer_fc10 = create_fc_layer(input=layer_fc9,
                      num_inputs=fc9_layer_size,
                      num_outputs=fc10_layer_size,                     
-                     identifier="fc10",
-		dropout=True,
-		dropout_rate=0.5)
+                     identifier="fc10")
 
 layer_fc11 = create_fc_layer(input=layer_fc10,
                      num_inputs=fc10_layer_size,
                      num_outputs=fc11_layer_size,
-                     identifier="fc11",
-		dropout=True,
-		dropout_rate=0.5)
+                     identifier="fc11")
 
 layer_fc12 = create_fc_layer(input=layer_fc11,
                      num_inputs=fc11_layer_size,
                      num_outputs=num_classes,
-                     use_relu=False,
-                     identifier="fc12")
-'''
-y_pred = tf.nn.softmax(layer_fc8, name='y_pred')
+                     identifier="fc12",
+                     activation="sigmoid")
+
+y_pred = tf.nn.softmax(layer_fc12, name='y_pred')
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
 session.run(tf.global_variables_initializer())
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc8,
-                                                    labels=y_true)
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc12,
+                                                        labels=y_true)
 cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
@@ -257,6 +257,7 @@ def train(num_iteration):
 train(num_iteration=15000)
 saver.save(session, "models/trained" + ".ckpt")
 
+# Finished training, let's see our accuracy on the entire test set now
 val_batch_size=10000
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
