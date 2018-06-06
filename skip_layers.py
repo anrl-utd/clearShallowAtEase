@@ -14,7 +14,7 @@ from tensorflow import set_random_seed
 set_random_seed(2)
 
 batch_size = 256
-val_batch_size = 2000
+val_batch_size = 10000
 
 #Prepare input data
 classes = ['airplane', 'automobile','bird','cat','deer','dog','frog','horse','ship','truck']
@@ -201,10 +201,10 @@ correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
-def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
-    acc = session.run(accuracy, feed_dict=feed_dict_train)
+def show_progress(epoch, feed_dict_validate, val_loss):
+    #acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
+    msg = "Training Epoch {0} -- Validation Accuracy: {1:>6.1%},  Validation Loss: {2:.3f}"
   
     print(msg.format(epoch + 1, acc, val_acc, val_loss))
 
@@ -222,28 +222,15 @@ total_iterations = 0
 def train(num_iteration):
     global total_iterations
     
-   
-     
+    x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
 
-    
-        x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
+    feed_dict_tr = {x: x_batch,
+                       y_true: y_true_batch}
+    feed_dict_val = {x: x_valid_batch,
+                          y_true: y_valid_batch}
+    val_loss = session.run(cost, feed_dict=feed_dict_val)
+        
+    show_progress(0, feed_dict_tr, feed_dict_val, val_loss)
 
-        feed_dict_tr = {x: x_batch,
-                           y_true: y_true_batch}
-        feed_dict_val = {x: x_valid_batch,
-                              y_true: y_valid_batch}
 
-        session.run(optimizer, feed_dict=feed_dict_tr)
-
-        if i % int(data.train.num_examples/batch_size) == 0: 
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
-            epoch = int(i / int(data.train.num_examples/batch_size))    
-            
-            show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
-            print(int(i))
-
-    print(int(num_iteration))
-    total_iterations += num_iteration
-
-train(num_iteration=30000)
-saver.save(session, "models/test_model"+"_"+".ckpt")
+train(num_iteration=1)
