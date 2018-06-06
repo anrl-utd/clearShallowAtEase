@@ -218,10 +218,6 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
 # Save non-dropout layers
 saver = tf.train.Saver()
 
-# if we load the model, we restore it from the ckpt
-#if load_model:
-#    saver.restore(session, "models/test_model_" + ".ckpt")
-
 session.run(tf.global_variables_initializer())
 
 total_iterations = 0
