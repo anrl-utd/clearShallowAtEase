@@ -239,7 +239,7 @@ def train(num_iteration):
     total_iterations += num_iteration
 
 train(num_iteration=15000)
-saver.save(session, "models/trained" + ".ckpt")
+saver.save(session, "models/plain_fcnet" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
 val_batch_size=10000
