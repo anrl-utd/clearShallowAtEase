@@ -41,14 +41,14 @@ y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
 y_true_cls = tf.argmax(y_true, dimension=1)
 
 ##Network graph params
-fc1_layer_size = 1024
-fc2_layer_size = 1024
-fc3_layer_size = 1024
-fc4_layer_size = 1024
-fc5_layer_size = 1024
-fc6_layer_size = 1024
-fc7_layer_size = 1024
-fc8_layer_size = 1024
+fc1_layer_size = 512
+fc2_layer_size = 512
+fc3_layer_size = 512
+fc4_layer_size = 512
+fc5_layer_size = 512
+fc6_layer_size = 512
+fc7_layer_size = 512
+fc8_layer_size = 512
 '''
 fc9_layer_size = 512
 fc10_layer_size = 512
@@ -255,7 +255,7 @@ def train(num_iteration):
     total_iterations += num_iteration
 
 train(num_iteration=15000)
-saver.save(session, "models/test_model"+"_"+".ckpt")
+saver.save(session, "models/trained" + ".ckpt")
 
 val_batch_size=10000
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)

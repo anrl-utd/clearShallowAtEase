@@ -41,14 +41,14 @@ y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
 y_true_cls = tf.argmax(y_true, dimension=1)
 
 ##Network graph params
-fc1_layer_size = 1024
-fc2_layer_size = 1024
-fc3_layer_size = 1024
-fc4_layer_size = 1024
-fc5_layer_size = 1024
-fc6_layer_size = 1024
-fc7_layer_size = 1024
-fc8_layer_size = 1024
+fc1_layer_size = 512 
+fc2_layer_size = 512
+fc3_layer_size = 512
+fc4_layer_size = 512
+fc5_layer_size = 512
+fc6_layer_size = 512
+fc7_layer_size = 512
+fc8_layer_size = 512
 '''
 fc9_layer_size = 512
 fc10_layer_size = 512
@@ -213,9 +213,9 @@ def show_progress(epoch, feed_dict_validate, val_loss):
 saver = tf.train.Saver()
 
 session.run(tf.global_variables_initializer())
-saver.restore(session, "models/test_model_" + ".ckpt")
+saver.restore(session, "models/trained" + ".ckpt")
 
-def train():    
+def test():    
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
     feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch}
     val_loss = session.run(cost, feed_dict=feed_dict_val)
@@ -223,4 +223,5 @@ def train():
     # print acc    
     show_progress(0, feed_dict_val, val_loss)
 
-train()
+test()
+saver.save(session, "models/test" + ".ckpt")
