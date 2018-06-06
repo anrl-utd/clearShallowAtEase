@@ -203,7 +203,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 def show_progress(epoch, feed_dict_validate, val_loss):
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Validation Accuracy: {1:>6.1%},  Validation Loss: {2:.3f}"
+    msg = "Validation Accuracy: {0:>6.1%},  Validation Loss: {1:.3f}"
   
     print(msg.format(val_acc, val_loss))
 
