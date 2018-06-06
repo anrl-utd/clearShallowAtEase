@@ -224,8 +224,6 @@ def train(num_iteration):
     
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
 
-    feed_dict_tr = {x: x_batch,
-                       y_true: y_true_batch}
     feed_dict_val = {x: x_valid_batch,
                           y_true: y_valid_batch}
     val_loss = session.run(cost, feed_dict=feed_dict_val)
