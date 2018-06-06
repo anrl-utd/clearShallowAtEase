@@ -145,13 +145,15 @@ layer_fc4 = create_fc_layer(input=layer_fc3,
 		     activation="",
 	             probability=0.3)
 
-# identity mapping
-layer_fc4 = 5*layer_fc3 + layer_fc4
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
-                     identifier="fc5")
+                     identifier="fc5",
+		     probability=0.3)
+# identity mapping
+layer_fc5 = 5*layer_fc3 + layer_fc5
+
 
 layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
@@ -254,3 +256,6 @@ def train(num_iteration):
 
 train(num_iteration=15000)
 saver.save(session, "models/test_model"+"_"+".ckpt")
+
+val_batch_size=10000
+

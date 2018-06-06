@@ -137,7 +137,7 @@ layer_fc4 = create_fc_layer(input=layer_fc3,
                      identifier="fc4",
 		     activation="",
                      probability=0.3)
-'''
+
 # identity mapping
 #layer_fc4 = layer_fc2 + layer_fc4
 
@@ -146,7 +146,8 @@ layer_fc5 = create_fc_layer(input=layer_fc3,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
-layer_fc6 = create_fc_layer(input=layer_fc5,
+'''
+layer_fc6 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,            
                      identifier="fc6")
@@ -160,7 +161,7 @@ layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=num_classes,   
                      identifier="fc8",
-	                 activation="sigmoid")
+	             activation="sigmoid")
 '''
 layer_fc9 = create_fc_layer(input=layer_fc8,
                      num_inputs=fc8_layer_size,
@@ -205,7 +206,7 @@ def show_progress(epoch, feed_dict_validate, val_loss):
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
     msg = "Validation Accuracy: {0:>6.1%},  Validation Loss: {1:.3f}"
     
-    print("Accuracy on entire validation set for cifar-10")
+    print("Accuracy on entire validation set for cifar-10, skipping layers that we trained to skip with a sum(W(ij)P) probability and a weighted identity mapping")
     print(msg.format(val_acc, val_loss))
 
 # To restore session we need a saver module
