@@ -142,8 +142,7 @@ layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
                      identifier="fc4",
-		     activation="",
-                     probability=0.3)
+		             activation="")
 
 # identity mapping
 layer_fc4 = 5*layer_fc3 + layer_fc4
