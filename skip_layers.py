@@ -160,7 +160,7 @@ layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=num_classes,   
                      identifier="fc8",
-	             activation="sigmoid")
+	                 activation="sigmoid")
 '''
 layer_fc9 = create_fc_layer(input=layer_fc8,
                      num_inputs=fc8_layer_size,
@@ -202,33 +202,23 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
 def show_progress(epoch, feed_dict_validate, val_loss):
-    #acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Training Epoch {0} -- Validation Accuracy: {1:>6.1%},  Validation Loss: {2:.3f}"
+    msg = "Validation Accuracy: {1:>6.1%},  Validation Loss: {2:.3f}"
   
-    print(msg.format(epoch + 1, val_acc, val_loss))
+    print(msg.format(val_acc, val_loss))
 
-# Save non-dropout layers
+# To restore session we need a saver module
 saver = tf.train.Saver()
-
-# if we load the model, we restore it from the ckpt
-#if load_model:
-#    saver.restore(session, "models/test_model_" + ".ckpt")
 
 session.run(tf.global_variables_initializer())
 saver.restore(session, "models/test_model_" + ".ckpt")
-total_iterations = 0
 
-def train(num_iteration):
-    global total_iterations
-    
+def train():    
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-
-    feed_dict_val = {x: x_valid_batch,
-                          y_true: y_valid_batch}
+    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch}
     val_loss = session.run(cost, feed_dict=feed_dict_val)
-        
+    
+    # print acc    
     show_progress(0, feed_dict_val, val_loss)
 
-
-train(num_iteration=1)
+train()
