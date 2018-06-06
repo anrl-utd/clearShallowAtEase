@@ -258,4 +258,23 @@ train(num_iteration=15000)
 saver.save(session, "models/test_model"+"_"+".ckpt")
 
 val_batch_size=10000
+data = dataset.read_train_sets(train_path, val_path, img_size, classes)
+
+def show_progress_test(epoch, feed_dict_validate, val_loss):
+    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
+    msg = "Validation Accuracy: {0:>6.1%},  Validation Loss: {1:.3f}"
+    
+    print("Accuracy on entire validation set for cifar-10, skipping layers that we trained to skip with a sum(W(ij)P) probability and a weighted identity mapping")
+    print(msg.format(val_acc, val_loss))
+
+def test():    
+    x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
+    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch}
+    val_loss = session.run(cost, feed_dict=feed_dict_val)
+    
+    # print acc    
+    show_progress(0, feed_dict_val, val_loss)
+
+test()
+
 
