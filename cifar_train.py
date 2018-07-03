@@ -13,7 +13,7 @@ seed(1)
 from tensorflow import set_random_seed
 set_random_seed(2)
 
-batch_size = 256
+batch_size = 512
 val_batch_size = 2000
 
 #Prepare input data
@@ -51,7 +51,7 @@ fc7_layer_size = 512
 fc8_layer_size = 512
 fc9_layer_size = 512
 fc10_layer_size = 512
-fc11_layer_size = 1024
+fc11_layer_size = 512
 fc12_layer_size = 1024
 
 def create_weights(shape, name):
@@ -63,7 +63,7 @@ def create_biases(size, name):
     return tf.Variable(tf.constant(0.05, shape=[size]), name=name)
 
 # First layer must be a flatten layer
-def create_flatten_layer(input, batch_size, img_size, num_channels):
+def create_flatten_layer(input, batch_size, img_size, num_channels, splits):
     #We know that the shape of the layer will be [batch_size img_size img_size num_channels] 
     # But let's get it from the previous layer.
     #layer_shape = layer.get_shape()
@@ -75,8 +75,10 @@ def create_flatten_layer(input, batch_size, img_size, num_channels):
 
     ## Now, we Flatten the layer so we shall have to reshape to num_features
     layer = tf.reshape(input, [-1, num_features])
-
-    return layer
+    split0, split1, split2, split3 = tf.split(layer, 4, 1)
+    output = [split0, split1, split2, split3]
+    
+    return output
 
 def create_fc_layer(input,
              num_inputs,    
@@ -92,15 +94,6 @@ def create_fc_layer(input,
     
     weights = create_weights(shape=[num_inputs, num_outputs], name=token_weights)
 
-    '''
-    # Alan learning mathematics
-
-    if weights < 1:
-        weights = 1 - probability * (weights - 1)
-    elif weights > 1:
-        weights = 1 + probability * (weights - 1)
-    else:
-    ''' 
     weights = probability * weights
     biases = create_biases(num_outputs, name=token_bias)
 
@@ -119,15 +112,26 @@ def create_fc_layer(input,
 
     return layer
 
-flatten = create_flatten_layer(x, batch_size, img_size, num_channels)
+flatten = create_flatten_layer(x, batch_size, img_size, num_channels, 4)
 
+# input size is 768 because original flattened input is 3072, 768*4=3027.
 # fc1_layer_size neurons with relu activation
-layer_fc1 = create_fc_layer(input=flatten,
-                     num_inputs=img_size*img_size*num_channels,
+#layer_fc1_c0 = create_fc_layer(input=c0,
+#                     num_inputs=768,
+#                     num_outputs=fc1_layer_size,
+#                     identifier="fc1")
+layer1_fc = []
+counter = 0
+for camera in flatten:
+    layer_tmp = create_fc_layer(input=camera,
+                     num_inputs=768,
                      num_outputs=fc1_layer_size,
-                     identifier="fc1")
+                     identifier='fc2_'+str(counter))
+    counter += 1
+    layer1_fc.append(layer_tmp)
 
-layer_fc2 = create_fc_layer(input=layer_fc1,
+layer1_out = sum(layer1_fc)
+layer_fc2 = create_fc_layer(input=layer1_out,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
                      identifier="fc2")			
@@ -142,37 +146,38 @@ layer_fc4 = create_fc_layer(input=layer_fc3,
                      num_inputs=fc3_layer_size,
                      num_outputs=fc4_layer_size,
                      identifier="fc4",
-		             activation="",
-	                 probability=0.3)
+		     activation="")#,
+	             #probability=0.3)
 
 
 layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
                      identifier="fc5",
-                     activation="",
-		             probability=0.3)
+                     activation="")#,
+		     #probability=0.3)
 
 layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,            
                      identifier="fc6",
-                     activation="",
-                     probability=0.3)
+                     activation="")#,
+                     #probability=0.3)
 
 layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_inputs=fc6_layer_size,
                      num_outputs=fc7_layer_size,
                      activation="",
-                     identifier="fc7",
-                     probability=0.3)
+                     identifier="fc7")#,
+                     #probability=0.3)
 
-# identity mapping
-layer_fc7 = 0.2*layer_fc3 + layer_fc7
+# we keep probability low for only layers that we want the network to be resilient to
+beta_1 = 0.5
+layer_fc7 = beta_1*layer_fc6 + (1-beta_1)*layer_fc7
 
 layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
-                     num_outputs=fc8_layer_size,   
+                     num_outputs=fc8_layer_size,  
                      identifier="fc8")
 
 layer_fc9 = create_fc_layer(input=layer_fc8,
@@ -183,7 +188,12 @@ layer_fc9 = create_fc_layer(input=layer_fc8,
 layer_fc10 = create_fc_layer(input=layer_fc9,
                      num_inputs=fc9_layer_size,
                      num_outputs=fc10_layer_size,                     
-                     identifier="fc10")
+                     identifier="fc10")#,
+                     #probability=0.3)
+
+# resilient to layer_fc10 being skipped
+beta_2 = 0.5
+layer_fc10 = beta_2*layer_fc9 + (1-beta_2)*layer_fc10
 
 layer_fc11 = create_fc_layer(input=layer_fc10,
                      num_inputs=fc10_layer_size,
@@ -248,7 +258,7 @@ def train(num_iteration):
     print(int(num_iteration))
     total_iterations += num_iteration
 
-train(num_iteration=30000)
+train(num_iteration=60000)
 saver.save(session, "models/trained" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
