@@ -65,7 +65,7 @@ def normalizeWeights(weights):
 if __name__ == "__main__":  
     surv = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
     numComponents = len(surv) # will be 8
-    maxNumComponentFailure = 2
+    maxNumComponentFailure = 8
 
     acuracyList = []
     weightList = []

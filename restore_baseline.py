@@ -31,17 +31,6 @@ lr_ = 1e-1
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
-survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
-
-f_3 = survive[0]
-f_2 = survive[1]
-f_1_1 = survive[2]
-f_1_2 = survive[3]
-e_1 = survive[4]
-e_2 = survive[5]
-e_3 = survive[6]
-e_4 = survive[7]
-
 img_size = 32
 num_channels = 3
 num_cameras = 6
@@ -57,6 +46,7 @@ print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
 
 session = tf.Session()
 x = tf.placeholder(tf.float32, shape=[None, num_cameras, img_size,img_size,num_channels], name='x')
+failed_nodes = tf.placeholder(tf.float32, shape=[8], name='failed_nodes')
 
 ## labels
 y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
@@ -160,15 +150,11 @@ for camera in flatten_combine:
     layer1_fc.append(layer_tmp)
 print(layer1_fc[0].get_shape())
 
-layer2_1_sum = layer1_fc[0]
+layer2_1_sum = layer1_fc[0] * failed_nodes[4]
+layer1_fc[1] = layer1_fc[1] * failed_nodes[5]
+layer1_fc[2] = layer1_fc[2] * failed_nodes[6]
+layer1_fc[3] = layer1_fc[3] * failed_nodes[7]
 
-w_1 = e_2 / (e_2 + e_3 + e_4)
-w_2 = e_3 / (e_2 + e_3 + e_4)
-w_3 = e_4 / (e_2 + e_3 + e_4)
-
-layer1_fc[1] = w_1 * layer1_fc[1]
-layer1_fc[2] = w_2 * layer1_fc[2]
-layer1_fc[3] = w_3 * layer1_fc[3]
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
@@ -186,7 +172,10 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
 
-layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
+layer2_1_fc = layer2_1_fc * failed_nodes[2]
+layer3_1_fc = layer3_1_fc * failed_nodes[3]
+
+layer3_out = layer2_1_fc + layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -198,13 +187,10 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
-delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
-w_1 = f_2 / (f_2 + delta)
-w_2 = delta / (f_2 + delta)
-w_3 = f_1_1 / (f_1_1 + f_1_2)
-w_4 = f_1_2 / (f_1_1 + f_1_2)
+layer_fc5 = layer_fc5 * failed_nodes[1]
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*(w_4*layer3_1_fc + w_3*layer2_1_fc),
+#layer_fc5 = 0 * layer_fc5
+layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -214,10 +200,8 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
 
-w_1 = f_3 / (f_2 + f_3)
-w_2 = f_2 / (f_2 + f_3)
-
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
+layer_fc7 = layer_fc7 * failed_nodes[0]
+layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -251,73 +235,24 @@ optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-precision = tf.metrics.precision(y_true_cls, y_pred_cls)
-
-def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
-    acc = session.run(accuracy, feed_dict=feed_dict_train)
-    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-  
-    print(msg.format(epoch + 1, acc, val_acc, val_loss))
-
-# Save non-dropout layers
 saver = tf.train.Saver()
-
 session.run(tf.global_variables_initializer())
+saver.restore(session, "models/baseline" + ".ckpt")
 
-total_iterations = 0
-
-def train(num_iteration):
-    global total_iterations
-    
-    for i in range(total_iterations,
-                   total_iterations + num_iteration):
-
-        x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
-        x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-
-        feed_dict_tr = {x: x_batch,
-                           y_true: y_true_batch}
-        feed_dict_val = {x: x_valid_batch,
-                              y_true: y_valid_batch}
-
-        session.run(optimizer, feed_dict=feed_dict_tr)
-
-        if i % int(data.train.num_examples/batch_size) == 0: 
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
-            epoch = int(i / int(data.train.num_examples/batch_size))    
-            
-            show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
-            print(int(i))
-
-    print(int(num_iteration))
-    total_iterations += num_iteration
-
-# around 400 works best
-train(num_iteration=iter_)
-saver.save(session, "models/trained_test" + ".ckpt")
-
-# Finished training, let's see our accuracy on the entire test set now
+# test on entire validation set after we restore the trained model
 val_batch_size=753
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
-#saver.restore(session, "models/trained.ckpt")
-def show_progress_test(epoch, feed_dict_validate, val_loss):
-    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Validation Accuracy: {0:>6.1%},  Validation Loss: {1:.3f}"
-    
-    print("Accuracy on entire test set")
-    print(msg.format(val_acc, val_loss))
-
-def test():    
+def test(node_survival):
+    # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
+    # 0 means that index failed, 1 means that the index survives.
+    # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch}
-    val_loss = session.run(cost, feed_dict=feed_dict_val)
+    feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
+    acc = session.run(accuracy, feed_dict=feed_dict_val)
     
-    # print acc    
-    show_progress_test(0, feed_dict_val, val_loss)
+    return acc
 
-test()
-print("np seed: ", r)
-print("tf seed: ", r_tf)
 
+acc = test([1,0,1,1,1,1,1,1])
+print(acc)

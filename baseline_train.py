@@ -13,34 +13,23 @@ import sys
 
 #Adding Seed so that random initialization is consistent
 from numpy.random import seed
-#r = random.randint(1,10000)
-#print("numpy seed: ", r)
-seed(2278)
+r = random.randint(1,10000)
+print("numpy seed: ", r)
+seed(r)
 
 from tensorflow import set_random_seed
-#r_tf = random.randint(1,10000)
-#print("tf seed: ", r_tf)
-set_random_seed(5495)
+r_tf = random.randint(1,10000)
+print("tf seed: ", r_tf)
+set_random_seed(r_tf)
 
 batch_size = 64
 val_batch_size = 64
-iter_ = 20200
+iter_ = 20000
 lr_ = 1e-1
 
 # Prepare input data
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
-
-survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
-
-f_3 = survive[0]
-f_2 = survive[1]
-f_1_1 = survive[2]
-f_1_2 = survive[3]
-e_1 = survive[4]
-e_2 = survive[5]
-e_3 = survive[6]
-e_4 = survive[7]
 
 img_size = 32
 num_channels = 3
@@ -161,14 +150,6 @@ for camera in flatten_combine:
 print(layer1_fc[0].get_shape())
 
 layer2_1_sum = layer1_fc[0]
-
-w_1 = e_2 / (e_2 + e_3 + e_4)
-w_2 = e_3 / (e_2 + e_3 + e_4)
-w_3 = e_4 / (e_2 + e_3 + e_4)
-
-layer1_fc[1] = w_1 * layer1_fc[1]
-layer1_fc[2] = w_2 * layer1_fc[2]
-layer1_fc[3] = w_3 * layer1_fc[3]
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
@@ -186,7 +167,7 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
 
-layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
+layer3_out = layer2_1_fc + layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -198,13 +179,7 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
-delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
-w_1 = f_2 / (f_2 + delta)
-w_2 = delta / (f_2 + delta)
-w_3 = f_1_1 / (f_1_1 + f_1_2)
-w_4 = f_1_2 / (f_1_1 + f_1_2)
-
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*(w_4*layer3_1_fc + w_3*layer2_1_fc),
+layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -214,10 +189,7 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
 
-w_1 = f_3 / (f_2 + f_3)
-w_2 = f_2 / (f_2 + f_3)
-
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
+layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -295,7 +267,7 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/trained_test" + ".ckpt")
+saver.save(session, "models/baseline" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
 val_batch_size=753
