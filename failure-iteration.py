@@ -1,12 +1,15 @@
+from restore_train import test
+
 def iterateFailures( numFailureCombinations, maxNumComponentFailure):   
    for i in range(numFailureCombinations):
-        if ( numSurvivedComponents(i) >= numComponents - maxNumComponentFailure ):
+        numSurvived = numSurvivedComponents(i)
+        if ( numSurvived >= numComponents - maxNumComponentFailure ):
             listOfZerosOnes = convertBinaryToList(i, numComponents)
             accuracy = calcAccuracy(listOfZerosOnes)
             weight = calcWeight(surv, listOfZerosOnes)
             acuracyList.append(accuracy)
             weightList.append(weight)
-            print weight, accuracy
+            print(numSurvived, weight, accuracy)
         
 
 def calcAverageAccuracy(acuracyList, weightList):
@@ -51,15 +54,22 @@ def convertBinaryToList(number, numBits):
     return lst
     
 def calcAccuracy(listOfZerosOnes):
-    return 98.2
+    return test([float(listOfZerosOnes[i]) for i in range(len(listOfZerosOnes))])
 
+def normalizeWeights(weights):
+    sumWeights = sum(weights)
+    weightNormalized = [(x/sumWeights) for x in weights]
+    return weightNormalized
+ 
 # Driver program
 if __name__ == "__main__":  
-    surv = [0.9, 0.9, 0.8, 0.7, 0.7, 0.7, 0.7, 0.7]
+    surv = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
     numComponents = len(surv) # will be 8
-    maxNumComponentFailure = 3
+    maxNumComponentFailure = 2
 
     acuracyList = []
     weightList = []
     iterateFailures(2 ** numComponents, maxNumComponentFailure)
-    print "Average Accuracy:", calcAverageAccuracy(acuracyList, weightList)
+    weightList = normalizeWeights(weightList)
+
+    print("Average Accuracy:", calcAverageAccuracy(acuracyList, weightList))
