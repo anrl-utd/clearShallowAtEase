@@ -31,7 +31,11 @@ lr_ = 1e-1
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
-survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+## most reliable case
+#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+
+## unstable_train
+survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 
 f_3 = survive[0]
 f_2 = survive[1]
@@ -260,10 +264,10 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
-saver.restore(session, "models/trained_test" + ".ckpt")
+saver.restore(session, "models/stoch_trained" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
-val_batch_size=753
+val_batch_size=189
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 def test(node_survival):

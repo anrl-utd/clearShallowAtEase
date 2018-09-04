@@ -63,7 +63,8 @@ def normalizeWeights(weights):
  
 # Driver program
 if __name__ == "__main__":  
-    surv = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+    surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+    #surv = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
     numComponents = len(surv) # will be 8
     maxNumComponentFailure = 8
 

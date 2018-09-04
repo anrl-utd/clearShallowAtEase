@@ -24,7 +24,7 @@ set_random_seed(r_tf)
 
 batch_size = 64
 val_batch_size = 64
-iter_ = 20000
+iter_ = 40000
 lr_ = 1e-1
 
 # Prepare input data
@@ -270,7 +270,7 @@ train(num_iteration=iter_)
 saver.save(session, "models/baseline" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
-val_batch_size=753
+val_batch_size=189
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 #saver.restore(session, "models/trained.ckpt")

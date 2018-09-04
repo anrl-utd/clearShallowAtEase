@@ -189,7 +189,6 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
 
 layer_fc5 = layer_fc5 * failed_nodes[1]
 
-#layer_fc5 = 0 * layer_fc5
 layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
@@ -240,7 +239,7 @@ session.run(tf.global_variables_initializer())
 saver.restore(session, "models/baseline" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
-val_batch_size=753
+val_batch_size=189
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 def test(node_survival):
@@ -254,5 +253,5 @@ def test(node_survival):
     return acc
 
 
-acc = test([1,0,1,1,1,1,1,1])
-print(acc)
+#acc = test([0,1,1,1,1,1,1,1])
+#print(acc)

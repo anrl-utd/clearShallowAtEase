@@ -33,7 +33,7 @@ classes = ['person_images', 'car_images', 'bus_images']
 #classes = ['car_images', 'bus_images', 'person_images']
 num_classes = len(classes)
 
-survive = [0.9, 0.8, 0.77, 0.72, 0.71, 0.7, 0.67, 0.71]
+survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 f_3 = survive[0]
 f_2 = survive[1]
 f_1_1 = survive[2]
@@ -317,7 +317,7 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/trained" + ".ckpt")
+saver.save(session, "models/stoch_trained" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
 val_batch_size=753

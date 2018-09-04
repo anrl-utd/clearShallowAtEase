@@ -31,7 +31,8 @@ lr_ = 1e-1
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
-survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 
 f_3 = survive[0]
 f_2 = survive[1]
@@ -295,10 +296,10 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/trained_test" + ".ckpt")
+saver.save(session, "models/unstable_train" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
-val_batch_size=753
+val_batch_size=189
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 #saver.restore(session, "models/trained.ckpt")
