@@ -264,10 +264,10 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
-saver.restore(session, "models/stoch_trained" + ".ckpt")
+saver.restore(session, "models/unstable_train" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
-val_batch_size=189
+val_batch_size=753 #189
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 def test(node_survival):

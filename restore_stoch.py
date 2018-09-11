@@ -31,6 +31,24 @@ lr_ = 1e-1
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
+## most reliable case
+#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+
+## unstable_train
+#survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+
+## stoch_ has no special residuals
+survive = [1, 1, 1, 1, 1, 1, 1, 1]
+
+f_3 = survive[0]
+f_2 = survive[1]
+f_1_1 = survive[2]
+f_1_2 = survive[3]
+e_1 = survive[4]
+e_2 = survive[5]
+e_3 = survive[6]
+e_4 = survive[7]
+
 img_size = 32
 num_channels = 3
 num_cameras = 6
@@ -46,7 +64,7 @@ print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
 
 session = tf.Session()
 x = tf.placeholder(tf.float32, shape=[None, num_cameras, img_size,img_size,num_channels], name='x')
-failed_nodes = tf.placeholder(tf.float32, shape=[8], name='failed_nodes')
+failed_nodes = tf.placeholder(tf.float32, shape=[len(survive)], name='failed_nodes')
 
 ## labels
 y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
@@ -151,10 +169,14 @@ for camera in flatten_combine:
 print(layer1_fc[0].get_shape())
 
 layer2_1_sum = layer1_fc[0] * failed_nodes[4]
-layer1_fc[1] = layer1_fc[1] * failed_nodes[5]
-layer1_fc[2] = layer1_fc[2] * failed_nodes[6]
-layer1_fc[3] = layer1_fc[3] * failed_nodes[7]
 
+w_1 = e_2 / (e_2 + e_3 + e_4)
+w_2 = e_3 / (e_2 + e_3 + e_4)
+w_3 = e_4 / (e_2 + e_3 + e_4)
+
+layer1_fc[1] = w_1 * layer1_fc[1] * failed_nodes[5]
+layer1_fc[2] = w_2 * layer1_fc[2] * failed_nodes[6]
+layer1_fc[3] = w_3 * layer1_fc[3] * failed_nodes[7]
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
@@ -174,8 +196,7 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
 
 layer2_1_fc = layer2_1_fc * failed_nodes[2]
 layer3_1_fc = layer3_1_fc * failed_nodes[3]
-
-layer3_out = layer2_1_fc + layer3_1_fc
+layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -189,7 +210,13 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
 
 layer_fc5 = layer_fc5 * failed_nodes[1]
 
-layer_fc6 = create_fc_layer(input=layer_fc5,
+delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
+w_1 = f_2 / (f_2 + delta)
+w_2 = delta / (f_2 + delta)
+w_3 = f_1_1 / (f_1_1 + f_1_2)
+w_4 = f_1_2 / (f_1_1 + f_1_2)
+
+layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*(w_4*layer3_1_fc + w_3*layer2_1_fc),
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -200,7 +227,11 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      identifier="fc7")
 
 layer_fc7 = layer_fc7 * failed_nodes[0]
-layer_fc8 = create_fc_layer(input=layer_fc7,
+
+w_1 = f_3 / (f_2 + f_3)
+w_2 = f_2 / (f_2 + f_3)
+
+layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -236,7 +267,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
-saver.restore(session, "models/baseline" + ".ckpt")
+saver.restore(session, "models/stoch_trained" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
 val_batch_size=753 #189
@@ -253,5 +284,5 @@ def test(node_survival):
     return acc
 
 
-#acc = test([0,1,1,1,1,1,1,1])
+#acc = test([1,1,1,1,0,1,1,1])
 #print(acc)

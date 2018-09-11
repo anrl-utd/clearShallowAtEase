@@ -1,6 +1,6 @@
-from restore_train import test
+from restore_stoch import test
 
-def iterateFailures( numFailureCombinations, maxNumComponentFailure):   
+def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
         numSurvived = numSurvivedComponents(i)
         if ( numSurvived >= numComponents - maxNumComponentFailure ):
@@ -9,7 +9,8 @@ def iterateFailures( numFailureCombinations, maxNumComponentFailure):
             weight = calcWeight(surv, listOfZerosOnes)
             acuracyList.append(accuracy)
             weightList.append(weight)
-            print(numSurvived, weight, accuracy)
+            if debug:
+                print(numSurvived, weight, accuracy)
         
 
 def calcAverageAccuracy(acuracyList, weightList):
@@ -67,10 +68,11 @@ if __name__ == "__main__":
     #surv = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
     numComponents = len(surv) # will be 8
     maxNumComponentFailure = 8
+    debug = False
 
     acuracyList = []
     weightList = []
-    iterateFailures(2 ** numComponents, maxNumComponentFailure)
+    iterateFailures(2 ** numComponents, maxNumComponentFailure, debug)
     weightList = normalizeWeights(weightList)
 
     print("Average Accuracy:", calcAverageAccuracy(acuracyList, weightList))
