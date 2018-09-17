@@ -1,4 +1,4 @@
-from restore_variable import test
+from restore_activePatrol import test
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
