@@ -7,35 +7,33 @@ import random
 import numpy as np
 import sys
 
-# some 'good' seeds
 #np:2278
 #tf: 5495
 
 #Adding Seed so that random initialization is consistent
 from numpy.random import seed
-#r = random.randint(1,10000)
-#print("numpy seed: ", r)
-seed(2278)
+r = random.randint(1,10000)
+print("numpy seed: ", r)
+seed(r)
+#seed(2278)
 
 from tensorflow import set_random_seed
-#r_tf = random.randint(1,10000)
-#print("tf seed: ", r_tf)
-set_random_seed(5495)
+r_tf = random.randint(1,10000)
+print("tf seed: ", r_tf)
+set_random_seed(r_tf)
+#set_random_seed(5495)
 
 batch_size = 64
 val_batch_size = 64
-iter_ = 20200
+iter_ = 50000 #20200
 lr_ = 1e-1
 
-# Prepare input data
+#Prepare input data
 classes = ['person_images', 'car_images', 'bus_images']
+#classes = ['car_images', 'bus_images', 'person_images']
 num_classes = len(classes)
 
-## This is our survivability vector, defining our weighted additions with our hueristic presented in the paper.
-#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
 survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
-
-# we assign each index in the vector to it's corresponding fog or edge node (Defined in our model diagram)
 f_3 = survive[0]
 f_2 = survive[1]
 f_1_1 = survive[2]
@@ -44,6 +42,9 @@ e_1 = survive[4]
 e_2 = survive[5]
 e_3 = survive[6]
 e_4 = survive[7]
+
+# boolean list, if is 'True' at an index, it means we skip that index
+skip = [False for x in survive]
 
 img_size = 32
 num_channels = 3
@@ -63,9 +64,14 @@ x = tf.placeholder(tf.float32, shape=[None, num_cameras, img_size,img_size,num_c
 
 ## labels
 y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
+rand_num = tf.placeholder(tf.float32, name='rand_num')
+
+# rand_num is num in [0, sum(survive)] which tells us which layer to drop
+
+
 y_true_cls = tf.argmax(y_true, dimension=1)
 
-## Network graph params. We use homogeneous layer size so that we may do the weighted addition to preserve information during layer failures.
+##Network graph params
 fc1_layer_size = 32
 fc2_layer_size = 32
 fc3_layer_size = 32
@@ -78,9 +84,6 @@ fc9_layer_size = 32
 fc10_layer_size = 32
 fc11_layer_size = 32
 fc12_layer_size = 32
-
-
-## Abstraction of layer creation to functions for easier creation.
 
 def create_weights(shape, name):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=name)
@@ -140,7 +143,6 @@ def create_fc_layer(input,
 
     return layer
 
-## Now we begin defining our network graph. We first start by taking the initial input of 6 images, and 
 split0, split1, split2, split3, split4, split5 = tf.split(x, 6, 1)
 inputs = [split0, split1, split2, split3, split4, split5]
 
@@ -168,6 +170,11 @@ for camera in flatten_combine:
 print(layer1_fc[0].get_shape())
 
 layer2_1_sum = layer1_fc[0]
+layer2_1_sum = tf.cond(rand_num[4] > survive[4], lambda: 0*layer2_1_sum, lambda: layer2_1_sum)
+
+layer1_fc[1] = tf.cond(rand_num[5] > survive[5], lambda: 0*layer1_fc[1], lambda: layer1_fc[1])
+layer1_fc[2] = tf.cond(rand_num[6] > survive[6], lambda: 0*layer1_fc[2], lambda: layer1_fc[2])
+layer1_fc[3] = tf.cond(rand_num[7] > survive[7], lambda: 0*layer1_fc[3], lambda: layer1_fc[3])
 
 w_1 = e_2 / (e_2 + e_3 + e_4)
 w_2 = e_3 / (e_2 + e_3 + e_4)
@@ -176,6 +183,7 @@ w_3 = e_4 / (e_2 + e_3 + e_4)
 layer1_fc[1] = w_1 * layer1_fc[1]
 layer1_fc[2] = w_2 * layer1_fc[2]
 layer1_fc[3] = w_3 * layer1_fc[3]
+
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
@@ -193,6 +201,9 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
 
+layer2_1_fc = tf.cond(rand_num[2] > survive[2], lambda: 0*layer2_1_fc, lambda: layer2_1_fc)
+layer3_1_fc = tf.cond(rand_num[3] > survive[3], lambda: 0*layer3_1_fc, lambda: layer3_1_fc)
+
 layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
@@ -205,6 +216,7 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
+layer_fc5 = tf.cond(rand_num[1] > survive[1], lambda: 0*layer_fc5, lambda: layer_fc5)
 delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
 w_1 = f_2 / (f_2 + delta)
 w_2 = delta / (f_2 + delta)
@@ -220,6 +232,8 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_inputs=fc6_layer_size,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
+
+layer_fc7 = tf.cond(rand_num[0] > survive[0], lambda: 0*layer_fc7, lambda: layer_fc7)
 
 w_1 = f_3 / (f_2 + f_3)
 w_2 = f_2 / (f_2 + f_3)
@@ -282,11 +296,24 @@ def train(num_iteration):
 
         x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
         x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
+        r_ = [random.random() for x in range(len(survive))]
+        
+        # calc prob of one component failing, which we take to be the average failure given a
+        # survivability mapping 'survive'
+        #fail = [1 - x for x in survive]
+        #fail_prob = sum(fail) / len(fail)
+        # something has failed, so we generate rand in range [0, sum(survive)]
+        #if(r_ < 0.5):
+        #    r_ = random.uniform(0, sum(survive))
+        #else:
+        #    r_ = -1
 
         feed_dict_tr = {x: x_batch,
-                           y_true: y_true_batch}
+                           y_true: y_true_batch,
+                                   rand_num: r_}
         feed_dict_val = {x: x_valid_batch,
-                              y_true: y_valid_batch}
+                              y_true: y_valid_batch,
+                                      rand_num: r_}
 
         session.run(optimizer, feed_dict=feed_dict_tr)
 
@@ -302,10 +329,10 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/unstable_train" + ".ckpt")
+saver.save(session, "models/fixedActiveGuard" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
-val_batch_size=189
+val_batch_size=753
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 #saver.restore(session, "models/trained.ckpt")
@@ -318,7 +345,7 @@ def show_progress_test(epoch, feed_dict_validate, val_loss):
 
 def test():    
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch}
+    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch, rand_num: [-1 for x in range(8)]}
     val_loss = session.run(cost, feed_dict=feed_dict_val)
     
     # print acc    
