@@ -1,4 +1,4 @@
-from restore_stoch import test
+from restore_variable import test
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):

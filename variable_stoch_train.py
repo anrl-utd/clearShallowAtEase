@@ -27,24 +27,12 @@ batch_size = 64
 val_batch_size = 64
 iter_ = 50000 #20200
 lr_ = 1e-1
+survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 
 #Prepare input data
 classes = ['person_images', 'car_images', 'bus_images']
 #classes = ['car_images', 'bus_images', 'person_images']
 num_classes = len(classes)
-
-survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
-f_3 = survive[0]
-f_2 = survive[1]
-f_1_1 = survive[2]
-f_1_2 = survive[3]
-e_1 = survive[4]
-e_2 = survive[5]
-e_3 = survive[6]
-e_4 = survive[7]
-
-# boolean list, if is 'True' at an index, it means we skip that index
-skip = [False for x in survive]
 
 img_size = 32
 num_channels = 3
@@ -176,9 +164,13 @@ layer1_fc[1] = tf.cond(rand_num[5] > survive[5], lambda: 0*layer1_fc[1], lambda:
 layer1_fc[2] = tf.cond(rand_num[6] > survive[6], lambda: 0*layer1_fc[2], lambda: layer1_fc[2])
 layer1_fc[3] = tf.cond(rand_num[7] > survive[7], lambda: 0*layer1_fc[3], lambda: layer1_fc[3])
 
-#layer1_fc[2] = .32211 * layer1_fc[2]
-#layer1_fc[3] = .34134 * layer1_fc[3]
-layer2_2_sum = sum(layer1_fc[1:])
+## instantiate our "activePatrol" method weights
+w1 = tf.Variable(np.random.random(), 'add_weight1')
+w2 = tf.Variable(np.random.random(), 'add_weight2')
+w3 = tf.Variable(np.random.random(), 'add_weight3')
+
+# cast the np types to tf.float32s
+layer2_2_sum = tf.cast(w1, tf.float32)*layer1_fc[1] + tf.cast(w2,tf.float32)*layer1_fc[2] + tf.cast(w3, tf.float32)*layer1_fc[3]
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
                      num_inputs=fc1_layer_size,
@@ -198,7 +190,10 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
 layer2_1_fc = tf.cond(rand_num[2] > survive[2], lambda: 0*layer2_1_fc, lambda: layer2_1_fc)
 layer3_1_fc = tf.cond(rand_num[3] > survive[3], lambda: 0*layer3_1_fc, lambda: layer3_1_fc)
 
-layer3_out = layer2_1_fc + layer3_1_fc
+w4 = tf.Variable(np.random.random(), 'add_weight4')
+w5 = tf.Variable(np.random.random(), 'add_weight5')
+
+layer3_out = tf.cast(w4, tf.float32)*layer2_1_fc + tf.cast(w5, tf.float32)*layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -212,7 +207,12 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
 
 layer_fc5 = tf.cond(rand_num[1] > survive[1], lambda: 0*layer_fc5, lambda: layer_fc5)
 
-layer_fc6 = create_fc_layer(input=layer_fc5 + layer3_1_fc + layer2_1_fc,
+
+w6 = tf.Variable(np.random.random(), 'add_weight6')
+w7 = tf.Variable(np.random.random(), 'add_weight7')
+w8 = tf.Variable(np.random.random(), 'add_weight8')
+
+layer_fc6 = create_fc_layer(input=tf.cast(w6, tf.float32)*layer_fc5 + tf.cast(w7, tf.float32)*layer3_1_fc + tf.cast(w8, tf.float32)*layer2_1_fc,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -224,7 +224,10 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
 
 layer_fc7 = tf.cond(rand_num[0] > survive[0], lambda: 0*layer_fc7, lambda: layer_fc7)
 
-layer_fc8 = create_fc_layer(input=layer_fc7 + layer_fc5,
+w9 = tf.Variable(np.random.random(), 'add_weight9')
+w10 = tf.Variable(np.random.random(), 'add_weight10')
+
+layer_fc8 = create_fc_layer(input=tf.cast(w9, tf.float32)*layer_fc7 + tf.cast(w10, tf.float32)*layer_fc5,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -315,7 +318,7 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/stoch_trained" + ".ckpt")
+saver.save(session, "models/variable_stoch_trained" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
 val_batch_size=753

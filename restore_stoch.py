@@ -170,13 +170,9 @@ print(layer1_fc[0].get_shape())
 
 layer2_1_sum = layer1_fc[0] * failed_nodes[4]
 
-w_1 = e_2 / (e_2 + e_3 + e_4)
-w_2 = e_3 / (e_2 + e_3 + e_4)
-w_3 = e_4 / (e_2 + e_3 + e_4)
-
-layer1_fc[1] = w_1 * layer1_fc[1] * failed_nodes[5]
-layer1_fc[2] = w_2 * layer1_fc[2] * failed_nodes[6]
-layer1_fc[3] = w_3 * layer1_fc[3] * failed_nodes[7]
+layer1_fc[1] = layer1_fc[1] * failed_nodes[5]
+layer1_fc[2] = layer1_fc[2] * failed_nodes[6]
+layer1_fc[3] = layer1_fc[3] * failed_nodes[7]
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
@@ -196,7 +192,7 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
 
 layer2_1_fc = layer2_1_fc * failed_nodes[2]
 layer3_1_fc = layer3_1_fc * failed_nodes[3]
-layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
+layer3_out = layer2_1_fc + layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -210,13 +206,7 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
 
 layer_fc5 = layer_fc5 * failed_nodes[1]
 
-delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
-w_1 = f_2 / (f_2 + delta)
-w_2 = delta / (f_2 + delta)
-w_3 = f_1_1 / (f_1_1 + f_1_2)
-w_4 = f_1_2 / (f_1_1 + f_1_2)
-
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*(w_4*layer3_1_fc + w_3*layer2_1_fc),
+layer_fc6 = create_fc_layer(input=layer_fc5 + layer3_1_fc + layer2_1_fc,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -228,10 +218,7 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
 
 layer_fc7 = layer_fc7 * failed_nodes[0]
 
-w_1 = f_3 / (f_2 + f_3)
-w_2 = f_2 / (f_2 + f_3)
-
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
+layer_fc8 = create_fc_layer(input=layer_fc7 + layer_fc5,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")

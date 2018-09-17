@@ -7,33 +7,39 @@ import random
 import numpy as np
 import sys
 
+# some 'good' seeds
 #np:2278
 #tf: 5495
 
 #Adding Seed so that random initialization is consistent
 from numpy.random import seed
-r = random.randint(1,10000)
-print("numpy seed: ", r)
-seed(r)
-#seed(2278)
+#r = random.randint(1,10000)
+#print("numpy seed: ", r)
+seed(2278)
 
 from tensorflow import set_random_seed
-r_tf = random.randint(1,10000)
-print("tf seed: ", r_tf)
-set_random_seed(r_tf)
-#set_random_seed(5495)
+#r_tf = random.randint(1,10000)
+#print("tf seed: ", r_tf)
+set_random_seed(5495)
 
 batch_size = 64
 val_batch_size = 64
-iter_ = 50000 #20200
+iter_ = 20200
 lr_ = 1e-1
 
-#Prepare input data
+# Prepare input data
 classes = ['person_images', 'car_images', 'bus_images']
-#classes = ['car_images', 'bus_images', 'person_images']
 num_classes = len(classes)
 
-survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+## most reliable case
+#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+
+## unstable_train
+#survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+
+## stoch_ has no special residuals
+survive = [1, 1, 1, 1, 1, 1, 1, 1]
+
 f_3 = survive[0]
 f_2 = survive[1]
 f_1_1 = survive[2]
@@ -42,9 +48,6 @@ e_1 = survive[4]
 e_2 = survive[5]
 e_3 = survive[6]
 e_4 = survive[7]
-
-# boolean list, if is 'True' at an index, it means we skip that index
-skip = [False for x in survive]
 
 img_size = 32
 num_channels = 3
@@ -61,14 +64,10 @@ print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
 
 session = tf.Session()
 x = tf.placeholder(tf.float32, shape=[None, num_cameras, img_size,img_size,num_channels], name='x')
+failed_nodes = tf.placeholder(tf.float32, shape=[len(survive)], name='failed_nodes')
 
 ## labels
 y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
-rand_num = tf.placeholder(tf.float32, name='rand_num')
-
-# rand_num is num in [0, sum(survive)] which tells us which layer to drop
-
-
 y_true_cls = tf.argmax(y_true, dimension=1)
 
 ##Network graph params
@@ -169,16 +168,19 @@ for camera in flatten_combine:
     layer1_fc.append(layer_tmp)
 print(layer1_fc[0].get_shape())
 
-layer2_1_sum = layer1_fc[0]
-layer2_1_sum = tf.cond(rand_num[4] > survive[4], lambda: 0*layer2_1_sum, lambda: layer2_1_sum)
+layer2_1_sum = layer1_fc[0] * failed_nodes[4]
 
-layer1_fc[1] = tf.cond(rand_num[5] > survive[5], lambda: 0*layer1_fc[1], lambda: layer1_fc[1])
-layer1_fc[2] = tf.cond(rand_num[6] > survive[6], lambda: 0*layer1_fc[2], lambda: layer1_fc[2])
-layer1_fc[3] = tf.cond(rand_num[7] > survive[7], lambda: 0*layer1_fc[3], lambda: layer1_fc[3])
+## restore weights for activePatrol method
+w1 = tf.Variable(np.random.random(), 'add_weight1')
+w2 = tf.Variable(np.random.random(), 'add_weight2')
+w3 = tf.Variable(np.random.random(), 'add_weight3')
 
-#layer1_fc[2] = .32211 * layer1_fc[2]
-#layer1_fc[3] = .34134 * layer1_fc[3]
-layer2_2_sum = sum(layer1_fc[1:])
+
+
+layer1_fc[1] = layer1_fc[1] * failed_nodes[5]
+layer1_fc[2] = layer1_fc[2] * failed_nodes[6]
+layer1_fc[3] = layer1_fc[3] * failed_nodes[7]
+layer2_2_sum = tf.cast(w1, tf.float32)*layer1_fc[1] + tf.cast(w2,tf.float32)*layer1_fc[2] + tf.cast(w3, tf.float32)*layer1_fc[3]
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
                      num_inputs=fc1_layer_size,
@@ -195,10 +197,12 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
 
-layer2_1_fc = tf.cond(rand_num[2] > survive[2], lambda: 0*layer2_1_fc, lambda: layer2_1_fc)
-layer3_1_fc = tf.cond(rand_num[3] > survive[3], lambda: 0*layer3_1_fc, lambda: layer3_1_fc)
+layer2_1_fc = layer2_1_fc * failed_nodes[2]
+layer3_1_fc = layer3_1_fc * failed_nodes[3]
+w4 = tf.Variable(np.random.random(), 'add_weight4')
+w5 = tf.Variable(np.random.random(), 'add_weight5')
 
-layer3_out = layer2_1_fc + layer3_1_fc
+layer3_out = tf.cast(w4, tf.float32)*layer2_1_fc + tf.cast(w5, tf.float32)*layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -210,9 +214,12 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
-layer_fc5 = tf.cond(rand_num[1] > survive[1], lambda: 0*layer_fc5, lambda: layer_fc5)
+layer_fc5 = layer_fc5 * failed_nodes[1]
+w6 = tf.Variable(np.random.random(), 'add_weight6')
+w7 = tf.Variable(np.random.random(), 'add_weight7')
+w8 = tf.Variable(np.random.random(), 'add_weight8')
 
-layer_fc6 = create_fc_layer(input=layer_fc5 + layer3_1_fc + layer2_1_fc,
+layer_fc6 = create_fc_layer(input=tf.cast(w6, tf.float32)*layer_fc5 + tf.cast(w7, tf.float32)*layer3_1_fc + tf.cast(w8, tf.float32)*layer2_1_fc,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -222,9 +229,11 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
 
-layer_fc7 = tf.cond(rand_num[0] > survive[0], lambda: 0*layer_fc7, lambda: layer_fc7)
+layer_fc7 = layer_fc7 * failed_nodes[0]
+w9 = tf.Variable(np.random.random(), 'add_weight9')
+w10 = tf.Variable(np.random.random(), 'add_weight10')
 
-layer_fc8 = create_fc_layer(input=layer_fc7 + layer_fc5,
+layer_fc8 = create_fc_layer(input=tf.cast(w9, tf.float32)*layer_fc7 + tf.cast(w10, tf.float32)*layer_fc5,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -258,86 +267,24 @@ optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-precision = tf.metrics.precision(y_true_cls, y_pred_cls)
-
-def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
-    acc = session.run(accuracy, feed_dict=feed_dict_train)
-    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-  
-    print(msg.format(epoch + 1, acc, val_acc, val_loss))
-
-# Save non-dropout layers
 saver = tf.train.Saver()
-
 session.run(tf.global_variables_initializer())
+saver.restore(session, "models/variable_stoch_trained" + ".ckpt")
 
-total_iterations = 0
-
-def train(num_iteration):
-    global total_iterations
-    
-    for i in range(total_iterations,
-                   total_iterations + num_iteration):
-
-        x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
-        x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-        r_ = [random.random() for x in range(len(survive))]
-        
-        # calc prob of one component failing, which we take to be the average failure given a
-        # survivability mapping 'survive'
-        #fail = [1 - x for x in survive]
-        #fail_prob = sum(fail) / len(fail)
-        # something has failed, so we generate rand in range [0, sum(survive)]
-        #if(r_ < 0.5):
-        #    r_ = random.uniform(0, sum(survive))
-        #else:
-        #    r_ = -1
-
-        feed_dict_tr = {x: x_batch,
-                           y_true: y_true_batch,
-                                   rand_num: r_}
-        feed_dict_val = {x: x_valid_batch,
-                              y_true: y_valid_batch,
-                                      rand_num: r_}
-
-        session.run(optimizer, feed_dict=feed_dict_tr)
-
-        if i % int(data.train.num_examples/batch_size) == 0: 
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
-            epoch = int(i / int(data.train.num_examples/batch_size))    
-            
-            show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
-            print(int(i))
-
-    print(int(num_iteration))
-    total_iterations += num_iteration
-
-# around 400 works best
-train(num_iteration=iter_)
-saver.save(session, "models/stoch_trained" + ".ckpt")
-
-# Finished training, let's see our accuracy on the entire test set now
-val_batch_size=753
+# test on entire validation set after we restore the trained model
+val_batch_size=753 #189
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
-#saver.restore(session, "models/trained.ckpt")
-def show_progress_test(epoch, feed_dict_validate, val_loss):
-    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Validation Accuracy: {0:>6.1%},  Validation Loss: {1:.3f}"
-    
-    print("Accuracy on entire test set")
-    print(msg.format(val_acc, val_loss))
-
-def test():    
+def test(node_survival):
+    # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
+    # 0 means that index failed, 1 means that the index survives.
+    # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch, rand_num: [-1 for x in range(8)]}
-    val_loss = session.run(cost, feed_dict=feed_dict_val)
+    feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
+    acc = session.run(accuracy, feed_dict=feed_dict_val)
     
-    # print acc    
-    show_progress_test(0, feed_dict_val, val_loss)
+    return acc
 
-test()
-print("np seed: ", r)
-print("tf seed: ", r_tf)
 
+#acc = test([1,1,1,1,0,1,1,1])
+#print(acc)
