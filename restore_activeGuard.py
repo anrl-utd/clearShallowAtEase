@@ -242,7 +242,6 @@ y_pred = tf.nn.softmax(layer_fc11, name='y_pred')
 print(y_pred.get_shape())
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
-print(y_pred_cls.get_shape())
 
 session.run(tf.global_variables_initializer())
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc11,
@@ -252,8 +251,13 @@ optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+recall = tf.metrics.recall(y_true_cls, y_pred_cls)
+precision = tf.metrics.precision(y_true_cls, y_pred_cls)
+
 saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
+session.run(tf.local_variables_initializer())
+
 saver.restore(session, "models/stoch_trained" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
@@ -266,9 +270,10 @@ def test(node_survival):
     # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
     feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
-    acc = session.run(accuracy, feed_dict=feed_dict_val)
-    
-    return acc
+    acc, rec, prec = session.run([accuracy, recall, precision], feed_dict=feed_dict_val)
+    print(rec[0], prec[0])
+
+    return [acc, rec[0], prec[0]]
 
 
 #acc = test([1,1,1,1,0,1,1,1])

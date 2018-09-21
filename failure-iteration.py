@@ -1,11 +1,11 @@
-from restore_fixedActiveGuard import test
+from restore_activeGuard import test
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
         numSurvived = numSurvivedComponents(i)
         if ( numSurvived >= numComponents - maxNumComponentFailure ):
             listOfZerosOnes = convertBinaryToList(i, numComponents)
-            accuracy = calcAccuracy(listOfZerosOnes)
+            accuracy = calcAccuracy(listOfZerosOnes)[0]
             weight = calcWeight(surv, listOfZerosOnes)
             acuracyList.append(accuracy)
             weightList.append(weight)
