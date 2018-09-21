@@ -5,19 +5,29 @@ def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):
         numSurvived = numSurvivedComponents(i)
         if ( numSurvived >= numComponents - maxNumComponentFailure ):
             listOfZerosOnes = convertBinaryToList(i, numComponents)
-            accuracy = calcAccuracy(listOfZerosOnes)[0]
+            stats = calcStats(listOfZerosOnes)
+            uStats = stats[0]
+            bStats = stats[1]
             weight = calcWeight(surv, listOfZerosOnes)
-            acuracyList.append(accuracy)
+            
+            uAcuracyList.append(uStats[0])
+            uRecallList.append(uStats[1])
+            uPrecisionList.append(uStats[2])
+            
+            bAcuracyList.append(bStats[0])
+            bRecallList.append(bStats[1])
+            bPrecisionList.append(bStats[2])
+            
             weightList.append(weight)
             if debug:
                 print(numSurvived, weight, accuracy)
         
 
-def calcAverageAccuracy(acuracyList, weightList):
-    averageAccuracy = 0
-    for i in range(len(acuracyList)):
-        averageAccuracy += acuracyList[i] * weightList[i]
-    return averageAccuracy
+def calcAverageStat(statList, weightList):
+    averageStat = 0
+    for i in range(len(statList)):
+        averageStat += statList[i] * weightList[i]
+    return averageStat
         
 # calculates the weight of each combination of component failures
 def calcWeight(survivability, listOfZerosOnes):
@@ -54,7 +64,7 @@ def convertBinaryToList(number, numBits):
         lst.insert(0,'0')
     return lst
     
-def calcAccuracy(listOfZerosOnes):
+def calcStats(listOfZerosOnes):
     return test([float(listOfZerosOnes[i]) for i in range(len(listOfZerosOnes))])
 
 def normalizeWeights(weights):
@@ -70,9 +80,23 @@ if __name__ == "__main__":
     maxNumComponentFailure = 8
     debug = False
 
-    acuracyList = []
+    uAcuracyList = []
+    bAcuracyList = []
+    uRecallList = []
+    bRecallList = []
+    uPrecisionList = []
+    bPrecisionList = []
+    
     weightList = []
     iterateFailures(2 ** numComponents, maxNumComponentFailure, debug)
     weightList = normalizeWeights(weightList)
 
-    print("Average Accuracy:", calcAverageAccuracy(acuracyList, weightList))
+    print("Resutls for (U) Unbalanced Test:")
+    print("Average Accuracy:", calcAverageStats(uAcuracyList, weightList))
+    print("Average Recall:", calcAverageStats(uRecallList, weightList))
+    print("Average Precision:", calcAverageStats(uPrecisionList, weightList))
+
+    print("Resutls for (B) Balanced Test:")
+    print("Average Accuracy:", calcAverageStats(bAcuracyList, weightList))
+    print("Average Recall:", calcAverageStats(bRecallList, weightList))
+    print("Average Precision:", calcAverageStats(bPrecisionList, weightList))
