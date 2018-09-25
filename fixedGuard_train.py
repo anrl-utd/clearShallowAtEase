@@ -13,14 +13,17 @@ import sys
 
 #Adding Seed so that random initialization is consistent
 from numpy.random import seed
-#r = random.randint(1,10000)
-#print("numpy seed: ", r)
-seed(2278)
+r = random.randint(1,10000)
+print("numpy seed: ", r)
+#seed(2278)
+seed(r)
 
 from tensorflow import set_random_seed
-#r_tf = random.randint(1,10000)
-#print("tf seed: ", r_tf)
-set_random_seed(5495)
+r_tf = random.randint(1,10000)
+print("tf seed: ", r_tf)
+#set_random_seed(5495)
+set_random_seed(r_tf)
+
 
 batch_size = 64
 val_batch_size = 64
@@ -205,13 +208,11 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
-delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
-w_1 = f_2 / (f_2 + delta)
-w_2 = delta / (f_2 + delta)
-w_3 = f_1_1 / (f_1_1 + f_1_2)
-w_4 = f_1_2 / (f_1_1 + f_1_2)
+w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
+w_2 = f_1_2 / (f_1_1 + f_1_2 + f_2)
+w_3 = f_1_1 / (f_1_1 + f_1_2 + f_2)
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*(w_4*layer3_1_fc + w_3*layer2_1_fc),
+layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*layer3_1_fc + w_3*layer2_1_fc,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -302,7 +303,7 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/unstable_train" + ".ckpt")
+saver.save(session, "models/fixedGuard_train" + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
 val_batch_size=189

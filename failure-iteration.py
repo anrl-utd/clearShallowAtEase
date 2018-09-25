@@ -1,4 +1,4 @@
-from restore_activeGuard import test
+from restore_baseline import test
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
@@ -23,7 +23,7 @@ def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):
                 print(numSurvived, weight, accuracy)
         
 
-def calcAverageStat(statList, weightList):
+def calcAverageStats(statList, weightList):
     averageStat = 0
     for i in range(len(statList)):
         averageStat += statList[i] * weightList[i]

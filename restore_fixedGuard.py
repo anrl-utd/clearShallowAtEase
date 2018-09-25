@@ -207,13 +207,11 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
 
 layer_fc5 = layer_fc5 * failed_nodes[1]
 
-delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
-w_1 = f_2 / (f_2 + delta)
-w_2 = delta / (f_2 + delta)
-w_3 = f_1_1 / (f_1_1 + f_1_2)
-w_4 = f_1_2 / (f_1_1 + f_1_2)
+w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
+w_2 = f_1_1 / (f_1_1 + f_1_2 + f_2)
+w_3 = f_1_2 / (f_1_1 + f_1_2 + f_2)
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*(w_4*layer3_1_fc + w_3*layer2_1_fc),
+layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -264,7 +262,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
-saver.restore(session, "models/unstable_train" + ".ckpt")
+saver.restore(session, "models/fixedGuard_train" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
 val_batch_size=753 #189
