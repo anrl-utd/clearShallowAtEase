@@ -51,9 +51,11 @@ num_channels = 3
 num_cameras = 6
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
+balanced_val_path = "/home/sid/datasets/mvmc_p/balanced_test_dir/"
 
 # We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
+data_balanced = dataset.read_train_sets(train_path, balanced_val_path, img_size, classes) 
 
 print("Complete reading input data. Will Now print a snippet of it")
 print("Number of files in Training-set:\t\t{}".format(len(data.train.labels)))
@@ -259,25 +261,41 @@ cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+recall = tf.metrics.recall(y_true_cls, y_pred_cls)
+precision = tf.metrics.precision(y_true_cls, y_pred_cls)
 
 saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
+session.run(tf.local_variables_initializer())
+
 saver.restore(session, "models/fixedGuard_train" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
-val_batch_size=753 #189
-data = dataset.read_train_sets(train_path, val_path, img_size, classes)
-
 def test(node_survival):
     # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
     # 0 means that index failed, 1 means that the index survives.
     # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
+    stats = []
+    session.run(tf.local_variables_initializer())
+
+    # test on the unbalanced data first
+    val_batch_size = 753
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
     feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
-    acc = session.run(accuracy, feed_dict=feed_dict_val)
-    
-    return acc
+    acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
+    stats.append((acc,rec,prec))
+   
+    session.run(tf.local_variables_initializer())
+    # now test on the class balanced dataset
+    val_batch_size = 189
+    x_valid_batch, y_valid_batch, _, valid_cls_batch = data_balanced.valid.next_batch(val_batch_size)
+    feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
+    acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
+    stats.append((acc,rec,prec))
 
+    print(stats)
+    # stats now holds stats for [unbalanced, balanced]
+    return stats
 
 #acc = test([1,1,1,1,0,1,1,1])
 #print(acc)
