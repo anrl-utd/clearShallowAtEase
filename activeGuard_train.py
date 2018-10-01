@@ -176,8 +176,13 @@ layer1_fc[1] = tf.cond(rand_num[5] > survive[5], lambda: 0*layer1_fc[1], lambda:
 layer1_fc[2] = tf.cond(rand_num[6] > survive[6], lambda: 0*layer1_fc[2], lambda: layer1_fc[2])
 layer1_fc[3] = tf.cond(rand_num[7] > survive[7], lambda: 0*layer1_fc[3], lambda: layer1_fc[3])
 
-#layer1_fc[2] = .32211 * layer1_fc[2]
-#layer1_fc[3] = .34134 * layer1_fc[3]
+w_1 = e_2 / (e_2 + e_3 + e_4)
+w_2 = e_3 / (e_2 + e_3 + e_4)
+w_3 = e_4 / (e_2 + e_3 + e_4)
+layer1_fc[1] = w_1 * layer1_fc[1]
+layer1_fc[2] = w_2 * layer1_fc[2]
+layer1_fc[3] = w_3 * layer1_fc[3]
+
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
@@ -198,7 +203,7 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
 layer2_1_fc = tf.cond(rand_num[2] > survive[2], lambda: 0*layer2_1_fc, lambda: layer2_1_fc)
 layer3_1_fc = tf.cond(rand_num[3] > survive[3], lambda: 0*layer3_1_fc, lambda: layer3_1_fc)
 
-layer3_out = layer2_1_fc + layer3_1_fc
+layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -212,7 +217,11 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
 
 layer_fc5 = tf.cond(rand_num[1] > survive[1], lambda: 0*layer_fc5, lambda: layer_fc5)
 
-layer_fc6 = create_fc_layer(input=layer_fc5 + layer3_1_fc + layer2_1_fc,
+w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
+w_2 = f_1_1 / (f_1_1 + f_1_2 + f_2)
+w_3 = f_1_2 / (f_1_1 + f_1_2 + f_2)
+
+layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -224,7 +233,10 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
 
 layer_fc7 = tf.cond(rand_num[0] > survive[0], lambda: 0*layer_fc7, lambda: layer_fc7)
 
-layer_fc8 = create_fc_layer(input=layer_fc7 + layer_fc5,
+w_1 = f_3 / (f_2 + f_3)
+w_2 = f_2 / (f_2 + f_3)
+
+layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
