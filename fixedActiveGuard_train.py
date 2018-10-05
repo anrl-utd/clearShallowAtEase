@@ -217,13 +217,8 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      identifier="fc5")
 
 layer_fc5 = tf.cond(rand_num[1] > survive[1], lambda: 0*layer_fc5, lambda: layer_fc5)
-delta = (f_1_1 ** 2) / (f_1_1 + f_1_2) + (f_1_2 ** 2) / (f_1_1 + f_1_2)
-w_1 = f_2 / (f_2 + delta)
-w_2 = delta / (f_2 + delta)
-w_3 = f_1_1 / (f_1_1 + f_1_2)
-w_4 = f_1_2 / (f_1_1 + f_1_2)
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*(w_4*layer3_1_fc + w_3*layer2_1_fc),
+layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -238,7 +233,7 @@ layer_fc7 = tf.cond(rand_num[0] > survive[0], lambda: 0*layer_fc7, lambda: layer
 w_1 = f_3 / (f_2 + f_3)
 w_2 = f_2 / (f_2 + f_3)
 
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
+layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")

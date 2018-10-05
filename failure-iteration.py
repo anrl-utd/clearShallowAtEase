@@ -1,4 +1,4 @@
-from restore_activeGuard import test
+from restore_fixedGuard import test
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
