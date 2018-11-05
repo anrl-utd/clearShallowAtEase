@@ -15,13 +15,13 @@ import sys
 from numpy.random import seed
 r = random.randint(1,10000)
 print("numpy seed: ", r)
-#seed(2278)
+#seed(360)
 seed(r)
 
 from tensorflow import set_random_seed
 r_tf = random.randint(1,10000)
 print("tf seed: ", r_tf)
-#set_random_seed(5495)
+#set_random_seed(2543)
 set_random_seed(r_tf)
 
 

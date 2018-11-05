@@ -6,12 +6,19 @@ import math
 import random
 import numpy as np
 import sys
+import argparse
+
+# parse the model number for batch training a family of models
+parser = argparse.ArgumentParser()
+parser.add_argument("-mn", "--modelnumber", type=int, default=1,
+                    help="The number models to train")
+args = parser.parse_args()
 
 # some 'good' seeds
-#np:2278
-#tf: 5495
+# np:2278
+# tf: 5495
 
-#Adding Seed so that random initialization is consistent
+#Adding seeds so that random initialization is consistent
 from numpy.random import seed
 r = random.randint(1,10000)
 print("numpy seed: ", r)
@@ -22,9 +29,19 @@ r_tf = random.randint(1,10000)
 print("tf seed: ", r_tf)
 set_random_seed(r_tf)
 
+# save random seeds to seed file
+with open("models/baseline/seeds.txt", "a") as myfile:
+    myfile.write(str(args.modelnumber))
+    myfile.write("\n")
+    myfile.write(str(r))
+    myfile.write("\n")
+    myfile.write(str(r_tf))
+    myfile.write("\n")
+
 batch_size = 64
 val_batch_size = 64
 iter_ = 40000
+#iter_=100
 lr_ = 1e-1
 
 # Prepare input data
@@ -37,7 +54,6 @@ num_cameras = 6
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
 
-# We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 print("Complete reading input data. Will Now print a snippet of it")
@@ -126,8 +142,6 @@ def create_fc_layer(input,
 split0, split1, split2, split3, split4, split5 = tf.split(x, 6, 1)
 inputs = [split0, split1, split2, split3, split4, split5]
 
-print(inputs[0].get_shape())
-print(inputs)
 flatten_out = []
 for i in range(6):
     flatten_out.append(create_flatten_layer(inputs[i], batch_size, img_size, num_channels))
@@ -147,7 +161,6 @@ for camera in flatten_combine:
                      identifier='fc1_'+str(counter))
     counter += 1
     layer1_fc.append(layer_tmp)
-print(layer1_fc[0].get_shape())
 
 layer2_1_sum = layer1_fc[0]
 layer2_2_sum = sum(layer1_fc[1:])
@@ -229,14 +242,13 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
     msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-  
+ 
     print(msg.format(epoch + 1, acc, val_acc, val_loss))
 
-# Save non-dropout layers
 saver = tf.train.Saver()
-
 session.run(tf.global_variables_initializer())
 
+# init
 total_iterations = 0
 
 def train(num_iteration):
@@ -265,9 +277,10 @@ def train(num_iteration):
     print(int(num_iteration))
     total_iterations += num_iteration
 
-# around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/baseline" + ".ckpt")
+
+# save model
+saver.save(session, "models/baseline/bline_" + str(args.modelnumber) + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
 val_batch_size=189
@@ -292,4 +305,3 @@ def test():
 test()
 print("np seed: ", r)
 print("tf seed: ", r_tf)
-

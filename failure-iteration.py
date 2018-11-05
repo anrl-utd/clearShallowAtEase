@@ -1,4 +1,4 @@
-from restore_fixedGuard import test
+from restore_baseline import test
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
@@ -9,7 +9,7 @@ def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):
             uStats = stats[0]
             bStats = stats[1]
             weight = calcWeight(surv, listOfZerosOnes)
-            
+
             uAcuracyList.append(uStats[0])
             uRecallList.append(uStats[1])
             uPrecisionList.append(uStats[2])
@@ -91,12 +91,12 @@ if __name__ == "__main__":
     iterateFailures(2 ** numComponents, maxNumComponentFailure, debug)
     weightList = normalizeWeights(weightList)
 
-    print("Resutls for (U) Unbalanced Test:")
+    print("Results for (U) Unbalanced Test:")
     print("Average Accuracy:", calcAverageStats(uAcuracyList, weightList))
     print("Average Recall:", calcAverageStats(uRecallList, weightList))
     print("Average Precision:", calcAverageStats(uPrecisionList, weightList))
 
-    print("Resutls for (B) Balanced Test:")
+    print("Results for (B) Balanced Test:")
     print("Average Accuracy:", calcAverageStats(bAcuracyList, weightList))
     print("Average Recall:", calcAverageStats(bRecallList, weightList))
     print("Average Precision:", calcAverageStats(bPrecisionList, weightList))
