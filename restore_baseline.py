@@ -239,7 +239,7 @@ y_pred_cls = tf.argmax(y_pred, dimension=1)
 print(y_pred_cls.get_shape())
 y_pred_cls.dtype
 
-random_guesses = tf.random_uniform(tf.shape(y_pred_cls), minval=0, maxval=3, dtype=tf.int64)
+random_guesses = tf.random_uniform(tf.shape(y_pred_cls), minval=0, maxval=2, dtype=tf.int64)
 y_pred_cls = tf.cond(check_zero(layer_fc7), lambda: tf.cast(random_guesses,tf.int64), lambda: y_pred_cls)
 
 session.run(tf.global_variables_initializer())
@@ -256,10 +256,12 @@ saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
 session.run(tf.local_variables_initializer())
 
-saver.restore(session, "models/baseline" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
-def test(node_survival):
+def test(node_survival, model_number):
+    # restore indicated model number
+    saver.restore(session, "models/baseline/bline_" + str(model_number) + ".ckpt")
+
     # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
     # 0 means that index failed, 1 means that the index survives.
     # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
