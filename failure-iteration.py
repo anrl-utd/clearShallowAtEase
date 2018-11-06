@@ -1,4 +1,5 @@
-from restore_baseline import test
+from restore_activeGuard import test
+import time
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, mn=1):   
    for i in range(numFailureCombinations):
@@ -76,9 +77,9 @@ if __name__ == "__main__":
     numComponents = len(surv) # will be 8
     maxNumComponentFailure = 8
     num_models = 50
-    log_file = 'final_logs/baseline.txt'
+    log_file = 'final_logs/activeGuard.txt'
 
-    for x in range(1, num_models + 1):
+    for x in range(38, num_models + 1):
         uAccuracyList = []
         bAccuracyList = []
         uRecallList = []
@@ -117,4 +118,4 @@ if __name__ == "__main__":
         print("Average Accuracy:", calcAverageStats(bAccuracyList, weightList))
         print("Average Recall:", calcAverageStats(bRecallList, weightList))
         print("Average Precision:", calcAverageStats(bPrecisionList, weightList))
-
+        time.sleep(10)

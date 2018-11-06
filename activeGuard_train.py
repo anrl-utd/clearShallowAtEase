@@ -6,6 +6,13 @@ import math
 import random
 import numpy as np
 import sys
+import argparse
+
+# parse the model number for batch training a family of models
+parser = argparse.ArgumentParser()
+parser.add_argument("-mn", "--modelnumber", type=int, default=1,
+                    help="The number models to train")
+args = parser.parse_args()
 
 #np:2278
 #tf: 5495
@@ -23,6 +30,16 @@ print("tf seed: ", r_tf)
 set_random_seed(r_tf)
 #set_random_seed(5495)
 
+# save random seeds to seed file
+with open("models/activeGuard/seeds.txt", "a") as myfile:
+    myfile.write(str(args.modelnumber))
+    myfile.write("\n")
+    myfile.write(str(r))
+    myfile.write("\n")
+    myfile.write(str(r_tf))
+    myfile.write("\n")
+
+# hyper params
 batch_size = 64
 val_batch_size = 64
 iter_ = 50000 #20200
@@ -327,8 +344,11 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/stoch_trained" + ".ckpt")
 
+# dyn save model based on argsparsed
+saver.save(session, "models/activeGuard/aguard_" + str(args.modelnumber) + ".ckpt")
+
+'''
 # Finished training, let's see our accuracy on the entire test set now
 val_batch_size=753
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
@@ -352,4 +372,4 @@ def test():
 test()
 print("np seed: ", r)
 print("tf seed: ", r_tf)
-
+'''

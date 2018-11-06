@@ -147,6 +147,12 @@ def create_fc_layer(input,
 split0, split1, split2, split3, split4, split5 = tf.split(x, 6, 1)
 inputs = [split0, split1, split2, split3, split4, split5]
 
+# check if a given tensor is equal to the zero tensor.
+def check_zero(tensor):
+    #return tf.reduce_all(tf.equal(tf.zeros(tf.shape(tensor)), 0*tensor))
+    total = tf.reduce_sum(tensor)
+    return tf.equal(total, 0)
+
 print(inputs[0].get_shape())
 print(inputs)
 flatten_out = []
@@ -189,7 +195,8 @@ layer2_1_fc = create_fc_layer(input=layer2_1_sum,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
                      identifier='fc2_1')
- 
+layer2_1_fc = tf.cond(check_zero(layer2_1_sum), lambda: 0*layer2_1_fc, lambda: layer2_1_fc)
+
 layer2_2_fc = create_fc_layer(input=layer2_2_sum,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
@@ -199,6 +206,7 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_inputs=fc2_layer_size,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
+layer3_1_fc = tf.cond(check_zero(layer2_2_sum), lambda: 0*layer3_1_fc, lambda: layer3_1_fc)
 
 layer2_1_fc = layer2_1_fc * failed_nodes[2]
 layer3_1_fc = layer3_1_fc * failed_nodes[3]
@@ -213,6 +221,7 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
+layer_fc5 = tf.cond(check_zero(layer3_out), lambda: 0*layer_fc5, lambda: layer_fc5)
 
 layer_fc5 = layer_fc5 * failed_nodes[1]
 
@@ -220,7 +229,8 @@ w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
 w_2 = f_1_1 / (f_1_1 + f_1_2 + f_2)
 w_3 = f_1_2 / (f_1_1 + f_1_2 + f_2)
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc,
+layer_fc5 = w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc
+layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -229,13 +239,15 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_inputs=fc6_layer_size,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
+layer_fc7 = tf.cond(check_zero(layer_fc5), lambda: 0*layer_fc7, lambda: layer_fc7)
 
 layer_fc7 = layer_fc7 * failed_nodes[0]
 
 w_1 = f_3 / (f_2 + f_3)
 w_2 = f_2 / (f_2 + f_3)
+layer_fc7 = w_1*layer_fc7 + w_2*layer_fc5
 
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
+layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -257,8 +269,11 @@ layer_fc11 = create_fc_layer(input=layer_fc10,
 
 y_pred = tf.nn.softmax(layer_fc11, name='y_pred')
 print(y_pred.get_shape())
-
 y_pred_cls = tf.argmax(y_pred, dimension=1)
+
+random_guesses = tf.random_uniform(tf.shape(y_pred_cls), minval=0, maxval=2, dtype=tf.int64)
+
+y_pred_cls = tf.cond(check_zero(layer_fc7), lambda: tf.cast(random_guesses,tf.int64), lambda: y_pred_cls)
 
 session.run(tf.global_variables_initializer())
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc11,
@@ -274,10 +289,10 @@ saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
 session.run(tf.local_variables_initializer())
 
-saver.restore(session, "models/stoch_trained" + ".ckpt")
 
 # test on entire validation set after we restore the trained model
-def test(node_survival):
+def test(node_survival, model_number):
+    saver.restore(session, "models/activeGuard/aguard_" + str(model_number) + ".ckpt")
     # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
     # 0 means that index failed, 1 means that the index survives.
     # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
