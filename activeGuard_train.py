@@ -50,7 +50,7 @@ classes = ['person_images', 'car_images', 'bus_images']
 #classes = ['car_images', 'bus_images', 'person_images']
 num_classes = len(classes)
 
-survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
 f_3 = survive[0]
 f_2 = survive[1]
 f_1_1 = survive[2]

@@ -6,8 +6,14 @@ import math
 import random
 import numpy as np
 import sys
+import argparse
 
-# some 'good' seeds
+# parse the model number for batch training a family of models
+parser = argparse.ArgumentParser()
+parser.add_argument("-mn", "--modelnumber", type=int, default=1,
+                    help="The number models to train")
+args = parser.parse_args()
+
 #np:2278
 #tf: 5495
 
@@ -15,14 +21,23 @@ import sys
 from numpy.random import seed
 r = random.randint(1,10000)
 print("numpy seed: ", r)
-#seed(360)
 seed(r)
+#seed(2278)
 
 from tensorflow import set_random_seed
 r_tf = random.randint(1,10000)
 print("tf seed: ", r_tf)
-#set_random_seed(2543)
 set_random_seed(r_tf)
+#set_random_seed(5495)
+
+# save random seeds to seed file
+with open("models/fixedGuard/seeds.txt", "a") as myfile:
+    myfile.write(str(args.modelnumber))
+    myfile.write("\n")
+    myfile.write(str(r))
+    myfile.write("\n")
+    myfile.write(str(r_tf))
+    myfile.write("\n")
 
 
 batch_size = 64
@@ -36,7 +51,7 @@ num_classes = len(classes)
 
 ## This is our survivability vector, defining our weighted additions with our hueristic presented in the paper.
 #survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
-survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+survive = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87]
 
 # we assign each index in the vector to it's corresponding fog or edge node (Defined in our model diagram)
 f_3 = survive[0]
@@ -283,6 +298,17 @@ def train(num_iteration):
 
         x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
         x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
+        r_ = [random.random() for x in range(len(survive))]
+        
+        # calc prob of one component failing, which we take to be the average failure given a
+        # survivability mapping 'survive'
+        #fail = [1 - x for x in survive]
+        #fail_prob = sum(fail) / len(fail)
+        # something has failed, so we generate rand in range [0, sum(survive)]
+        #if(r_ < 0.5):
+        #    r_ = random.uniform(0, sum(survive))
+        #else:
+        #    r_ = -1
 
         feed_dict_tr = {x: x_batch,
                            y_true: y_true_batch}
@@ -303,29 +329,6 @@ def train(num_iteration):
 
 # around 400 works best
 train(num_iteration=iter_)
-saver.save(session, "models/fixedGuard_train" + ".ckpt")
 
-# Finished training, let's see our accuracy on the entire test set now
-val_batch_size=189
-data = dataset.read_train_sets(train_path, val_path, img_size, classes)
-
-#saver.restore(session, "models/trained.ckpt")
-def show_progress_test(epoch, feed_dict_validate, val_loss):
-    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Validation Accuracy: {0:>6.1%},  Validation Loss: {1:.3f}"
-    
-    print("Accuracy on entire test set")
-    print(msg.format(val_acc, val_loss))
-
-def test():    
-    x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch}
-    val_loss = session.run(cost, feed_dict=feed_dict_val)
-    
-    # print acc    
-    show_progress_test(0, feed_dict_val, val_loss)
-
-test()
-print("np seed: ", r)
-print("tf seed: ", r_tf)
-
+# dyn save model based on argsparsed
+saver.save(session, "models/fixedGuard/fguard_" + str(args.modelnumber) + ".ckpt")
