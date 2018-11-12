@@ -51,7 +51,7 @@ num_classes = len(classes)
 
 ## This is our survivability vector, defining our weighted additions with our hueristic presented in the paper.
 #survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
-survive = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87]
+survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
 
 # we assign each index in the vector to it's corresponding fog or edge node (Defined in our model diagram)
 f_3 = survive[0]

@@ -1,6 +1,6 @@
 #!/bin/bash
-counter=21
-while [ $counter -le 40 ]
+counter=41
+while [ $counter -le 60 ]
 do
 	python fixedGuard_train.py -mn $counter
 	sleep 1m

@@ -1,7 +1,7 @@
-from restore_activeGuard import test
+from restore_baseline import test
 import time
 
-def iterateFailures( numFailureCombinations, maxNumComponentFailure, mn=1):   
+def iterateFailures( numFailureCombinations, maxNumComponentFailure, surv, mn=1):   
    for i in range(numFailureCombinations):
         numSurvived = numSurvivedComponents(i)
         if ( numSurvived >= numComponents - maxNumComponentFailure ):
@@ -76,19 +76,25 @@ if __name__ == "__main__":
     #surv = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
     numComponents = len(surv) # will be 8
     maxNumComponentFailure = 8
-    num_models = 50
-    log_file = 'final_logs/activeGuard.txt'
+    num_models = 30
+    log_file = 'final_logs/baseline.txt'
 
-    for x in range(38, num_models + 1):
+    for x in range(1, num_models + 1):
         uAccuracyList = []
         bAccuracyList = []
         uRecallList = []
         bRecallList = []
         uPrecisionList = []
         bPrecisionList = []
+
+        if x > 10 and x <= 20:
+            surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87]
+
+        if x > 20:
+            surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
         
         weightList = []
-        iterateFailures(2 ** numComponents, maxNumComponentFailure, mn=x)
+        iterateFailures(2 ** numComponents, maxNumComponentFailure, surv, mn=x)
         weightList = normalizeWeights(weightList)
 
         # write accuracy arrays to log
