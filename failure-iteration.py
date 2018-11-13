@@ -79,7 +79,7 @@ if __name__ == "__main__":
     num_models = 30
     log_file = 'final_logs/baseline.txt'
 
-    for x in range(1, num_models + 1):
+    for x in range(20, num_models + 1):
         uAccuracyList = []
         bAccuracyList = []
         uRecallList = []
