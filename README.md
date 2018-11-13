@@ -3,10 +3,10 @@ We present multiple methods to retain accuracy in the case of single or multiple
 
 Guide to result reproduction:
 ## Methods
-fixedGuard -- Weighted Residual connections using our hueristic  
+fixedGuard -- Weighted Residual connections using our heuristic  
 activeGuard -- Networks of stochastic depth, with failure of layers probability reflecting failure during inference.  
 activePatrol -- Networks of stochastic depth, but the addition of layers is weighted by a new variable, learned through gradient descent.
-fixedActiveGuard -- Networks of stochastic depth, but the weighted addition of layers is done using the hueristic we developed.  
+fixedActiveGuard -- Networks of stochastic depth, but the weighted addition of layers is done using the heuristic we developed.  
 
 ## Dataset preprocessing
 Obtain the multiview camera dataset [here](https://cvlab.epfl.ch/data/multiclass). When unzipped, this data will be split into different folders, with images from each camera (c0, c1, c2, ..., c5), and a folder with bounding boxes for these cameras.
