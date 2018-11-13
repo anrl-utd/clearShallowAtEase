@@ -1,7 +1,7 @@
 import sys
 import csv
 
-with open("baseline_results.csv", mode="w") as out:
+with open(sys.argv[2], mode="w") as out:
     out = csv.writer(out, delimiter=',')
     with open(sys.argv[1]) as log:
         model_stats = ['unbalanced accuracy average','unbalanced recall average','unbalanced precision average',
