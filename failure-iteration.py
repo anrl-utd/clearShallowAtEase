@@ -71,15 +71,23 @@ def normalizeWeights(weights):
     return weightNormalized
 
 # Driver program
-if __name__ == "__main__":  
-    surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
-    #surv = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+if __name__ == "__main__":
+    
+    # -- low
+    #surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+    
+    # -- medium
+    #surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+    
+    # -- high
+    surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87] 
+    
     numComponents = len(surv) # will be 8
     maxNumComponentFailure = 8
-    num_models = 30
-    log_file = 'final_logs/baseline.txt'
+    num_models = 1
+    log_file = 'final_logs/high.txt'
 
-    for x in range(20, num_models + 1):
+    for x in range(1, num_models + 1):
         uAccuracyList = []
         bAccuracyList = []
         uRecallList = []
@@ -87,11 +95,11 @@ if __name__ == "__main__":
         uPrecisionList = []
         bPrecisionList = []
 
-        if x > 10 and x <= 20:
-            surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87]
+        #if x > 10 and x <= 20:
+        #   surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87]
 
-        if x > 20:
-            surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+        #if x > 20:
+        #    surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
         
         weightList = []
         iterateFailures(2 ** numComponents, maxNumComponentFailure, surv, mn=x)
@@ -115,13 +123,15 @@ if __name__ == "__main__":
             myFile.write('\n')
             myFile.write('\n')
 
-        print("Results for (U) Unbalanced Test:")
+        print("Results for Validation Test:")
         print("Average Accuracy:", calcAverageStats(uAccuracyList, weightList))
         print("Average Recall:", calcAverageStats(uRecallList, weightList))
         print("Average Precision:", calcAverageStats(uPrecisionList, weightList))
 
-        print("Results for (B) Balanced Test:")
+        print("Results for Holdout Test:")
         print("Average Accuracy:", calcAverageStats(bAccuracyList, weightList))
         print("Average Recall:", calcAverageStats(bRecallList, weightList))
         print("Average Precision:", calcAverageStats(bPrecisionList, weightList))
-        time.sleep(10)
+        
+        # in case we iterate through multiple
+        #time.sleep(10)

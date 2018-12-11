@@ -54,7 +54,7 @@ num_channels = 3
 num_cameras = 6
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
-balanced_val_path = "/home/sid/datasets/mvmc_p/balanced_test_dir/"
+balanced_val_path = "/home/sid/datasets/mvmc_p/holdout_dir/"
 
 # We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
@@ -300,7 +300,7 @@ def test(node_survival, model_number):
     session.run(tf.local_variables_initializer())
 
     # test on the unbalanced data first
-    val_batch_size = 753
+    val_batch_size = 145
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
     feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
     acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
@@ -308,7 +308,7 @@ def test(node_survival, model_number):
    
     session.run(tf.local_variables_initializer())
     # now test on the class balanced dataset
-    val_batch_size = 189
+    val_batch_size = 123
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data_balanced.valid.next_batch(val_batch_size)
     feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
     acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)

@@ -42,7 +42,7 @@ with open("models/activeGuard/seeds.txt", "a") as myfile:
 # hyper params
 batch_size = 64
 val_batch_size = 64
-iter_ = 50000 #20200
+iter_ = 100000 #20200
 lr_ = 1e-1
 
 #Prepare input data
@@ -50,7 +50,10 @@ classes = ['person_images', 'car_images', 'bus_images']
 #classes = ['car_images', 'bus_images', 'person_images']
 num_classes = len(classes)
 
-survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+#survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+#survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+survive = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87]
+
 f_3 = survive[0]
 f_2 = survive[1]
 f_1_1 = survive[2]
@@ -68,6 +71,7 @@ num_channels = 3
 num_cameras = 6
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
+holdout_path = "/home/sid/datasets/mvmc_p/holdout_dir/"
 
 # We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
@@ -280,8 +284,9 @@ y_pred_cls = tf.argmax(y_pred, dimension=1)
 print(y_pred_cls.get_shape())
 
 session.run(tf.global_variables_initializer())
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc11,
-                                                        labels=y_true)
+cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc11,
+                                                            targets=y_true,
+                                                            pos_weight=6)
 cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
@@ -333,11 +338,13 @@ def train(num_iteration):
         session.run(optimizer, feed_dict=feed_dict_tr)
 
         if i % int(data.train.num_examples/batch_size) == 0: 
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
+            val_loss, acc = session.run([cost, accuracy], feed_dict=feed_dict_val)
             epoch = int(i / int(data.train.num_examples/batch_size))    
             
             show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
             print(int(i))
+            if acc > .98 and i > 80000:
+                break
 
     print(int(num_iteration))
     total_iterations += num_iteration

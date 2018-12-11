@@ -15,7 +15,7 @@ parser.add_argument("-mn", "--modelnumber", type=int, default=1,
 args = parser.parse_args()
 
 # some 'good' seeds
-# np:2278
+# np: 2278
 # tf: 5495
 
 #Adding seeds so that random initialization is consistent
@@ -40,7 +40,7 @@ with open("models/baseline/seeds.txt", "a") as myfile:
 
 batch_size = 64
 val_batch_size = 64
-iter_ = 40000
+iter_ = 80000
 #iter_=100
 lr_ = 1e-1
 
@@ -53,6 +53,7 @@ num_channels = 3
 num_cameras = 6
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
+holdout_path = "/home/sid/datasets/mvmc_p/holdout_dir/"
 
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
@@ -229,14 +230,16 @@ y_pred_cls = tf.argmax(y_pred, dimension=1)
 print(y_pred_cls.get_shape())
 
 session.run(tf.global_variables_initializer())
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc11,
-                                                        labels=y_true)
+cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc11,
+                                                            targets=y_true,
+                                                            pos_weight=6)
+
 cost = tf.reduce_mean(cross_entropy)
+precision = tf.metrics.precision(y_true_cls, y_pred_cls)
 optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-precision = tf.metrics.precision(y_true_cls, y_pred_cls)
 
 def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
@@ -268,11 +271,14 @@ def train(num_iteration):
         session.run(optimizer, feed_dict=feed_dict_tr)
 
         if i % int(data.train.num_examples/batch_size) == 0: 
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
+            val_loss, acc = session.run([cost, accuracy], feed_dict=feed_dict_val)
             epoch = int(i / int(data.train.num_examples/batch_size))    
             
             show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
             print(int(i))
+            print(acc)
+            if acc >= .98:
+                break
 
     print(int(num_iteration))
     total_iterations += num_iteration
@@ -283,7 +289,7 @@ train(num_iteration=iter_)
 saver.save(session, "models/baseline/bline_" + str(args.modelnumber) + ".ckpt")
 
 # Finished training, let's see our accuracy on the entire test set now
-val_batch_size=189
+val_batch_size=145
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
 
 #saver.restore(session, "models/trained.ckpt")
@@ -302,6 +308,22 @@ def test():
     # print acc    
     show_progress_test(0, feed_dict_val, val_loss)
 
+print('Final Validation Acc')
 test()
+
+holdout_batch_size=123
+def holdout():
+    data = dataset.read_train_sets(train_path, holdout_path, img_size, classes)
+    x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(holdout_batch_size)
+    feed_dict_val = {x: x_valid_batch, y_true: y_valid_batch}
+    val_loss = session.run(cost, feed_dict=feed_dict_val)
+    
+    # print acc    
+    show_progress_test(0, feed_dict_val, val_loss)
+
+print('====================================')
+print('Final Holdout Acc')
+holdout()
+
 print("np seed: ", r)
 print("tf seed: ", r_tf)

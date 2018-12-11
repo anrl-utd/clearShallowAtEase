@@ -3,6 +3,7 @@ import os
 import glob
 from sklearn.utils import shuffle
 import numpy as np
+from imblearn.over_sampling import SMOTE
 
 
 def load_train(train_path, image_size, classes):
@@ -86,6 +87,7 @@ def load_train(train_path, image_size, classes):
         #print(len(images[i]), ' :', i)
         #images[i] = np.concatenate((images[i][0],images[i][1],images[i][2],images[i][3],images[i][4],images[i][5]), axis = 1)
         i += 1
+    non_one_hot = labels
     # make every element of labels a vec
     for l in range(len(labels)):
         if isinstance(labels[l], list):
@@ -173,7 +175,13 @@ def read_train_sets(train_path, val_path, image_size, classes):
 
   train_images, train_labels, train_img_names, train_cls = load_train(train_path, image_size, classes)
   train_images, train_labels, train_img_names, train_cls = shuffle(train_images, train_labels, train_img_names, train_cls)
-  
+
+  #sm = SMOTE(random_state=42)
+  #train_images = train_images.reshape(620, 18432)
+  #print(train_images)
+
+  #train_images, train_labels = sm.fit_resample(train_images, [np.where(r==1)[0][0] for r in train_labels])
+
   validation_images, validation_labels, validation_img_names, validation_cls = load_train(val_path, image_size, classes) 
   validation_images, validation_labels, validation_img_names, validation_cls = shuffle(validation_images, validation_labels, validation_img_names, validation_cls) 
 
