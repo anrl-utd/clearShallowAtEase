@@ -42,7 +42,7 @@ with open("models/fixedGuard/seeds.txt", "a") as myfile:
 
 batch_size = 64
 val_batch_size = 64
-iter_ = 20200
+iter_ = 60000
 lr_ = 1e-1
 
 # Prepare input data
@@ -50,8 +50,8 @@ classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
 ## This is our survivability vector, defining our weighted additions with our hueristic presented in the paper.
-#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
 survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+#surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 
 # we assign each index in the vector to it's corresponding fog or edge node (Defined in our model diagram)
 f_3 = survive[0]
@@ -223,11 +223,13 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
 
-w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
+w_1 = f_2 / (f_1_1 + f_1_2 + f_2)
 w_2 = f_1_2 / (f_1_1 + f_1_2 + f_2)
 w_3 = f_1_1 / (f_1_1 + f_1_2 + f_2)
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*layer3_1_fc + w_3*layer2_1_fc,
+layer_fc5 = w_1*layer_fc5 + w_2*layer3_1_fc + w_3*layer2_1_fc
+
+layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -267,8 +269,9 @@ y_pred_cls = tf.argmax(y_pred, dimension=1)
 print(y_pred_cls.get_shape())
 
 session.run(tf.global_variables_initializer())
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc11,
-                                                        labels=y_true)
+cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc11,
+                                                            targets=y_true,
+                                                            pos_weight=2)
 cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
@@ -318,11 +321,13 @@ def train(num_iteration):
         session.run(optimizer, feed_dict=feed_dict_tr)
 
         if i % int(data.train.num_examples/batch_size) == 0: 
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
+            val_loss, acc = session.run([cost, accuracy], feed_dict=feed_dict_val)
             epoch = int(i / int(data.train.num_examples/batch_size))    
             
             show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
             print(int(i))
+            if acc > .98 and i > 50000:
+                break
 
     print(int(num_iteration))
     total_iterations += num_iteration
@@ -331,4 +336,4 @@ def train(num_iteration):
 train(num_iteration=iter_)
 
 # dyn save model based on argsparsed
-saver.save(session, "models/fixedGuard/fguard_" + str(args.modelnumber) + ".ckpt")
+saver.save(session, "models/fixedGuard/fguard_1.ckpt")

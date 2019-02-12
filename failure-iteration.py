@@ -1,4 +1,4 @@
-from restore_baseline import test
+from restore_fixedGuard import test
 import time
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, surv, mn=1):   
@@ -74,18 +74,18 @@ def normalizeWeights(weights):
 if __name__ == "__main__":
     
     # -- low
-    #surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+    surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
     
     # -- medium
     #surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
     
     # -- high
-    surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87] 
+    #surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87] 
     
     numComponents = len(surv) # will be 8
     maxNumComponentFailure = 8
     num_models = 1
-    log_file = 'final_logs/high.txt'
+    log_file = 'final_logs/low.txt'
 
     for x in range(1, num_models + 1):
         uAccuracyList = []
@@ -94,12 +94,6 @@ if __name__ == "__main__":
         bRecallList = []
         uPrecisionList = []
         bPrecisionList = []
-
-        #if x > 10 and x <= 20:
-        #   surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87]
-
-        #if x > 20:
-        #    surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
         
         weightList = []
         iterateFailures(2 ** numComponents, maxNumComponentFailure, surv, mn=x)

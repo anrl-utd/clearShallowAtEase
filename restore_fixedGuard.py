@@ -35,7 +35,9 @@ num_classes = len(classes)
 #survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
 
 ## unstable_train
-survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+
+#surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 
 f_3 = survive[0]
 f_2 = survive[1]
@@ -51,7 +53,7 @@ num_channels = 3
 num_cameras = 6
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
-balanced_val_path = "/home/sid/datasets/mvmc_p/balanced_test_dir/"
+balanced_val_path = "/home/sid/datasets/mvmc_p/holdout_dir/"
 
 # We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
@@ -144,6 +146,12 @@ def create_fc_layer(input,
 split0, split1, split2, split3, split4, split5 = tf.split(x, 6, 1)
 inputs = [split0, split1, split2, split3, split4, split5]
 
+# check if a given tensor is equal to the zero tensor.
+def check_zero(tensor):
+    #return tf.reduce_all(tf.equal(tf.zeros(tf.shape(tensor)), 0*tensor))
+    total = tf.reduce_sum(tensor)
+    return tf.equal(total, 0)
+
 print(inputs[0].get_shape())
 print(inputs)
 flatten_out = []
@@ -182,7 +190,8 @@ layer2_1_fc = create_fc_layer(input=layer2_1_sum,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
                      identifier='fc2_1')
- 
+layer2_1_fc = tf.cond(check_zero(layer2_1_sum), lambda: 0*layer2_1_fc, lambda: layer2_1_fc)
+
 layer2_2_fc = create_fc_layer(input=layer2_2_sum,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
@@ -192,6 +201,7 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_inputs=fc2_layer_size,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
+layer3_1_fc = tf.cond(check_zero(layer2_2_sum), lambda: 0*layer3_1_fc, lambda: layer3_1_fc)
 
 layer2_1_fc = layer2_1_fc * failed_nodes[2]
 layer3_1_fc = layer3_1_fc * failed_nodes[3]
@@ -206,14 +216,16 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
+layer_fc5 = tf.cond(check_zero(layer3_out), lambda: 0*layer_fc5, lambda: layer_fc5)
 
 layer_fc5 = layer_fc5 * failed_nodes[1]
 
-w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
+w_1 = f_2 / (f_1_1 + f_1_2 + f_2)
 w_2 = f_1_1 / (f_1_1 + f_1_2 + f_2)
 w_3 = f_1_2 / (f_1_1 + f_1_2 + f_2)
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc,
+layer_fc5 = w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc
+layer_fc6 = create_fc_layer(input=layer_fc5,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -223,12 +235,15 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
 
+layer_fc7 = tf.cond(check_zero(layer_fc5), lambda: 0*layer_fc7, lambda: layer_fc7)
+
 layer_fc7 = layer_fc7 * failed_nodes[0]
 
 w_1 = f_3 / (f_2 + f_3)
 w_2 = f_2 / (f_2 + f_3)
 
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
+layer_fc7 = w_1*layer_fc7 + w_2*layer_fc5
+layer_fc8 = create_fc_layer(input=layer_fc7,
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -253,6 +268,10 @@ print(y_pred.get_shape())
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
 print(y_pred_cls.get_shape())
+y_pred_cls.dtype
+
+random_guesses = tf.random_uniform(tf.shape(y_pred_cls), minval=0, maxval=2, dtype=tf.int64)
+y_pred_cls = tf.cond(check_zero(layer_fc7), lambda: tf.cast(random_guesses,tf.int64), lambda: y_pred_cls)
 
 session.run(tf.global_variables_initializer())
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc11,
@@ -268,10 +287,11 @@ saver = tf.train.Saver()
 session.run(tf.global_variables_initializer())
 session.run(tf.local_variables_initializer())
 
-saver.restore(session, "models/fixedGuard_train" + ".ckpt")
+
+saver.restore(session, "models/fixedGuard/fguard_1.ckpt")
 
 # test on entire validation set after we restore the trained model
-def test(node_survival):
+def test(node_survival, model_number):
     # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
     # 0 means that index failed, 1 means that the index survives.
     # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
@@ -279,7 +299,7 @@ def test(node_survival):
     session.run(tf.local_variables_initializer())
 
     # test on the unbalanced data first
-    val_batch_size = 753
+    val_batch_size = 145
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
     feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
     acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
@@ -287,7 +307,7 @@ def test(node_survival):
    
     session.run(tf.local_variables_initializer())
     # now test on the class balanced dataset
-    val_batch_size = 189
+    val_batch_size = 123
     x_valid_batch, y_valid_batch, _, valid_cls_batch = data_balanced.valid.next_batch(val_batch_size)
     feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
     acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
