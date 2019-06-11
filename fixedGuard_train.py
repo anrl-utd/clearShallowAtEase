@@ -52,6 +52,7 @@ num_classes = len(classes)
 ## This is our survivability vector, defining our weighted additions with our hueristic presented in the paper.
 #survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
 survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+res_surv = {layer2_1_fc: 0, layer3_1_fc: 0, layer_fc5: 0, layer2_2_sum: 0}
 
 # we assign each index in the vector to it's corresponding fog or edge node (Defined in our model diagram)
 f_3 = survive[0]
@@ -211,7 +212,7 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
 
-layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
+layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc * res_surv[layer2_1_fc] + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc + res_surv[layer2_2_sum] * layer2_2_sum
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -227,7 +228,7 @@ w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
 w_2 = f_1_2 / (f_1_1 + f_1_2 + f_2)
 w_3 = f_1_1 / (f_1_1 + f_1_2 + f_2)
 
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*layer3_1_fc + w_3*layer2_1_fc,
+layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*layer3_1_fc * res_surv[layer3_1_fc] + w_3*layer2_1_fc * res_surv[layer2_1_fc],
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -240,7 +241,7 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
 w_1 = f_3 / (f_2 + f_3)
 w_2 = f_2 / (f_2 + f_3)
 
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5,
+layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5 * res_surv[layer_fc5],
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
