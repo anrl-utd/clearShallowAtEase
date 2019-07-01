@@ -108,7 +108,6 @@ def define_active_guard_model_with_connections(num_vars,num_classes,hidden_units
 
     model = Model(inputs=input_layer, outputs=normal_output_layer)
     # TODO: define custom metric to keep track of network failing during training
-    sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 

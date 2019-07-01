@@ -12,6 +12,7 @@ def average(list):
     return sum(list) / len(list)
 
 # runs all hyperconnection configurations for both fixed and active guard survival configurations
+# sensitivity analysis 
 def main():
     use_GCP = True
     if use_GCP == True:
@@ -25,7 +26,8 @@ def main():
     survive_configurations = [
         [.78,.8,.85],
         [.87,.91,.95],
-        [.92,.96,.99]
+        [.92,.96,.99],
+        [1,1,1]
     ]
     hyperconnections = [
         [0,0,0],

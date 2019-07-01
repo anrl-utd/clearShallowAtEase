@@ -23,9 +23,10 @@ if __name__ == "__main__":
     num_vars = len(training_data[0])
     num_classes = 13
     survive_configurations = [
-        [.78,.8,.85],
-        [.87,.91,.95],
-        [.92,.96,.99]
+        # [.78,.8,.85],
+        # [.87,.91,.95],
+        # [.92,.96,.99],
+        [1,1,1]
     ]
     # survibility configurations for active guard basleline
     activeguard_baseline_surviveconfigs = [
@@ -38,8 +39,8 @@ if __name__ == "__main__":
     load_model = False
     now = datetime.datetime.now()
     date = str(now.month) + '-' + str(now.day) + '-' + str(now.year)
-    file_name = 'results/' + date + '/baseline_active_guard_results10.txt'
-    output_name = "baseline_active_guard_output10.txt"
+    file_name = 'results/' + date + '/experiment_no_failure_results10.txt'
+    output_name = "experiment_no_failure_output10.txt"
     num_iterations = 1
     verbose = 0
     # keep track of output so that output is in order
@@ -51,24 +52,28 @@ if __name__ == "__main__":
             "[0.78, 0.8, 0.85]":[0] * num_iterations,
             "[0.87, 0.91, 0.95]":[0] * num_iterations,
             "[0.92, 0.96, 0.99]":[0] * num_iterations,
+            "[1, 1, 1]":[0] * num_iterations,
         }, 
         "Fixed Guard":
         {
             "[0.78, 0.8, 0.85]":[0] * num_iterations,
             "[0.87, 0.91, 0.95]":[0] * num_iterations,
             "[0.92, 0.96, 0.99]":[0] * num_iterations,
+            "[1, 1, 1]":[0] * num_iterations,
         },
         "Baseline": 
         {
             "[0.78, 0.8, 0.85]":[0] * num_iterations,
             "[0.87, 0.91, 0.95]":[0] * num_iterations,
             "[0.92, 0.96, 0.99]":[0] * num_iterations,
+            "[1, 1, 1]":[0] * num_iterations,
         },
         "Baseline Fixed Guard": 
         {
             "[0.78, 0.8, 0.85]":[0] * num_iterations,
             "[0.87, 0.91, 0.95]":[0] * num_iterations,
             "[0.92, 0.96, 0.99]":[0] * num_iterations,
+            "[1, 1, 1]":[0] * num_iterations,
         },
         "Baseline Active Guard": 
         {
@@ -77,18 +82,21 @@ if __name__ == "__main__":
                 "[0.78, 0.8, 0.85]":[0] * num_iterations,
                 "[0.87, 0.91, 0.95]":[0] * num_iterations,
                 "[0.92, 0.96, 0.99]":[0] * num_iterations,
+                "[1, 1, 1]":[0] * num_iterations,
             },
             "[0.7, 0.7, 0.7]":
             {
                 "[0.78, 0.8, 0.85]":[0] * num_iterations,
                 "[0.87, 0.91, 0.95]":[0] * num_iterations,
                 "[0.92, 0.96, 0.99]":[0] * num_iterations,
+                "[1, 1, 1]":[0] * num_iterations,
             },
             "[0.5, 0.5, 0.5]":
             {
                 "[0.78, 0.8, 0.85]":[0] * num_iterations,
                 "[0.87, 0.91, 0.95]":[0] * num_iterations,
                 "[0.92, 0.96, 0.99]":[0] * num_iterations,
+                "[1, 1, 1]":[0] * num_iterations,
             },
         }
     }
@@ -159,21 +167,25 @@ if __name__ == "__main__":
                 output_list.append('ACTIVE GUARD' + '\n')
                 print("ACTIVE GUARD")
                 output["Active Guard"][str(survive_configuration)][iteration-1] = run(file_name,active_guard,survive_configuration,output_list,training_labels,test_data,test_labels)
+
                 # fixed guard
                 file.write('FIXED GUARD' + '\n')
                 output_list.append('FIXED GUARD' + '\n')
                 print("FIXED GUARD")
                 output["Fixed Guard"][str(survive_configuration)][iteration-1] = run(file_name,fixed_guard,survive_configuration,output_list,training_labels,test_data,test_labels)
+
                 # baseline fixed guard
                 file.write('BASELINE FIXED GUARD' + '\n')
                 output_list.append('BASELINE FIXED GUARD' + '\n')
                 print("BASELINE FIXED GUARD")
                 output["Baseline Fixed Guard"][str(survive_configuration)][iteration-1] = run(file_name,baseline_fixed_guard,survive_configuration,output_list,training_labels,test_data,test_labels)
+
                 # baseline
                 file.write('BASELINE' + '\n')
                 output_list.append('BASELINE' + '\n')                    
                 print("BASELINE")
                 output["Baseline"][str(survive_configuration)][iteration-1] = run(file_name,baseline,survive_configuration,output_list,training_labels,test_data,test_labels)
+
             # save files to GCP
             # if use_GCP:
             #     #os.system('gsutil -m cp -r *.h5 gs://anrl-storage/models')

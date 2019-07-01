@@ -6,6 +6,7 @@ import keras.models
 
 from experiment.main import fail_node,test
 from experiment.random_guess import model_guess
+
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
         numSurvived = numSurvivedComponents(i)
@@ -27,6 +28,7 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,f
         numSurvived = numSurvivedComponents(i)
         if ( numSurvived >= numComponents - maxNumComponentFailure ):
             listOfZerosOnes = convertBinaryToList(i, numComponents)
+            print(listOfZerosOnes)
             failures = [int(failure) for failure in listOfZerosOnes]
             # saves a copy of the original model so it does not change during failures 
             old_weights = model.get_weights()
