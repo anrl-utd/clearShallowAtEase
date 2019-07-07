@@ -1,3 +1,4 @@
+
 from experiment.ActiveGuard import define_active_guard_model_with_connections
 from experiment.FixedGuard import define_model_with_nofogbatchnorm_connections_extrainput,define_fixed_guard_baseline_model
 from experiment.Baseline import define_baseline_functional_model
@@ -23,9 +24,9 @@ if __name__ == "__main__":
     num_vars = len(training_data[0])
     num_classes = 13
     survive_configurations = [
-        # [.78,.8,.85],
-        # [.87,.91,.95],
-        # [.92,.96,.99],
+        [.78,.8,.85],
+        [.87,.91,.95],
+        [.92,.96,.99],
         [1,1,1]
     ]
     # survibility configurations for active guard basleline

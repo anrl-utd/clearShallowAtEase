@@ -96,7 +96,6 @@ def load_model(input_size, output_size, hidden_units, regularization, weights_pa
     elif model_type == 2:
         model = define_active_guard_model_with_connections(input_size,output_size,hidden_units,regularization,survive_rates)
     elif model_type == 3:
-        failure_rates = [.70,.75,.85]
         model = define_model_with_nofogbatchnorm_connections(input_size,output_size,hidden_units,0,survive_rates)
     elif model_type == 4:
         model = define_model_with_nofogbatchnorm_connections_extrainput(input_size,output_size,hidden_units,0,survive_rates)
