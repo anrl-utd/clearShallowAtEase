@@ -437,7 +437,9 @@ def skipconnections_ANRL_MobileNet(input_shape=None,
             img_input = input_tensor
     # changed the strides from 2 to 1 since cifar-10 images are smaller
     # IoT node
-    iot = _conv_block(img_input, 32, alpha, strides=(1, 1))
+    iot = _conv_block(img_input, 32, alpha, strides=(1, 1)) # size: (31,31,16)
+    connection_iotfog = layers.Conv2D(64,(1,1),strides = 1, use_bias = False, name = "skip_hyperconnection_iotfog")(iot)
+ 
     # edge 
     edge = _depthwise_conv_block(iot, 64, alpha, depth_multiplier, block_id=1)
 
@@ -446,9 +448,10 @@ def skipconnections_ANRL_MobileNet(input_shape=None,
     connection_edgefog = _depthwise_conv_block(edge, 128, alpha, depth_multiplier, block_id=3) # size:  (None, 31, 31, 64) 
     # skip hyperconnection, used 1x1 convolution to project shape of node output into (7,7,256)
     connection_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(connection_edgefog)
-
+    connection_fog = layers.add([connection_iotfog,connection_edgefog])
+    
     # fog node
-    fog = _depthwise_conv_block(connection_edgefog, 256, alpha, depth_multiplier, # size: (None, 32, 32, 64)
+    fog = _depthwise_conv_block(connection_fog, 256, alpha, depth_multiplier, # size: (None, 32, 32, 64)
                               strides=(2, 2), block_id=4)
     fog = _depthwise_conv_block(fog, 256, alpha, depth_multiplier, block_id=5)
 
