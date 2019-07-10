@@ -39,7 +39,7 @@ def define_active_guard_model_with_connections(num_vars,num_classes,hidden_units
     f3_survive_rate = K.variable(survive_rates[2])
 
     # set training phase to true 
-    K.set_learning_phase(0)
+    K.set_learning_phase(1)
     if K.learning_phase():
         # seeds so the random_number is different for each fog node 
         f1_rand = K.random_uniform(shape=f1_rand.shape,seed=7)
@@ -148,7 +148,7 @@ def define_active_guard_model_with_connections_experiment2(num_vars,num_classes,
     f3_survive_rate = K.variable(survive_rates[2])
 
     # set training phase to true 
-    K.set_learning_phase(0)
+    K.set_learning_phase(1)
     if K.learning_phase():
         # seeds so the random_number is different for each fog node 
         f1_rand = K.random_uniform(shape=f1_rand.shape,seed=7)
