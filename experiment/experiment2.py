@@ -1,4 +1,4 @@
-from experiment.ActiveGuard import define_active_guard_model_with_connections_experiment2
+from experiment.ActiveGuard import define_active_guard_model_with_connections_hyperconnectionweight1
 from experiment.FixedGuard import define_fixed_guard_model_experiment2
 from experiment.loadData import load_data
 from sklearn.model_selection import train_test_split
@@ -139,7 +139,7 @@ def main():
 
             for hyperconnection in hyperconnections:
                 # active guard
-                active_guard = define_active_guard_model_with_connections_experiment2(num_vars,num_classes,hidden_units,0,survive_configuration,hyperconnection)
+                active_guard = define_active_guard_model_with_connections_hyperconnectionweight1(num_vars,num_classes,hidden_units,0,survive_configuration,hyperconnection)
                 active_guard_file = str(iteration) + " " + str(survive_configuration) + str(hyperconnection) + ' active_guard.h5'
                 if load_model:
                     active_guard.load_weights(active_guard_file)
@@ -167,7 +167,7 @@ def main():
                 # file.write(str(survive_configuration) + '\n')
                 # file.write(str(hyperconnection) + '\n')
 
-                    # active guard
+                # active guard
                 #file.write('ACTIVE GUARD' + '\n')
                 output_list.append('ACTIVE GUARD' + '\n')
                 print("ACTIVE GUARD")

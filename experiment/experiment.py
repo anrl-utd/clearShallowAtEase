@@ -11,7 +11,10 @@ import os
 
 # function to return average of a list 
 def average(list):
-    return sum(list) / len(list)
+    if len(list) == 0:
+        return 0
+    else:
+        return sum(list) / len(list)
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True

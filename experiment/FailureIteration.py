@@ -5,7 +5,7 @@ from sklearn.metrics import precision_score
 import keras.models
 
 from experiment.main import fail_node,test
-from experiment.random_guess import model_guess
+from experiment.random_guess import model_guess, cnnmodel_guess
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, debug):   
    for i in range(numFailureCombinations):
@@ -31,9 +31,10 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,f
             failures = [int(failure) for failure in listOfZerosOnes]
             # saves a copy of the original model so it does not change during failures 
             old_weights = model.get_weights()
-            fail_node(model,failures)
+            is_cnn = fail_node(model,failures)
             print(failures)
-            accuracy,failure = calcModelAccuracy(file_name,model,output_list,training_labels,test_data,test_labels)
+            output_list.append(str(failures))
+            accuracy,failure = calcModelAccuracy(file_name,model,output_list,training_labels,test_data,test_labels,is_cnn)
             # add number of failures for a model
             failure_count += failure
             # change the changed weights to the original weights
@@ -92,9 +93,12 @@ def convertBinaryToList(number, numBits):
 def calcAccuracy(listOfZerosOnes):
     return test([float(listOfZerosOnes[i]) for i in range(len(listOfZerosOnes))])
 
-def calcModelAccuracy(file_name,model,output_list,training_labels,test_data,test_labels):
+def calcModelAccuracy(file_name,model,output_list,training_labels,test_data,test_labels, is_cnn):
     # accuracy based on whether the model is fully connected or not 
-    acc,failure = model_guess(model,training_labels,test_data,test_labels,file_name)
+    if is_cnn:
+         acc,failure = cnnmodel_guess(model,training_labels,test_data,test_labels,file_name)
+    else:
+        acc,failure = model_guess(model,training_labels,test_data,test_labels,file_name)
     return acc,failure
 
 def normalizeWeights(weights):
@@ -121,7 +125,7 @@ def run(file_name,model,surv,output_list,training_labels,test_data,test_labels):
     return avg_acc
 # Driver program
 if __name__ == "__main__":  
-    surv = [.99,.96,.92]
+    surv = [.92,.96,.99]
     numComponents = len(surv) # will be 3
     maxNumComponentFailure = 3
     debug = True

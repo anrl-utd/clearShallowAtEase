@@ -18,7 +18,7 @@ import tensorflow as tf
 import datetime
 import os
 
-from experiment.ActiveGuard import define_active_guard_model_with_connections
+from experiment.ActiveGuard import define_active_guard_model_with_connections, define_active_guard_model_with_connections_hyperconnectionweight1
 from experiment.FixedGuard import define_model_with_connections, define_model_with_nofogbatchnorm_connections, define_model_with_nofogbatchnorm_connections_extrainput
 from experiment.Baseline import define_baseline_functional_model
 from experiment.random_guess import model_guess
@@ -27,21 +27,36 @@ from experiment.loadData import load_data
 # fails node by making the physical node return 0
 # node_array: bit array, 1 corresponds to alive, 0 corresponds to failure
 def fail_node(model,node_array):
-    for index,node in enumerate(node_array):
-        # node failed
-        if node == 0:
-            layer_name = "fog" + str(index + 1) + "_output_layer"
-            layer = model.get_layer(name=layer_name)
-            layer_weights = layer.get_weights()
-            #print(layer_weights)
-            # make new weights for the connections
-            new_weights = np.zeros(layer_weights[0].shape)
-            #new_weights[:] = np.nan # set weights to nan
-            # make new weights for biases
-            new_bias_weights = np.zeros(layer_weights[1].shape)
-            #new_bias_weights[:] = np.nan # set weights to nan
-            layer.set_weights([new_weights,new_bias_weights])
-            print(layer_name, "was failed")
+    is_cnn = True
+    if is_cnn:
+        nodes = ["conv_pw_3","conv_pw_8"]
+        for index,node in enumerate(node_array):
+            # node failed
+            if node == 0:
+                layer_name = nodes[index]
+                layer = model.get_layer(name=layer_name)
+                layer_weights = layer.get_weights()
+                # make new weights for the connections
+                new_weights = np.zeros(layer_weights[0].shape)
+                layer.set_weights([new_weights])
+                print(layer_name, "was failed")
+    else:
+        for index,node in enumerate(node_array):
+            # node failed
+            if node == 0:
+                layer_name = "fog" + str(index + 1) + "_output_layer"
+                layer = model.get_layer(name=layer_name)
+                layer_weights = layer.get_weights()
+                #print(layer_weights)
+                # make new weights for the connections
+                new_weights = np.zeros(layer_weights[0].shape)
+                #new_weights[:] = np.nan # set weights to nan
+                # make new weights for biases
+                new_bias_weights = np.zeros(layer_weights[1].shape)
+                #new_bias_weights[:] = np.nan # set weights to nan
+                layer.set_weights([new_weights,new_bias_weights])
+                print(layer_name, "was failed")
+    return is_cnn
 
 # trains and returns the model 
 def train_model(training_data,training_labels,model_type, survival_rates):
@@ -64,13 +79,14 @@ def train_model(training_data,training_labels,model_type, survival_rates):
             survive_rates = [.70,.75,.85]
             model = define_model_with_nofogbatchnorm_connections(num_vars,num_classes,50,0,survival_rates)
         elif model_type == 4:
-            survive_rates = [.70,.75,.85]
             model = define_model_with_nofogbatchnorm_connections_extrainput(num_vars,num_classes,250,0,survival_rates)
+        elif model_type == 5:
+            model = define_active_guard_model_with_connections_hyperconnectionweight1(num_vars,num_classes,250,0,survival_rates,[1,1,1])
         else:
             raise ValueError("Incorrect model type")
         # fit model on training data
         if model_type == 2:
-            model.fit(training_data,training_labels, epochs=10, batch_size=128,verbose=1,shuffle = True,callbacks=[])
+            model.fit(training_data,training_labels, epochs=10, batch_size=1028,verbose=1,shuffle = True,callbacks=[])
         else:
 
             model.fit(training_data,training_labels, epochs=10, batch_size=128,verbose=1,shuffle = True)
@@ -81,7 +97,7 @@ def train_model(training_data,training_labels,model_type, survival_rates):
     if not os.path.exists(path):
         os.mkdir(path)
     if save_model:
-        model.save_weights(path + '/250 units 10 layers fixedguard [.7, .8, .85] adam 10 epochs .8 split stratify' + '.h5')
+        model.save_weights(path + '/deepfoggguardTest_highconfig_withexperiment2activegaurd' + '.h5')
     return model
 
 # load model from the weights 
@@ -99,6 +115,8 @@ def load_model(input_size, output_size, hidden_units, regularization, weights_pa
         model = define_model_with_nofogbatchnorm_connections(input_size,output_size,hidden_units,0,survive_rates)
     elif model_type == 4:
         model = define_model_with_nofogbatchnorm_connections_extrainput(input_size,output_size,hidden_units,0,survive_rates)
+    elif model_type == 5:
+        model = define_active_guard_model_with_connections_hyperconnectionweight1(input_size,output_size,hidden_units,0,survive_rates,[1,1,1])
     else:
         raise ValueError("Incorrect model type")
     model.load_weights(weights_path)
@@ -147,6 +165,9 @@ def evaluate_withFailures(model,test_data,test_labels):
     failure_list = [
         [1,1,1], # no failures
         [0,1,1], # fog node 1 fails
+        [0,0,1], # fog node 1 and 2 fail
+        [0,1,0], # fog node 1 and 3 fail
+        [1,0,0], # fog node 2 and 3 fail
         [1,0,1], # fog node 2 fails
         [1,1,0], # fog node 3 fails
     ]
@@ -183,15 +204,15 @@ if __name__ == "__main__":
     num_classes = 13
 
     # define model type
-    model_type = 4
+    model_type = 5
 
     load_weights = False
     if load_weights:
-        path = 'weights/2-16-2019/50 units 10 layers with normal connections fixedguard [.92, .96, .99] weights he_normal adam 10 epochs new split different seeds no shuffle batchnorm.h5'
-        model = load_model(input_size = num_vars, output_size = num_classes, hidden_units = 50, regularization = 0, weights_path = path, model_type = model_type, survive_rates=[.92, .96, .99])
+        path = 'weights/7-11-2019/deepfoggguardTest.h5'
+        model = load_model(input_size = num_vars, output_size = num_classes, hidden_units = 250, regularization = 0, weights_path = path, model_type = model_type, survive_rates=[.92,.96,.99])
     else:
         K.set_learning_phase(1)
-        model = train_model(training_data,training_labels,model_type=model_type,survival_rates=[.7, .8, .85])
+        model = train_model(training_data,training_labels,model_type=model_type,survival_rates=[.92,.96,.99])
     K.set_learning_phase(0)
     evaluate_withFailures(model,test_data,test_labels)
     # used to plot the model diagram
