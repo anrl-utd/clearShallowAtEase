@@ -1,5 +1,4 @@
 # Resilient Deep Distributed Neural Networks (RDDNNs)
-=======
 We present multiple methods to retain accuracy in the case of single or multiple layer failure during inference in distributed neural networks.
 
 ## Methods
@@ -7,7 +6,7 @@ fixedGuard -- Residual connections using our heuristic
 activeGuard -- Networks of stochastic depth, with failure of layers probability reflecting failure during inference.  
 
 ## Multiview Camera Object Classification Experiment
-1. Obtain the [train](https://anonymousfiles.io/3GVNxBrV/), [test](https://anonymousfiles.io/PF7jVmsN/), and [holdout](https://anonymousfiles.io/wPsdRDxB/) datasets. Move the datasets to a single location and unzip. There should be three directories, one for each set. Modify directory paths in each method train file, near the top of file.
+1. Obtain the already preprocessed [train](https://anonymousfiles.io/3GVNxBrV/), [test](https://anonymousfiles.io/PF7jVmsN/), and [holdout](https://anonymousfiles.io/wPsdRDxB/) datasets. Move the datasets to a single location and unzip. There should be three directories, one for each set. Modify directory paths in each method train file, near the top of file.
 2. Install dependencies:
     * Tensorflow 1.8.0
     * Numpy >= 1.14.0

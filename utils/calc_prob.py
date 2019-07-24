@@ -1,3 +1,4 @@
+# Used for computing probabilities in the table for the paper
 high = [0.999, 0.998,0.995,0.99,0.985,0.985,0.98,0.97]
 
 high_mult = 1
