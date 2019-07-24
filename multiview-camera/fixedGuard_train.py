@@ -6,45 +6,65 @@ import math
 import random
 import numpy as np
 import sys
+import argparse
 
-# some 'good' seeds
+# parse the model number for batch training a family of models
+parser = argparse.ArgumentParser()
+parser.add_argument("-mn", "--modelnumber", type=int, default=1,
+                    help="The number models to train")
+args = parser.parse_args()
+
 #np:2278
 #tf: 5495
 
 #Adding Seed so that random initialization is consistent
 from numpy.random import seed
-#r = random.randint(1,10000)
-#print("numpy seed: ", r)
-# seed(2278)
+r = random.randint(1,10000)
+print("numpy seed: ", r)
+seed(r)
+#seed(2278)
 
 from tensorflow import set_random_seed
-#r_tf = random.randint(1,10000)
-#print("tf seed: ", r_tf)
-set_random_seed(5495)
+r_tf = random.randint(1,10000)
+print("tf seed: ", r_tf)
+set_random_seed(r_tf)
+#set_random_seed(5495)
+
+# save random seeds to seed file
+with open("models/fixedGuard/seeds.txt", "a") as myfile:
+    myfile.write(str(args.modelnumber))
+    myfile.write("\n")
+    myfile.write(str(r))
+    myfile.write("\n")
+    myfile.write(str(r_tf))
+    myfile.write("\n")
+
 
 batch_size = 64
 val_batch_size = 64
-iter_ = 20200
+iter_ = 50000
 lr_ = 1e-1
 
 # Prepare input data
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
-## most reliable case
-#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+## This is our survivability vector, defining our weighted additions with our hueristic presented in the paper.
+#survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
 
-## unstable_train
-<<<<<<< HEAD:restore_fixedGuard.py
-survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
+# -- low
+# survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
 
-#surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
-=======
+# -- medium
 #survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
-survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
-res_surv = {layer2_1_fc: 0, layer3_1_fc: 0, layer_fc5: 0, layer2_2_sum: 0}
->>>>>>> 80f053ade014090b0336172e08de35a4e70b768b:restore_fixedGuard.py
 
+# -- high
+# surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87] 
+surv = [0.999, 0.998, 0.995, 0.99, 0.985, 0.985, 0.98, 0.97]
+survive = surv
+res_surv = {'layer2_1_fc': 1, 'layer3_1_fc': 1, 'layer_fc5': 1, 'layer2_2_sum': 1}
+
+# we assign each index in the vector to it's corresponding fog or edge node (Defined in our model diagram)
 f_3 = survive[0]
 f_2 = survive[1]
 f_1_1 = survive[2]
@@ -59,11 +79,9 @@ num_channels = 3
 num_cameras = 6
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
-balanced_val_path = "/home/sid/datasets/mvmc_p/holdout_dir/"
 
 # We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, val_path, img_size, classes)
-data_balanced = dataset.read_train_sets(train_path, balanced_val_path, img_size, classes) 
 
 print("Complete reading input data. Will Now print a snippet of it")
 print("Number of files in Training-set:\t\t{}".format(len(data.train.labels)))
@@ -71,13 +89,12 @@ print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
 
 session = tf.Session()
 x = tf.placeholder(tf.float32, shape=[None, num_cameras, img_size,img_size,num_channels], name='x')
-failed_nodes = tf.placeholder(tf.float32, shape=[len(survive)], name='failed_nodes')
 
 ## labels
 y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
 y_true_cls = tf.argmax(y_true, dimension=1)
 
-##Network graph params
+## Network graph params. We use homogeneous layer size so that we may do the weighted addition to preserve information during layer failures.
 fc1_layer_size = 32
 fc2_layer_size = 32
 fc3_layer_size = 32
@@ -90,6 +107,9 @@ fc9_layer_size = 32
 fc10_layer_size = 32
 fc11_layer_size = 32
 fc12_layer_size = 32
+
+
+## Abstraction of layer creation to functions for easier creation.
 
 def create_weights(shape, name):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=name)
@@ -149,14 +169,9 @@ def create_fc_layer(input,
 
     return layer
 
+## Now we begin defining our network graph. We first start by taking the initial input of 6 images, and 
 split0, split1, split2, split3, split4, split5 = tf.split(x, 6, 1)
 inputs = [split0, split1, split2, split3, split4, split5]
-
-# check if a given tensor is equal to the zero tensor.
-def check_zero(tensor):
-    #return tf.reduce_all(tf.equal(tf.zeros(tf.shape(tensor)), 0*tensor))
-    total = tf.reduce_sum(tensor)
-    return tf.equal(total, 0)
 
 print(inputs[0].get_shape())
 print(inputs)
@@ -181,23 +196,22 @@ for camera in flatten_combine:
     layer1_fc.append(layer_tmp)
 print(layer1_fc[0].get_shape())
 
-layer2_1_sum = layer1_fc[0] * failed_nodes[4]
+layer2_1_sum = layer1_fc[0]
 
-w_1 = e_2 / (e_2 + e_3 + e_4)
-w_2 = e_3 / (e_2 + e_3 + e_4)
-w_3 = e_4 / (e_2 + e_3 + e_4)
+w_1 = surv[4]
+w_2 = surv[5]
+w_3 = surv[6]
 
-layer1_fc[1] = w_1 * layer1_fc[1] * failed_nodes[5]
-layer1_fc[2] = w_2 * layer1_fc[2] * failed_nodes[6]
-layer1_fc[3] = w_3 * layer1_fc[3] * failed_nodes[7]
+layer1_fc[1] = w_1 * layer1_fc[1]
+layer1_fc[2] = w_2 * layer1_fc[2]
+layer1_fc[3] = w_3 * layer1_fc[3]
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
                      identifier='fc2_1')
-layer2_1_fc = tf.cond(check_zero(layer2_1_sum), lambda: 0*layer2_1_fc, lambda: layer2_1_fc)
-
+ 
 layer2_2_fc = create_fc_layer(input=layer2_2_sum,
                      num_inputs=fc1_layer_size,
                      num_outputs=fc2_layer_size,
@@ -207,11 +221,8 @@ layer3_1_fc = create_fc_layer(input=layer2_2_fc,
                      num_inputs=fc2_layer_size,
                      num_outputs=fc3_layer_size,
                      identifier='fc3_1')
-layer3_1_fc = tf.cond(check_zero(layer2_2_sum), lambda: 0*layer3_1_fc, lambda: layer3_1_fc)
 
-layer2_1_fc = layer2_1_fc * failed_nodes[2]
-layer3_1_fc = layer3_1_fc * failed_nodes[3]
-layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc * res_surv[layer2_1_fc] + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc + res_surv[layer2_2_sum] * layer2_2_sum
+layer3_out = layer2_1_fc * res_surv['layer2_1_fc'] + layer3_1_fc + res_surv['layer2_2_sum'] * layer2_2_sum
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -222,24 +233,12 @@ layer_fc5 = create_fc_layer(input=layer_fc4,
                      num_inputs=fc4_layer_size,
                      num_outputs=fc5_layer_size,
                      identifier="fc5")
-layer_fc5 = tf.cond(check_zero(layer3_out), lambda: 0*layer_fc5, lambda: layer_fc5)
 
-layer_fc5 = layer_fc5 * failed_nodes[1]
+w_1 = surv[1]
+w_2= surv[3]
+w_3 = surv[2]
 
-<<<<<<< HEAD:restore_fixedGuard.py
-w_1 = f_2 / (f_1_1 + f_1_2 + f_2)
-w_2 = f_1_1 / (f_1_1 + f_1_2 + f_2)
-w_3 = f_1_2 / (f_1_1 + f_1_2 + f_2)
-
-layer_fc5 = w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc
-layer_fc6 = create_fc_layer(input=layer_fc5,
-=======
-w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
-w_2 = f_1_2 / (f_1_1 + f_1_2 + f_2)
-w_3 = f_1_1 / (f_1_1 + f_1_2 + f_2)
-
-layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*layer3_1_fc*res_surv[layer3_1_fc] + res_surv[layer2_1_fc]*w_3*layer2_1_fc,
->>>>>>> 80f053ade014090b0336172e08de35a4e70b768b:restore_fixedGuard.py
+layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*layer3_1_fc * res_surv['layer3_1_fc'] + w_3*layer2_1_fc * res_surv['layer2_1_fc'],
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -249,19 +248,10 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
 
-layer_fc7 = tf.cond(check_zero(layer_fc5), lambda: 0*layer_fc7, lambda: layer_fc7)
+w_1 = surv[0]
+w_2 = surv[1]
 
-layer_fc7 = layer_fc7 * failed_nodes[0]
-
-w_1 = f_3 / (f_2 + f_3)
-w_2 = f_2 / (f_2 + f_3)
-
-<<<<<<< HEAD:restore_fixedGuard.py
-layer_fc7 = w_1*layer_fc7 + w_2*layer_fc5
-layer_fc8 = create_fc_layer(input=layer_fc7,
-=======
-layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5*res_surv[layer_fc5],
->>>>>>> 80f053ade014090b0336172e08de35a4e70b768b:restore_fixedGuard.py
+layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5 * res_surv['layer_fc5'],
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -286,54 +276,73 @@ print(y_pred.get_shape())
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
 print(y_pred_cls.get_shape())
-y_pred_cls.dtype
-
-random_guesses = tf.random_uniform(tf.shape(y_pred_cls), minval=0, maxval=2, dtype=tf.int64)
-y_pred_cls = tf.cond(check_zero(layer_fc7), lambda: tf.cast(random_guesses,tf.int64), lambda: y_pred_cls)
 
 session.run(tf.global_variables_initializer())
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc11,
-                                                        labels=y_true)
+cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc11,
+                                                            targets=y_true,
+                                                            pos_weight=2)
 cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdagradOptimizer(learning_rate=lr_).minimize(cost)  #1e-4
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-recall = tf.metrics.recall(y_true_cls, y_pred_cls)
+
 precision = tf.metrics.precision(y_true_cls, y_pred_cls)
 
+def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
+    acc = session.run(accuracy, feed_dict=feed_dict_train)
+    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
+    msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
+  
+    print(msg.format(epoch + 1, acc, val_acc, val_loss))
+
+# Save non-dropout layers
 saver = tf.train.Saver()
+
 session.run(tf.global_variables_initializer())
-session.run(tf.local_variables_initializer())
 
+total_iterations = 0
 
-saver.restore(session, "models/fixedGuard/fguard_1.ckpt")
+def train(num_iteration):
+    global total_iterations
+    
+    for i in range(total_iterations,
+                   total_iterations + num_iteration):
 
-# test on entire validation set after we restore the trained model
-def test(node_survival, model_number):
-    # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
-    # 0 means that index failed, 1 means that the index survives.
-    # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
-    stats = []
-    session.run(tf.local_variables_initializer())
+        x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
+        x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
+        r_ = [random.random() for x in range(len(survive))]
+        
+        # calc prob of one component failing, which we take to be the average failure given a
+        # survivability mapping 'survive'
+        #fail = [1 - x for x in survive]
+        #fail_prob = sum(fail) / len(fail)
+        # something has failed, so we generate rand in range [0, sum(survive)]
+        #if(r_ < 0.5):
+        #    r_ = random.uniform(0, sum(survive))
+        #else:
+        #    r_ = -1
 
-    # test on the unbalanced data first
-    val_batch_size = 145
-    x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(val_batch_size)
-    feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
-    acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
-    stats.append((acc,rec,prec))
-   
-    session.run(tf.local_variables_initializer())
-    # now test on the class balanced dataset
-    val_batch_size = 123
-    x_valid_batch, y_valid_batch, _, valid_cls_batch = data_balanced.valid.next_batch(val_batch_size)
-    feed_dict_val = {x: x_valid_batch, failed_nodes: node_survival, y_true: y_valid_batch}
-    acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
-    stats.append((acc,rec,prec))
+        feed_dict_tr = {x: x_batch,
+                           y_true: y_true_batch}
+        feed_dict_val = {x: x_valid_batch,
+                              y_true: y_valid_batch}
 
-    print(stats)
-    # stats now holds stats for [unbalanced, balanced]
-    return stats
+        session.run(optimizer, feed_dict=feed_dict_tr)
 
-#acc = test([1,1,1,1,0,1,1,1])
-#print(acc)
+        if i % int(data.train.num_examples/batch_size) == 0: 
+            val_loss, acc = session.run([cost, accuracy], feed_dict=feed_dict_val)
+            epoch = int(i / int(data.train.num_examples/batch_size))    
+            
+            show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
+            print(int(i))
+            if acc > .98 and i > 25000:
+                break
+
+    print(int(num_iteration))
+    total_iterations += num_iteration
+
+# around 400 works best
+train(num_iteration=iter_)
+
+# dyn save model based on argsparsed
+saver.save(session, "models/fixedGuard/fguard_1.ckpt")

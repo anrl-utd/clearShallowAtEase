@@ -15,7 +15,7 @@ import sys
 from numpy.random import seed
 #r = random.randint(1,10000)
 #print("numpy seed: ", r)
-seed(2278)
+# seed(2278)
 
 from tensorflow import set_random_seed
 #r_tf = random.randint(1,10000)
@@ -31,14 +31,18 @@ lr_ = 1e-1
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
-## most reliable case
-#survive = [1, 0.99, 0.95, 0.95, 0.9, 0.9, 0.9, 0.9]
+# -- low
+# survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
 
-## unstable_train
+# -- medium
 #survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 
-## stoch_ has no special residuals
-survive = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
+# -- high
+# survive = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87] 
+surv = [0.999, 0.998, 0.995, 0.99, 0.985, 0.985, 0.98, 0.97]
+survive = surv
+
+res_surv = {'layer2_1_fc': 1, 'layer3_1_fc': 1, 'layer_fc5': 1, 'layer2_2_sum': 1}
 
 f_3 = survive[0]
 f_2 = survive[1]
@@ -178,17 +182,13 @@ print(layer1_fc[0].get_shape())
 
 layer2_1_sum = layer1_fc[0] * failed_nodes[4]
 
-layer1_fc[1] = layer1_fc[1] * failed_nodes[5]
-layer1_fc[2] = layer1_fc[2] * failed_nodes[6]
-layer1_fc[3] = layer1_fc[3] * failed_nodes[7]
+w_1 = surv[4]
+w_2 = surv[5]
+w_3 = surv[6]
 
-w_1 = e_2 / (e_2 + e_3 + e_4)
-w_2 = e_3 / (e_2 + e_3 + e_4)
-w_3 = e_4 / (e_2 + e_3 + e_4)
-layer1_fc[1] = w_1 * layer1_fc[1]
-layer1_fc[2] = w_2 * layer1_fc[2]
-layer1_fc[3] = w_3 * layer1_fc[3]
-
+layer1_fc[1] = w_1 * layer1_fc[1] * failed_nodes[5]
+layer1_fc[2] = w_2 * layer1_fc[2] * failed_nodes[6]
+layer1_fc[3] = w_3 * layer1_fc[3] * failed_nodes[7]
 layer2_2_sum = sum(layer1_fc[1:])
 
 layer2_1_fc = create_fc_layer(input=layer2_1_sum,
@@ -210,7 +210,7 @@ layer3_1_fc = tf.cond(check_zero(layer2_2_sum), lambda: 0*layer3_1_fc, lambda: l
 
 layer2_1_fc = layer2_1_fc * failed_nodes[2]
 layer3_1_fc = layer3_1_fc * failed_nodes[3]
-layer3_out = (f_1_1 / (f_1_1 + f_1_2)) * layer2_1_fc + (f_1_2 / (f_1_1 + f_1_2)) * layer3_1_fc
+layer3_out = layer2_1_fc * res_surv['layer2_1_fc'] + layer3_1_fc + res_surv['layer2_2_sum'] * layer2_2_sum
 
 layer_fc4 = create_fc_layer(input=layer3_out,
                      num_inputs=fc3_layer_size,
@@ -225,12 +225,11 @@ layer_fc5 = tf.cond(check_zero(layer3_out), lambda: 0*layer_fc5, lambda: layer_f
 
 layer_fc5 = layer_fc5 * failed_nodes[1]
 
-w_1 = f_2 / (f_2 + f_1_1 + f_1_2)
-w_2 = f_1_1 / (f_1_1 + f_1_2 + f_2)
-w_3 = f_1_2 / (f_1_1 + f_1_2 + f_2)
+w_1 = surv[1]
+w_2 = surv[3]
+w_3 = surv[2]
 
-layer_fc5 = w_1*layer_fc5 + w_3*layer3_1_fc + w_2*layer2_1_fc
-layer_fc6 = create_fc_layer(input=layer_fc5,
+layer_fc6 = create_fc_layer(input=w_1*layer_fc5 + w_2*layer3_1_fc*res_surv['layer3_1_fc'] + res_surv['layer2_1_fc']*w_3*layer2_1_fc,
                      num_inputs=fc5_layer_size,
                      num_outputs=fc6_layer_size,
                      identifier="fc6")
@@ -239,15 +238,15 @@ layer_fc7 = create_fc_layer(input=layer_fc6,
                      num_inputs=fc6_layer_size,
                      num_outputs=fc7_layer_size,
                      identifier="fc7")
+
 layer_fc7 = tf.cond(check_zero(layer_fc5), lambda: 0*layer_fc7, lambda: layer_fc7)
 
 layer_fc7 = layer_fc7 * failed_nodes[0]
 
-w_1 = f_3 / (f_2 + f_3)
-w_2 = f_2 / (f_2 + f_3)
-layer_fc7 = w_1*layer_fc7 + w_2*layer_fc5
+w_1 = surv[0]
+w_2 = surv[1]
 
-layer_fc8 = create_fc_layer(input=layer_fc7,
+layer_fc8 = create_fc_layer(input=w_1*layer_fc7 + w_2*layer_fc5*res_surv['layer_fc5'],
                      num_inputs=fc7_layer_size,
                      num_outputs=fc8_layer_size,
                      identifier="fc8")
@@ -269,10 +268,12 @@ layer_fc11 = create_fc_layer(input=layer_fc10,
 
 y_pred = tf.nn.softmax(layer_fc11, name='y_pred')
 print(y_pred.get_shape())
+
 y_pred_cls = tf.argmax(y_pred, dimension=1)
+print(y_pred_cls.get_shape())
+y_pred_cls.dtype
 
 random_guesses = tf.random_uniform(tf.shape(y_pred_cls), minval=0, maxval=2, dtype=tf.int64)
-
 y_pred_cls = tf.cond(check_zero(layer_fc7), lambda: tf.cast(random_guesses,tf.int64), lambda: y_pred_cls)
 
 session.run(tf.global_variables_initializer())
@@ -290,9 +291,10 @@ session.run(tf.global_variables_initializer())
 session.run(tf.local_variables_initializer())
 
 
+saver.restore(session, "models/fixedGuard/fguard_1.ckpt")
+
 # test on entire validation set after we restore the trained model
 def test(node_survival, model_number):
-    saver.restore(session, "models/activeGuard/aguard_" + str(model_number) + ".ckpt")
     # @params: node_survival, an 8-length binary vector corresponding to [f3, f2, f11, f12, ... e4] 
     # 0 means that index failed, 1 means that the index survives.
     # eg. [1, 0, 0, 0, ... ] means that only f3 has survived.
@@ -314,6 +316,9 @@ def test(node_survival, model_number):
     acc, rec, prec = session.run([accuracy, recall[1], precision[1]], feed_dict=feed_dict_val)
     stats.append((acc,rec,prec))
 
-    print(stats)
+    print(stats, node_survival)
     # stats now holds stats for [unbalanced, balanced]
     return stats
+
+#acc = test([1,1,1,1,0,1,1,1])
+#print(acc)
