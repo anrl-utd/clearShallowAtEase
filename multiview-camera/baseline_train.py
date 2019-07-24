@@ -51,6 +51,8 @@ num_classes = len(classes)
 img_size = 32
 num_channels = 3
 num_cameras = 6
+
+# Change this to where you store
 train_path="/home/sid/datasets/mvmc_p/train_dir/"
 val_path = "/home/sid/datasets/mvmc_p/test_dir/"
 holdout_path = "/home/sid/datasets/mvmc_p/holdout_dir/"
