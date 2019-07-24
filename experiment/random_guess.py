@@ -30,9 +30,27 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     if no_connection_flow_f1 or no_connection_flow_f2 or no_connection_flow_f3:
         print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
-        # if file_name != None:
-        #     with open(file_name,'a+') as file:
-        #         file.write('There is no data flow in the network' + '\n')
+        failure = 1
+    acc = accuracy_score(test_labels,preds)
+    return acc,failure
+
+# use a model with trained weights to guess if there are no connections 
+def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
+    preds = model.predict(test_data)
+    preds = np.argmax(preds,axis=1)
+    # check if the connection is 0 which means that there is no data flowing in the network
+    f1 = model.get_layer(name = "connection_cloud").output
+    # get the output from the layer
+    output_model_f1 = Model(inputs = model.input,outputs=f1)
+    f1_output = output_model_f1.predict(test_data)
+    no_connection_flow_f1 = np.array_equal(f1_output,f1_output * 0)
+    # there is no connection flow, make random guess 
+    # variable that keeps track if the network has failed
+    failure = 0
+    train_labels = [item for sublist in train_labels for item in sublist]
+    if no_connection_flow_f1:
+        print("There is no data flow in the network")
+        preds = random_guess(train_labels,test_data)
         failure = 1
     acc = accuracy_score(test_labels,preds)
     return acc,failure
@@ -43,7 +61,10 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
 # input: matrix of test_data, rows are examples and columns are variables 
 def random_guess(train_labels,test_data):
     # count the frequency of each class
-    class_frequency = Counter(train_labels)
+    if "list" in str(type(train_labels)):
+        class_frequency = Counter(train_labels)
+    else:
+        class_frequency = Counter(train_labels.tolist())
     # sort by keys and get the values
     sorted_class_frequency = list(dict(sorted(class_frequency.items())).values())
     total_frequency = len(train_labels)

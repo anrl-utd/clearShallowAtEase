@@ -39,7 +39,7 @@ def define_active_guard_model_with_connections(num_vars,num_classes,hidden_units
     f3_survive_rate = K.variable(survive_rates[2])
 
     # set training phase to true 
-    K.set_learning_phase(0)
+    K.set_learning_phase(1)
     if K.learning_phase():
         # seeds so the random_number is different for each fog node 
         f1_rand = K.random_uniform(shape=f1_rand.shape,seed=7)
@@ -108,7 +108,6 @@ def define_active_guard_model_with_connections(num_vars,num_classes,hidden_units
 
     model = Model(inputs=input_layer, outputs=normal_output_layer)
     # TODO: define custom metric to keep track of network failing during training
-    sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
@@ -149,7 +148,7 @@ def define_active_guard_model_with_connections_experiment2(num_vars,num_classes,
     f3_survive_rate = K.variable(survive_rates[2])
 
     # set training phase to true 
-    K.set_learning_phase(0)
+    K.set_learning_phase(1)
     if K.learning_phase():
         # seeds so the random_number is different for each fog node 
         f1_rand = K.random_uniform(shape=f1_rand.shape,seed=7)
