@@ -314,6 +314,8 @@ def skipconnections_ANRL_MobileNet(input_shape=None,
               input_tensor=None,
               pooling=None,
               classes=1000,
+              hyperconnections = [1,1],
+              hyperconnection_weights=[1,1],
               **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -437,6 +439,29 @@ def skipconnections_ANRL_MobileNet(input_shape=None,
             img_input = layers.Input(tensor=input_tensor, shape=input_shape)
         else:
             img_input = input_tensor
+
+    if hyperconnection_weights == [1,1]:
+        connection_weight_IoTf = 1
+        connection_weight_ef = 1
+        connection_weight_ec = 1
+        connection_weight_fc = 1
+    else:
+        connection_weight_IoTf = 1 / (1 + hyperconnection_weights[0])
+        connection_weight_ef = hyperconnection_weights[0] / (1 + hyperconnection_weights[0])
+        connection_weight_ec = hyperconnection_weights[0] / (hyperconnection_weights[1] + hyperconnection_weights[0])
+        connection_weight_fc = hyperconnection_weights[1] / (hyperconnection_weights[1] + hyperconnection_weights[0])
+
+     # take away the skip hyperconnection if the value in hyperconnections array is 0
+    if hyperconnections[0] == 0:
+        connection_weight_IoTf = 0
+    if hyperconnections[1] == 0:
+        connection_weight_ec = 0
+        
+    # define lambdas for multiplying node weights by connection weight
+    multiply_weight_layer_IoTf = layers.Lambda((lambda x: x * connection_weight_IoTf), name = "connection_weight_IoTf")
+    multiply_weight_layer_ef = layers.Lambda((lambda x: x * connection_weight_ef), name = "connection_weight_ef")
+    multiply_weight_layer_ec = layers.Lambda((lambda x: x * connection_weight_ec), name = "connection_weight_ec")
+    multiply_weight_layer_fc = layers.Lambda((lambda x: x * connection_weight_fc), name = "connection_weight_fc")
     # changed the strides from 2 to 1 since cifar-10 images are smaller
     # IoT node
     iot = _conv_block(img_input, 32, alpha, strides=(1, 1)) # size: (31,31,16)
@@ -451,7 +476,7 @@ def skipconnections_ANRL_MobileNet(input_shape=None,
     
     # skip hyperconnection, used 1x1 convolution to project shape of node output into (7,7,256)
     connection_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(connection_edgefog)
-    connection_fog = layers.add([connection_iotfog,connection_edgefog], name = "connection_fog")
+    connection_fog = layers.add([multiply_weight_layer_IoTf(connection_iotfog), multiply_weight_layer_ef(connection_edgefog)], name = "connection_fog")
 
     # fog node
     fog = _depthwise_conv_block(connection_fog, 256, alpha, depth_multiplier, # size: (None, 32, 32, 64)
@@ -464,7 +489,7 @@ def skipconnections_ANRL_MobileNet(input_shape=None,
     fog = _depthwise_conv_block(fog, 512, alpha, depth_multiplier, block_id=8) #size : (None, 7, 7, 256) 
     # pad from (7,7,256) to (8,8,256)
     connection_fogcloud = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
-    connection_cloud = layers.add([connection_fogcloud,connection_edgecloud], name = "connection_cloud")
+    connection_cloud = layers.add([multiply_weight_layer_fc(connection_fogcloud), multiply_weight_layer_ec(connection_edgecloud)], name = "connection_cloud")
 
     # cloud node
     cloud = _depthwise_conv_block(connection_cloud, 512, alpha, depth_multiplier, block_id=9) # size: (None, 7, 7, 256)

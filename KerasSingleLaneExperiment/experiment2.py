@@ -1,15 +1,12 @@
-from experiment.ActiveGuard import define_active_guard_model_with_connections_hyperconnectionweight1
-from experiment.FixedGuard import define_fixed_guard_model_experiment2
-from experiment.loadData import load_data
+from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus
+from KerasSingleLaneExperiment.deepFogGuard import define_deepFogGuard
+from KerasSingleLaneExperiment.loadData import load_data
 from sklearn.model_selection import train_test_split
-from experiment.FailureIteration import run
+from KerasSingleLaneExperiment.FailureIteration import run
 import keras.backend as K
 import datetime
 import os
 import gc 
-# function to return average a list 
-def average(list):
-    return sum(list) / len(list)
 
 # runs all hyperconnection configurations for both fixed and active guard survival configurations
 # sensitivity analysis 

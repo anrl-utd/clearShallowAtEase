@@ -6,8 +6,17 @@ import keras.backend as K
 from sklearn.metrics import accuracy_score
 import numpy as np
 
-# use a model with trained weights to guess if there are no connections 
 def model_guess(model,train_labels,test_data,test_labels,file_name = None):
+    """Returns a guess of the data based on training class distribution if there is no data connection in the network
+    ### Arguments
+        model (Model): Keras model
+        train_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distribution
+        test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
+        test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
+        file_name (string): specifies the file name for output, not used anymore
+    ### Returns
+        return a tuple of accuracy as a float and whether there was total network failure as an integer
+    """
     preds = model.predict(test_data)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
@@ -34,8 +43,17 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     acc = accuracy_score(test_labels,preds)
     return acc,failure
 
-# use a model with trained weights to guess if there are no connections 
 def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
+    """Returns a guess of the data based on training class distribution if there is no data connection in the CNN network
+    ### Arguments
+        model (Model): Keras model
+        train_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distribution
+        test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
+        test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
+        file_name (string): specifies the file name for output, not used anymore
+    ### Returns
+        return a tuple of accuracy as a float and whether there was total network failure as an integer
+    """
     preds = model.predict(test_data)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
@@ -55,11 +73,15 @@ def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
     acc = accuracy_score(test_labels,preds)
     return acc,failure
 
-# function returns a array of predictions based on random guessing
-# random guessing is determined by the class distribution from the training data. 
-# input: list of training labels
-# input: matrix of test_data, rows are examples and columns are variables 
+
 def random_guess(train_labels,test_data):
+    """function returns a array of predictions from random guessing based on training class distribution 
+    ### Arguments
+        train_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distribution
+        test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
+    ### Returns
+        return a 1-D array of predictions, shape is the number of test examples
+    """
     # count the frequency of each class
     if "list" in str(type(train_labels)):
         class_frequency = Counter(train_labels)
@@ -78,8 +100,14 @@ def random_guess(train_labels,test_data):
     # make a guess for each test example
     guess_preds = [guess(cumulative_frequency) for example in test_data]
     return guess_preds
-# makes a random number and determines a class based on the cumulative frequency
-def guess(cumulative_frequency):
+
+def guess(cumulative_frequency):    
+    """makes a random number and determines a class based on the cumulative frequency
+    ### Arguments
+        cumulative_frequency (list): list of the cumulative frequencies for the class distribution, first value is always 0
+    ### Returns
+        return an int output
+    """
     # set the seed for more deterministc outputs 
     random.seed(11)
     rand_num = random.random()
