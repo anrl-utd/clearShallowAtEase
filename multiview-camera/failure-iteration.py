@@ -1,4 +1,4 @@
-from restore_activeGuard import test
+from restore_deepFogGuardPlus import test
 import time
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, surv, mn=1):   
@@ -75,15 +75,12 @@ def normalizeWeights(weights):
 if __name__ == "__main__":
     
     # -- low
-    # surv = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
-    
-    # -- medium
     # surv = [0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.7, 0.66]
 
-    # -- high
+    # -- medium
     #surv = [0.99, 0.98, 0.94, 0.93, 0.9, 0.9, 0.87, 0.87] 
     
-    # -- new High
+    # -- high
     surv = [0.999, 0.998, 0.995, 0.99, 0.985, 0.985, 0.98, 0.97]
 
     numComponents = len(surv) # will be 8
