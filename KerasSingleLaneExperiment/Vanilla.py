@@ -6,7 +6,7 @@ from keras.models import Model
 def define_vanilla_model(num_vars,num_classes,hidden_units):
     """Define a normal neural network.
    ### Naming Convention
-        ex: f1f2 = connection between fog node 1 and fog node 2
+        ex: f2f1 = connection between fog node 2 and fog node 1
     ### Arguments
         num_vars (int): specifies number of variables from the data, used to determine input size.
         num_classes (int): specifies number of classes to be outputted by the model
@@ -15,9 +15,7 @@ def define_vanilla_model(num_vars,num_classes,hidden_units):
     ### Returns
         Keras Model object
     """
-    # naming convention:
-    # ex: f1f2 = connection between fog node 1 and fog node 2
-
+    
     connection_weight_ef2 = 1
     connection_weight_f2f1 = 1
     connection_weight_f1c = 1
@@ -35,7 +33,7 @@ def define_vanilla_model(num_vars,num_classes,hidden_units):
     e = Dense(units=hidden_units,name="edge_output_layer")(IoT_node)
     e = Activation(activation='relu')(e)
     f1f2 = multiply_weight_layer_f1f2(e)
-    connection_f2 = Lambda(add_node_layers,name="E_F2")([f1f2])
+    connection_f2 = Lambda(add_node_layers,name="F2_Input")([f1f2])
 
     # fog node 2
     f2 = Dense(units=hidden_units,name="fog2_input_layer")(connection_f2)
@@ -43,7 +41,7 @@ def define_vanilla_model(num_vars,num_classes,hidden_units):
     f2 = Dense(units=hidden_units,name="fog2_output_layer")(f2)
     f2 = Activation(activation='relu')(f2)
     f2f1 = multiply_weight_layer_f2f3(f2)
-    connection_f1 = Lambda(add_node_layers,name="F2_F1")([f2f1])
+    connection_f1 = Lambda(add_node_layers,name="F1_Input")([f2f1])
 
     # fog node 1
     f1 = Dense(units=hidden_units,name="fog1_input_layer")(connection_f1)
@@ -53,7 +51,7 @@ def define_vanilla_model(num_vars,num_classes,hidden_units):
     f1 = Dense(units=hidden_units,name="fog1_output_layer")(f1)
     f1 = Activation(activation='relu')(f1)
     f1c = multiply_weight_layer_f1c(f1)
-    connection_cloud = Lambda(add_node_layers,name="F1_FC")([f1c])
+    connection_cloud = Lambda(add_node_layers,name="Cloud_Input")([f1c])
 
     # cloud node
     cloud = Dense(units=hidden_units,name="cloud_input_layer")(connection_cloud)

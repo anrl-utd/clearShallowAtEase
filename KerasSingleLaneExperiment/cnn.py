@@ -82,7 +82,7 @@ def preprocess_input(x, **kwargs):
     return imagenet_utils.preprocess_input(x, mode='tf', **kwargs)
 
 
-def baseline_ANRL_MobileNet(input_shape=None,
+def define_Vanilla_CNN(input_shape=None,
               alpha=1.0,
               depth_multiplier=1,
               dropout=1e-3,
@@ -305,7 +305,7 @@ def baseline_ANRL_MobileNet(input_shape=None,
 
     return model
 
-def skipconnections_ANRL_MobileNet(input_shape=None,
+def define_deepFogGuard_CNN(input_shape=None,
               alpha=1.0,
               depth_multiplier=1,
               dropout=1e-3,
@@ -560,7 +560,7 @@ def skipconnections_ANRL_MobileNet(input_shape=None,
 
     return model
 
-def skipconnections_dropout_ANRL_MobileNet(input_shape=None,
+def define_deepFogGuardPlus_CNN(input_shape=None,
               alpha=1.0,
               depth_multiplier=1,
               dropout=1e-3,

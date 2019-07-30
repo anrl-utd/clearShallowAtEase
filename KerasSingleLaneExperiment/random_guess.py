@@ -20,9 +20,9 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     preds = model.predict(test_data)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
-    f1 = model.get_layer(name = "F1_F2").output
-    f2 = model.get_layer(name = "F1F2_F3").output
-    f3 = model.get_layer(name = "F2F3_FC").output
+    f1 = model.get_layer(name = "F2_Input").output
+    f2 = model.get_layer(name = "F1_Input").output
+    f3 = model.get_layer(name = "Cloud_Input").output
     # get the output from the layer
     output_model_f1 = Model(inputs = model.input,outputs=f1)
     output_model_f2 = Model(inputs = model.input,outputs=f2)

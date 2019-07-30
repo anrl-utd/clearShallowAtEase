@@ -16,6 +16,7 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
         model (Model): Keras model
         accuracyList (list): list of all the survival configuration accuracies 
         weightList (list): list of all the survival configuration probabilites 
+        output_list (list): list that contains string output of the experiment
         train_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distributio
         test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
         test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
@@ -47,14 +48,27 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
             output_list.append("numSurvived: " + str(numSurvived) + " weight: " + str(weight) + " acc: " + str(accuracy) + '\n')
     return failure_count
                 
-def calcAverageAccuracy(acuracyList, weightList):
+def calcAverageAccuracy(accuracyList, weightList):
+    """calculates weighted accuracy based on failure probabilities 
+    ### Arguments
+        accuracyList (list): list of all the survival configuration accuracies 
+        weightList (list): list of all the survival configuration probabilities
+    ### Returns
+        return weighted average accuracy 
+    """  
     averageAccuracy = 0
-    for i in range(len(acuracyList)):
-        averageAccuracy += acuracyList[i] * weightList[i]
+    for i in range(len(accuracyList)):
+        averageAccuracy += accuracyList[i] * weightList[i]
     return averageAccuracy
         
-# calculates the weight of each combination of component failures
 def calcWeight(survivability, listOfZerosOnes):
+    """calculates the weight of each combination of component failures
+    ### Arguments
+        survivability (list): list of probabilities
+        listOfZerosOnes (list): list of the node survival outcomes
+    ### Returns
+        return probability of a particular survival outcome
+    """  
     weight = 1
     for i in range(len(listOfZerosOnes)):
         if (listOfZerosOnes[i] == '1'): # if it survives
@@ -63,22 +77,32 @@ def calcWeight(survivability, listOfZerosOnes):
             weight = weight * (1 - survivability[i])
     return weight
     
+
+# 
 def numSurvivedComponents(number):
-    return countOnes(number)
+    """calculates the number of survived components by counting ones in a bit string
+    ### Arguments
+        number (int): number to be converted to binary
+    ### Returns
+        return number of survived nodes
+    """  
+    # convert given number into binary
+    # output will be like bin(11)=0b1101
+    binary = bin(number)
+    # now separate out all 1's from binary string
+    # we need to skip starting two characters
+    # of binary string i.e; 0b
+    setBits = [ones for ones in binary[2:] if ones=='1']
+    return len(setBits)
 
-# counts the mumber of ones in a bit string
-def countOnes(number):
-     # convert given number into binary
-     # output will be like bin(11)=0b1101
-     binary = bin(number)
-     # now separate out all 1's from binary string
-     # we need to skip starting two characters
-     # of binary string i.e; 0b
-     setBits = [ones for ones in binary[2:] if ones=='1']
-     return len(setBits)
-
-# converts a number (e.g. 128) to its binary representation in a list. It converts number 128 to ['1', '0', '0', '0', '0', '0', '0', '0']    
 def convertBinaryToList(number, numBits):
+    """converts a number (e.g. 128) to its binary representation in a list. It converts number 128 to ['1', '0', '0', '0', '0', '0', '0', '0']    
+    ### Arguments
+        number (int): number to be converted to binary
+        numBits (int): number of maximum bits 
+    ### Returns
+        return binary number to a list representing the binary number
+    """  
     # convert given number into binary
     # output will be like bin(11)=0b1101
     binary = bin(number)
@@ -89,6 +113,17 @@ def convertBinaryToList(number, numBits):
     return lst
  
 def calcModelAccuracy(model,output_list,training_labels,test_data,test_labels, is_cnn):
+    """Calculates model accuracy based on node failure  
+    ### Arguments
+        model (Model): Keras model
+        output_list (list): list that contains string output of the experiment
+        training_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distributio
+        test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
+        test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
+        is_cnn (boolean): used to determine which guess function to use
+    ### Returns
+        return model accuracy and whether a failure occured 
+    """  
     # accuracy based on whether the model is fully connected or not 
     if is_cnn:
          acc,failure = cnnmodel_guess(model,training_labels,test_data,test_labels)
@@ -96,12 +131,30 @@ def calcModelAccuracy(model,output_list,training_labels,test_data,test_labels, i
         acc,failure = model_guess(model,training_labels,test_data,test_labels)
     return acc,failure
 
+
 def normalizeWeights(weights):
+    """Calculates model accuracy based on node failure  
+    ### Arguments
+       weights(list): list of all the probability weights
+    ### Returns
+        return normalized lost of probability weights
+    """  
     sumWeights = sum(weights)
     weightNormalized = [(x/sumWeights) for x in weights]
     return weightNormalized
  
 def run(model,surv,output_list,training_labels,test_data,test_labels):
+    """run full survival configuration failure
+    ### Arguments
+        model (Model): Keras model
+        surv (list): contains the survival rate of all nodes, ordered from edge to fog node
+        output_list (list): list that contains string output of the experiment
+        training_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distributio
+        test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
+        test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
+    ### Returns
+        return weighted accuracy 
+    """  
     numComponents = len(surv)
     accuracyList = []
     weightList = []
@@ -113,15 +166,3 @@ def run(model,surv,output_list,training_labels,test_data,test_labels):
     print('Number of Failures: ',str(failure_count))
     print("Average Accuracy:", avg_acc)
     return avg_acc
-# Driver program
-if __name__ == "__main__":  
-    surv = [.92,.96,.99]
-    numComponents = len(surv) # will be 3
-    maxNumComponentFailure = 3
-    debug = True
-
-    # acuracyList = []
-    # weightList = []
-    # iterateFailures(2 ** numComponents, maxNumComponentFailure, debug)
-    # weightList = normalizeWeights(weightList)
-    # print("Average Accuracy:", calcAverageAccuracy(acuracyList, weightList))

@@ -9,13 +9,14 @@ from keras.callbacks import ModelCheckpoint
 import keras.backend as K
 import math
 import os 
-from KerasSingleLaneExperiment.cnn import baseline_ANRL_MobileNet, skipconnections_ANRL_MobileNet, skipconnections_dropout_ANRL_MobileNet
+from KerasSingleLaneExperiment.cnn import define_Vanilla_CNN, define_deepFogGuard_CNN, define_deepFogGuardPlus_CNN
 from KerasSingleLaneExperiment.FailureIteration import run
 import numpy as np
 from KerasSingleLaneExperiment.experiment import average
 import datetime
 import gc
 
+# normal experiments
 def main():
     # get cifar10 data 
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -56,7 +57,7 @@ def main():
         print("iteration:",iteration)
         model_name = "GitHubANRL_cnn_baseline_weights_alpha050_fixedstrides_dataaugmentation" + str(iteration) + ".h5"
         checkpoint = ModelCheckpoint(model_name,verbose=1,save_best_only=True,save_weights_only = True)
-        model = baseline_ANRL_MobileNet(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5)
+        model = define_Vanilla_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5)
         #model = skipconnections_ANRL_MobileNet(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5)
         # dropout = .1
         #model = skipconnections_dropout_ANRL_MobileNet(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,survive_rates=[.9,.9,.9])
@@ -86,6 +87,8 @@ def main():
     if use_GCP:
         os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(file_name))
+
+# deepFogGuard Plus Ablation experiment
 def dropout_ablation():
     # get cifar10 data 
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -129,12 +132,20 @@ def dropout_ablation():
                 "[0.8, 0.85]":[0] * num_iterations,
                 "[1, 1]":[0] * num_iterations,
             },
+            "[0.95, 0.95, 0.95]":
+            {
+                "[0.96, 0.98]": [0] * num_iterations,
+                "[0.9, 0.95]":[0] * num_iterations,
+                "[0.8, 0.85]":[0] * num_iterations,
+                "[1, 1]":[0] * num_iterations,
+            },
         }
     }
     dropout_configs = [
-        # [.9,.9,.9],
+        [.9,.9,.9],
         [.7,.7,.7],
         [.5,.5,.5],
+        [.95,.95,.95],
     ]
     now = datetime.datetime.now()
     date = str(now.month) + '-' + str(now.day) + '-' + str(now.year)
@@ -142,13 +153,13 @@ def dropout_ablation():
     if not os.path.exists('results/' + date):
         os.mkdir('results/')
         os.mkdir('results/' + date)
-    file_name = 'results/' + date + '/experiment3_dropoutAblation_test_results.txt'
+    file_name = 'results/' + date + '/experiment3_dropoutAblation_95_6to10results.txt'
     output_list = []
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         for dropout in dropout_configs:
-            model_name = "GitHubANRL_deepFogGuardPlus_dropoutAblation" + str(dropout) + "_weights_alpha050_fixedstrides_dataaugmentation" + str(iteration) + ".h5"
-            model = skipconnections_dropout_ANRL_MobileNet(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,survive_rates=dropout)
+            model_name = "GitHubANRL_deepFogGuardPlus_dropoutAblation95" + str(dropout) + "6to10" + str(iteration) + ".h5"
+            model = define_deepFogGuardPlus_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,survive_rates=dropout)
             model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
             num_samples = len(x_train)
             batch_size = 128
@@ -177,7 +188,8 @@ def dropout_ablation():
     if use_GCP:
         os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(file_name))
-        
+
+# deepFogGuard hyperconnection weight ablation experiment      
 def hyperconnection_weight_ablation():
      # get cifar10 data 
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -220,8 +232,8 @@ def hyperconnection_weight_ablation():
         batch_size = 128
         steps_per_epoch = math.ceil(num_samples / batch_size)
         for survive_config in survive_configs:
-            model_name = "GitHubANRL_deepFogGuardPlus_hyperconnectionweightablation_" + str(survive_config) + "_weights_alpha050_fixedstrides_dataaugmentation" + str(iteration) + ".h5"
-            model = skipconnections_ANRL_MobileNet(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,hyperconnection_weights=survive_config)
+            model_name = "GitHubANRL_deepFogGuard_hyperconnectionweightablation_" + str(survive_config) + "_weights_alpha050_fixedstrides_dataaugmentation" + str(iteration) + ".h5"
+            model = define_deepFogGuard_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,hyperconnection_weights=survive_config)
             model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
             model.fit_generator(datagen.flow(x_train,y_train,batch_size = batch_size),epochs = 75,validation_data = (x_test,y_test), steps_per_epoch = steps_per_epoch, verbose = 2)
             model.save_weights(model_name)
@@ -246,6 +258,7 @@ def hyperconnection_weight_ablation():
         os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(file_name))
 
+# deepFogGuard hyperconnection failure configuration ablation experiment
 def hyperconnection_sensitivity_ablation():
     # get cifar10 data 
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -262,9 +275,8 @@ def hyperconnection_sensitivity_ablation():
         [.96,.98],
         [.90,.95],
         [.80,.85],
-        [1,1]
     ]
-    num_iterations = 10
+    num_iterations = 20
     hyperconnections = [
         [0,0],
         [1,0],
@@ -295,13 +307,6 @@ def hyperconnection_sensitivity_ablation():
                 "[0, 1]":[0] * num_iterations,
                 "[1, 1]":[0] * num_iterations,
             },
-            "[1, 1]":
-            {
-                "[0, 0]":[0] * num_iterations,
-                "[1, 0]":[0] * num_iterations,
-                "[0, 1]":[0] * num_iterations,
-                "[1, 1]":[0] * num_iterations,
-            }
         },
     }
     now = datetime.datetime.now()
@@ -310,7 +315,7 @@ def hyperconnection_sensitivity_ablation():
     if not os.path.exists('results/' + date):
         os.mkdir('results/')
         os.mkdir('results/' + date)
-    file_name = 'results/' + date + '/experiment3_hyperconnection_sensitivityablation_results.txt'
+    file_name = 'results/' + date + '/experiment3_hyperconnection_sensitivityablation_results3.txt'
     output_list = []
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
@@ -318,8 +323,8 @@ def hyperconnection_sensitivity_ablation():
         batch_size = 128
         steps_per_epoch = math.ceil(num_samples / batch_size)
         for hyperconnection in hyperconnections:
-            model_name = "GitHubANRL_deepFogGuardPlus_hyperconnectionsensitvityablation" + str(hyperconnection) + "_weights_alpha050_fixedstrides_dataaugmentation" + str(iteration) + ".h5"
-            model = skipconnections_ANRL_MobileNet(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,hyperconnections = hyperconnection)
+            model_name = "GitHubANRL_deepFogGuardPlus_hyperconnectionsensitvityablation3" + str(hyperconnection) + "_weights_alpha050_fixedstrides_dataaugmentation" + str(iteration) + ".h5"
+            model = define_deepFogGuard_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,hyperconnections = hyperconnection)
             model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
             num_samples = len(x_train)
             batch_size = 128
@@ -355,6 +360,6 @@ def hyperconnection_sensitivity_ablation():
 # cnn experiment 
 if __name__ == "__main__":
     #main()
-    #dropout_ablation()
+    dropout_ablation()
     #hyperconnection_weight_ablation()
-    hyperconnection_sensitivity_ablation()
+    # hyperconnection_sensitivity_ablation()

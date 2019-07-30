@@ -3,21 +3,23 @@ from keras.layers import Dense,Input,Lambda, Activation
 from KerasSingleLaneExperiment.LambdaLayers import add_node_layers
 from keras.models import Model
 
-def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hyperconnections = [1,1,1],hyperconnection_weights=[1,1]):
+def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hyperconnections = [1,1,1],isUnWeighted = True):
     """Define a deepFogGuard model.
     ### Naming Convention
-        ex: f1f2 = connection between fog node 1 and fog node 2
+        ex: f2f1 = connection between fog node 2 and fog node 1
     ### Arguments
         num_vars (int): specifies number of variables from the data, used to determine input size.
         num_classes (int): specifies number of classes to be outputted by the model
         hidden_units (int): specifies number of hidden units per layer in network
         survive_rates (list): specifies the survival rate of each node in the network
-        hyperconnections (list): specifies the alive skip hyperconnections in the network, default value is [1,1,1]
+        skip_hyperconnections (list): specifies the alive skip hyperconnections in the network, default value is [1,1,1]
+        hyperconnection_weights (list): specifies the probability, default value is [1,1,1]
+        isWeighted (boolean): determines if the hyperconnections should be based on surivive_rates
     ### Returns
         Keras Model object
     """
 
-    if hyperconnection_weights == [1,1]:
+    if isUnWeighted:
         # all hyperconnection weights are weighted 1
         connection_weight_IoTf2  = 1
         connection_weight_ef2 = 1
@@ -61,14 +63,14 @@ def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hy
     # use a linear Dense layer to transform input into the shape needed for the network
     duplicated_input = Dense(units=hidden_units,name="duplicated_input",activation='linear')(IoT_node)
     IoTf2 = multiply_weight_layer_IoTf2(duplicated_input)
-    connection_f2 = Lambda(add_node_layers,name="IOTE_F2")([ef2,IoTf2])
+    connection_f2 = Lambda(add_node_layers,name="F2_Input")([ef2,IoTf2])
  
     # fog node 2
     f2 = Dense(units=hidden_units,name="fog2_input_layer",activation='relu')(connection_f2)
     f2 = Dense(units=hidden_units,name="fog2_output_layer",activation='relu')(f2)
     f1f3 = multiply_weight_layer_ef1(e)
     f2f3 = multiply_weight_layer_f2f1(f2)
-    connection_f1 = Lambda(add_node_layers,name="EF2_F1")([f1f3,f2f3])
+    connection_f1 = Lambda(add_node_layers,name="F1_Input")([f1f3,f2f3])
 
     # fog node 1
     f1 = Dense(units=hidden_units,name="fog1_input_layer",activation='relu')(connection_f1)
@@ -76,7 +78,7 @@ def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hy
     f1 = Dense(units=hidden_units,name="fog1_output_layer",activation='relu')(f1)
     f2c = multiply_weight_layer_f2c(f2)
     f1c = multiply_weight_layer_f1c(f1)
-    connection_cloud = Lambda(add_node_layers,name="F2F1_FC")([f2c,f1c])
+    connection_cloud = Lambda(add_node_layers,name="Cloud_Input")([f2c,f1c])
 
     # cloud node
     cloud = Dense(units=hidden_units,name="cloud_input_layer")(connection_cloud)

@@ -26,7 +26,12 @@ def fail_node(model,node_array):
     ### Returns
         return a boolean whether the model failed was a cnn or not
     """
-    is_cnn = True
+    is_cnn = False
+    # determines type of network by the first layer input shape
+    first_layer = model.get_layer(index = 0)
+    if len(first_layer.input_shape) == 4:
+        # cnn input shape has 4 dimensions
+        is_cnn = True
     # cnn failure
     if is_cnn:
         nodes = ["conv_pw_3","conv_pw_8"]
@@ -42,10 +47,11 @@ def fail_node(model,node_array):
                 print(layer_name, "was failed")
     # regular NN failure
     else:
+        nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
         for index,node in enumerate(node_array):
             # node failed
             if node == 0:
-                layer_name = "fog" + str(index + 1) + "_output_layer"
+                layer_name = nodes[index]
                 layer = model.get_layer(name=layer_name)
                 layer_weights = layer.get_weights()
                 # make new weights for the connections
@@ -57,8 +63,13 @@ def fail_node(model,node_array):
                 print(layer_name, "was failed")
     return is_cnn
 
-# function to return average of a list 
 def average(list):
+    """function to return average of a list 
+    ### Arguments
+        list (list): list of numbers
+    ### Returns
+        return sum of list
+    """
     if len(list) == 0:
         return 0
     else:

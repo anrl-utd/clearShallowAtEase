@@ -134,7 +134,7 @@ if __name__ == "__main__":
                 deepFogGuard.save_weights(deepFogGuard_file)
 
             # deepFogGuard weight ablation
-            deepFogGuard_weight_ablation = deepFogGuard(num_vars,num_classes,hidden_units,survive_configuration,hyperconnection_weights = survive_configuration)
+            deepFogGuard_weight_ablation = deepFogGuard(num_vars,num_classes,hidden_units,survive_configuration,isUnWeighted = False)
             deepFogGuard_weight_ablation_file = str(iteration) + " " + str(survive_configuration) + ' deepFogGuard_weight_ablation.h5'
             if load_model:
                 deepFogGuard_weight_ablation.load_weights(deepFogGuard_weight_ablation_file)
