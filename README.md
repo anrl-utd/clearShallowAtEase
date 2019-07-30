@@ -14,7 +14,7 @@ deepFogGuard+ -- Networks of stochastic depth, with failure of layers probabilit
 4. To test our metric defined in the paper, weighted average accuracy, run failure\_iteration.py but change the first line of the file to restore the method you would like to test. For example, to test the baseline accuracy, the first line would instead read `from restore_baseline import test`.
 5. Utilize batch run to compute performance over multiple iterations.
 
-## Keras Single-lane Experiment (Normal NN and CNN)
+## Keras Single-lane Experiment (Health Activity and Cifar-10)
 Dependencies:
    * Tensorflow 1.12.0
    * Keras 2.24
