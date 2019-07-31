@@ -109,7 +109,6 @@ def guess(cumulative_frequency):
         return an int output
     """
     # set the seed for more deterministc outputs 
-    random.seed(11)
     rand_num = random.random()
     for index in range(1,len(cumulative_frequency)):
         if rand_num <= cumulative_frequency[index] and rand_num >= cumulative_frequency[index-1]:
