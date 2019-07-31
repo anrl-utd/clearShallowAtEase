@@ -1,17 +1,12 @@
 
 from keras.datasets import cifar10
-from keras.applications.mobilenet import MobileNet
 from keras.preprocessing.image import ImageDataGenerator
-from keras.layers import Dense, BatchNormalization, Input, Dropout
-from keras.models import Model
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
+import numpy as np 
 import keras.backend as K
 import math
 import os 
 from KerasSingleLaneExperiment.cnn import define_Vanilla_CNN, define_deepFogGuard_CNN, define_deepFogGuardPlus_CNN
 from KerasSingleLaneExperiment.FailureIteration import run
-import numpy as np
 from KerasSingleLaneExperiment.experiment import average
 import datetime
 import gc

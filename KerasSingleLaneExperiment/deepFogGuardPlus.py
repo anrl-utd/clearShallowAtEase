@@ -1,7 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation
 import keras.backend as K
-from KerasSingleLaneExperiment.LambdaLayers import add_node_layers
+from LambdaLayers import add_node_layers
 from keras.models import Model
 from keras.backend import constant
 import random 

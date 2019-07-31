@@ -85,8 +85,9 @@ def random_guess(train_labels,test_data):
     # count the frequency of each class
     if "list" in str(type(train_labels)):
         class_frequency = Counter(train_labels)
+    # numpy array 
     else:
-        class_frequency = Counter(train_labels.tolist())
+        class_frequency = Counter(train_labels.flatten())
     # sort by keys and get the values
     sorted_class_frequency = list(dict(sorted(class_frequency.items())).values())
     total_frequency = len(train_labels)
@@ -108,7 +109,6 @@ def guess(cumulative_frequency):
     ### Returns
         return an int output
     """
-    # set the seed for more deterministc outputs 
     rand_num = random.random()
     for index in range(1,len(cumulative_frequency)):
         if rand_num <= cumulative_frequency[index] and rand_num >= cumulative_frequency[index-1]:

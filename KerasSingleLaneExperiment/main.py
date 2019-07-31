@@ -12,11 +12,11 @@ import keras.backend as K
 import datetime
 import os
 
-from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus
-from KerasSingleLaneExperiment.deepFogGuard import define_deepFogGuard
-from KerasSingleLaneExperiment.Vanilla import define_vanilla_model
-from KerasSingleLaneExperiment.random_guess import model_guess
-from KerasSingleLaneExperiment.loadData import load_data
+from deepFogGuardPlus import define_deepFogGuardPlus
+from deepFogGuard import define_deepFogGuard
+from Vanilla import define_vanilla_model
+from random_guess import model_guess
+from loadData import load_data
 
 def fail_node(model,node_array):
     """fails node by making the specified node/nodes output 0
