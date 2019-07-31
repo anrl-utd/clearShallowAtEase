@@ -11,15 +11,8 @@ import datetime
 import gc
 import os
 
-# TODO: to add dropout abalation to actual model
-
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    use_GCP = True
-    if use_GCP == True:
-        os.system('gsutil -m cp -r gs://anrl-storage/data/mHealth_complete.log ./')
-        os.mkdir('models/')
-        os.mkdir('models/no he_normal')
     data,labels= load_data('mHealth_complete.log')
     training_data, test_data, training_labels, test_labels = train_test_split(data,labels,random_state = 42, test_size = .2, shuffle = True,stratify = labels)
     num_vars = len(training_data[0])
@@ -103,9 +96,12 @@ if __name__ == "__main__":
         }
     }
     # make folder for outputs 
-    if not os.path.exists('results/' + date):
+    if not os.path.exists('results/'):
         os.mkdir('results/')
+    if not os.path.exists('results/' + date):
         os.mkdir('results/' + date)
+    if not os.path.exists('models'):      
+        os.mkdir('models/')
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)

@@ -10,13 +10,8 @@ import os
 import gc 
 
 # runs all hyperconnection configurations for both deepFogGuard and deepFogGuard Plus survival configurations
-# sensitivity analysis 
-def main():
-    use_GCP = True
-    if use_GCP == True:
-        os.system('gsutil -m cp -r gs://anrl-storage/data/mHealth_complete.log ./')
-        os.mkdir('models/')
-        os.mkdir('models/no he_normal')
+# ablation study
+if __name__ == "__main__":
     data,labels= load_data('mHealth_complete.log')
     training_data, test_data, training_labels, test_labels = train_test_split(data,labels,random_state = 42, test_size = .2, shuffle = True,stratify = labels)
     num_vars = len(training_data[0])
@@ -122,10 +117,13 @@ def main():
             },
         }
     }
-    # make folder for outputs 
-    if not os.path.exists('results/' + date):
+     # make folder for outputs 
+    if not os.path.exists('results/'):
         os.mkdir('results/')
+    if not os.path.exists('results/' + date):
         os.mkdir('results/' + date)
+    if not os.path.exists('models'):      
+        os.mkdir('models/')
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
@@ -192,8 +190,3 @@ def main():
         file.flush()
         os.fsync(file)
     print(output)
-    if use_GCP:
-        os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(file_name))
-
-if __name__ == "__main__":
-    main()

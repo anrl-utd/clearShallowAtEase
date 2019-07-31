@@ -302,7 +302,7 @@ def define_Vanilla_CNN(input_shape=None,
         model.load_weights(weights_path)
     elif weights is not None:
         model.load_weights(weights)
-
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 def define_deepFogGuard_CNN(input_shape=None,
@@ -362,7 +362,8 @@ def define_deepFogGuard_CNN(input_shape=None,
         classes: optional number of classes to classify images
             into, only to be specified if `include_top` is True, and
             if no `weights` argument is specified.
-
+        hyperconnections: list of available skip hyperconnections
+        hyperconnection_weights: list of hyperconnection weights, default value is [1,1], if hyperconnections_weights is [1,1] then all hyperconnections are weighted 1, else hyperconnections are weighted by survival rate
     # Returns
         A Keras model instance.
 
@@ -557,7 +558,7 @@ def define_deepFogGuard_CNN(input_shape=None,
         model.load_weights(weights_path)
     elif weights is not None:
         model.load_weights(weights)
-
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 def define_deepFogGuardPlus_CNN(input_shape=None,
@@ -616,7 +617,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
         classes: optional number of classes to classify images
             into, only to be specified if `include_top` is True, and
             if no `weights` argument is specified.
-
+        survive_rates: survival rates of network nodes, default value is [1,1]
     # Returns
         A Keras model instance.
 
@@ -806,7 +807,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
         model.load_weights(weights_path)
     elif weights is not None:
         model.load_weights(weights)
-
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 def _conv_block(inputs, filters, alpha, kernel=(3, 3), strides=(1, 1)):
