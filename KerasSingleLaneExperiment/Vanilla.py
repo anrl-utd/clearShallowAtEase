@@ -1,6 +1,6 @@
 from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation
-from KerasSingleLaneExperiment.LambdaLayers import add_node_layers
+from LambdaLayers import add_node_layers
 from keras.models import Model
 
 def define_vanilla_model(num_vars,num_classes,hidden_units):

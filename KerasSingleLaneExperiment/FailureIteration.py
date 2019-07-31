@@ -4,8 +4,8 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import precision_score
 
 
-from KerasSingleLaneExperiment.main import fail_node,test
-from KerasSingleLaneExperiment.random_guess import model_guess, cnnmodel_guess
+from main import fail_node,test
+from random_guess import model_guess, cnnmodel_guess
 
 
 def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,output_list,training_labels,test_data,test_labels):
