@@ -154,3 +154,46 @@ def define_hyperconnection_weight_lambda_layers(hyperconnection_weight_IoTf2, hy
     multiply_hyperconnection_weight_layer_f2c = Lambda((lambda x: x * hyperconnection_weight_f2c), name = "hyperconnection_weight_f2c")
     multiply_hyperconnection_weight_layer_f1c = Lambda((lambda x: x * hyperconnection_weight_f1c), name = "hyperconnection_weight_f1c")
     return multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1, multiply_hyperconnection_weight_layer_f2c, multiply_hyperconnection_weight_layer_f1c
+
+
+def define_cnn_deepFogGuard_architecture_IoT(input_shape, alpha, img_input):
+    # changed the strides from 2 to 1 since cifar-10 images are smaller
+    iot_output = define_cnn_architecture_IoT(img_input,alpha,strides = (1,1))
+
+    # used stride 1 to match (32,32,3) to (32,32,64)
+    # 1x1 conv2d is used to change the filter size (from 3 to 64)
+    skip_iotfog = layers.Conv2D(64,(1,1),strides = 1, use_bias = False, name = "skip_hyperconnection_iotfog")(iot_output)
+    return iot_output, skip_iotfog
+
+def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplier, multiply_dropout_layer_ef = None, multply_dropout_layer_ec = None):
+    edge_input = iot_output
+    edge_output = define_cnn_architecture_edge(edge_input,alpha,depth_multiplier, strides= (1,1))
+    # used stride 4 to match (31,31,64) to (7,7,256)
+    # 1x1 conv2d is used to change the filter size (from 64 to 256)
+    skip_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(edge_output)
+    if(multiply_dropout_layer_ef != None and multply_dropout_layer_ec != None):
+        edge_output = multiply_dropout_layer_ef(edge_output)
+        skip_edgecloud = multply_dropout_layer_ec(skip_edgecloud)
+    return edge_output, skip_edgecloud
+   
+
+def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None, multiply_dropout_layer_fc = None):
+    if multiply_hyperconnection_weight_layer_IoTf == None or multiply_hyperconnection_weight_layer_ef == None:
+        fog_input = layers.add([skip_iotfog, edge_output], name = "connection_fog")
+    else:
+        fog_input = layers.add([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)], name = "connection_fog")
+    fog = define_cnn_architecture_fog(fog_input,alpha,depth_multiplier)
+    # don't need between edge and IoT because 0 will propagate to this node
+    # pad from (7,7,256) to (8,8,256)
+    fog_output = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
+    if(multiply_dropout_layer_fc != None):
+        fog_output = multiply_dropout_layer_fc(fog_output)
+    return fog_output
+
+def define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling, multiply_hyperconnection_weight_layer_fc = None, multiply_hyperconnection_weight_layer_ec = None):
+    if multiply_hyperconnection_weight_layer_fc == None or multiply_hyperconnection_weight_layer_ec == None:
+        cloud_input = layers.add([fog_output, skip_edgecloud], name = "connection_cloud")
+    else:
+        cloud_input = layers.add([multiply_hyperconnection_weight_layer_fc(fog_output), multiply_hyperconnection_weight_layer_ec(skip_edgecloud)], name = "connection_cloud")
+    cloud_output = define_cnn_architecture_cloud(cloud_input,alpha,depth_multiplier,classes,include_top,pooling)
+    return cloud_output

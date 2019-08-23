@@ -1,6 +1,8 @@
-import keras.layers as layers
 import keras.backend as backend
+import keras.layers as layers
 
+# these methods (_conv_block() and _depthwise_conv_block()) directly borrowed from Keras' implementation of MobileNet
+# https://github.com/keras-team/keras-applications/blob/master/keras_applications/mobilenet.py
 def _conv_block(inputs, filters, alpha, kernel=(3, 3), strides=(1, 1)):
     """Adds an initial convolution layer (with batch normalization and relu6).
 

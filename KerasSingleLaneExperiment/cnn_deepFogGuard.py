@@ -11,9 +11,8 @@ from keras.backend import zeros
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
 from keras_applications import imagenet_utils
 import keras 
-from KerasSingleLaneExperiment.cnn_utils import _conv_block,_depthwise_conv_block
 import random 
-from KerasSingleLaneExperiment.cnn import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog
+from KerasSingleLaneExperiment.cnn_Vanilla import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog
 
 def define_deepFogGuard_CNN(input_shape=None,
               alpha=1.0,

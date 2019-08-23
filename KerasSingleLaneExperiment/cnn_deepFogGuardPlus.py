@@ -12,7 +12,6 @@ from keras.backend import zeros
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
 from keras_applications import imagenet_utils
 import keras 
-from KerasSingleLaneExperiment.cnn_utils import _conv_block,_depthwise_conv_block
 from KerasSingleLaneExperiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 
 # ResiliNet
