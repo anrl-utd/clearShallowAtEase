@@ -63,13 +63,13 @@ def cnn_normal_experiments():
         os.mkdir('results/' + date)
     if not os.path.exists('models'):      
         os.mkdir('models/')
-    file_name = 'results/' + date + '/experiment3_baselineexperiment_results.txt'
+    file_name = 'results/' + date + '/experiment3_node_failure.txt'
     output_list = []
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         vanilla_name = "vanilla_cnn" + str(iteration) + ".h5"
         deepFogGuard_name = "deepFogGuard_cnn" + str(iteration) + ".h5"
-        deepFogGuardPlus_name = "deepFogGuard_cnn" + str(iteration) + ".h5"
+        deepFogGuardPlus_name = "deepFogGuardPlus_cnn" + str(iteration) + ".h5"
 
         vanilla = define_Vanilla_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5)
         deepFogGuard = define_deepFogGuard_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5)
@@ -384,6 +384,6 @@ def hyperconnection_sensitivity_ablation():
 # cnn experiment 
 if __name__ == "__main__":
     cnn_normal_experiments()
-    dropout_ablation()
-    hyperconnection_weight_ablation()
-    hyperconnection_sensitivity_ablation()
+    # dropout_ablation()
+    # hyperconnection_weight_ablation()
+    # hyperconnection_sensitivity_ablation()

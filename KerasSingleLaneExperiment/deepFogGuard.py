@@ -1,9 +1,9 @@
 from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation
-from LambdaLayers import add_node_layers
+from KerasSingleLaneExperiment.LambdaLayers import add_node_layers
 from keras.models import Model
-
-def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hyperconnections = [1,1,1],isUnWeighted = True):
+import random
+def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hyperconnections = [1,1,1],weight_config = 1):
     """Define a deepFogGuard model.
     ### Naming Convention
         ex: f2f1 = connection between fog node 2 and fog node 1
@@ -14,12 +14,12 @@ def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hy
         survive_rates (list): specifies the survival rate of each node in the network
         skip_hyperconnections (list): specifies the alive skip hyperconnections in the network, default value is [1,1,1]
         hyperconnection_weights (list): specifies the probability, default value is [1,1,1]
-        isWeighted (boolean): determines if the hyperconnections should be based on surivive_rates
+        weight_config (int): determines if the hyperconnections should be based on surivive_rates, 1: weighted 1, 2: weighted by weighted survival of multiple nodes, 3: weighted by survival of single node only, 4: weights are randomly weighted from 0-1, 5: weights are randomly weighted from 0-10
     ### Returns
         Keras Model object
     """
 
-    if isUnWeighted:
+    if weight_config == 1:
         # all hyperconnection weights are weighted 1
         connection_weight_IoTf2  = 1
         connection_weight_ef2 = 1
@@ -27,7 +27,7 @@ def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hy
         connection_weight_f2f1 = 1
         connection_weight_f2c = 1
         connection_weight_f1c = 1
-    else:
+    elif weight_config == 2:
         # weights calculated by survival rates
         connection_weight_IoTf2  = 1 / (1+survive_rates[0])
         connection_weight_ef2 = survive_rates[0] / (1 + survive_rates[0])
@@ -35,7 +35,42 @@ def define_deepFogGuard(num_vars,num_classes,hidden_units,survive_rates, skip_hy
         connection_weight_f2f1 = survive_rates[1] / (survive_rates[0] + survive_rates[1])
         connection_weight_f2c = survive_rates[1] / (survive_rates[1] + survive_rates[2])
         connection_weight_f1c = survive_rates[2] / (survive_rates[1] + survive_rates[2])
-   
+    elif weight_config == 3:
+        # weighted by survival rates only, no divsion 
+        connection_weight_IoTf2  = 1
+        connection_weight_ef2 = survive_rates[0] 
+        connection_weight_ef1 = survive_rates[0] 
+        connection_weight_f2f1 = survive_rates[1]
+        connection_weight_f2c = survive_rates[1] 
+        connection_weight_f1c = survive_rates[2]
+    elif weight_config == 4:
+        #random.seed(42)
+        # weights are randomly weighted from 0-1
+        connection_weight_IoTf2  = random.uniform(0,1)
+        connection_weight_ef2 = random.uniform(0,1)
+        connection_weight_ef1 = random.uniform(0,1)
+        connection_weight_f2f1 = random.uniform(0,1)
+        connection_weight_f2c = random.uniform(0,1)
+        connection_weight_f1c = random.uniform(0,1)
+    elif weight_config == 5:
+        #random.seed(42)
+        # weights are randomly weighted from 0-10
+        connection_weight_IoTf2  = random.uniform(0,10)
+        connection_weight_ef2 = random.uniform(0,10)
+        connection_weight_ef1 = random.uniform(0,10)
+        connection_weight_f2f1 = random.uniform(0,10)
+        connection_weight_f2c = random.uniform(0,10)
+        connection_weight_f1c = random.uniform(0,10)
+    elif weight_config == 6:
+        # weights are weighted .5
+        connection_weight_IoTf2  = .5
+        connection_weight_ef2 = .5
+        connection_weight_ef1 = .5
+        connection_weight_f2f1 = .5
+        connection_weight_f2c = .5
+        connection_weight_f1c = .5
+    else:
+        raise ValueError("Invalid weight config value")
 
      # take away the skip hyperconnection if the value in hyperconnections array is 0
     if skip_hyperconnections[0] == 0:

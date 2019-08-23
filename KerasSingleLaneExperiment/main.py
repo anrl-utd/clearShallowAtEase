@@ -12,11 +12,11 @@ import keras.backend as K
 import datetime
 import os
 
-from deepFogGuardPlus import define_deepFogGuardPlus
-from deepFogGuard import define_deepFogGuard
-from Vanilla import define_vanilla_model
-from random_guess import model_guess
-from loadData import load_data
+from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus, define_adjusted_deepFogGuardPlus
+from KerasSingleLaneExperiment.deepFogGuard import define_deepFogGuard
+from KerasSingleLaneExperiment.Vanilla import define_vanilla_model
+from KerasSingleLaneExperiment.random_guess import model_guess
+from KerasSingleLaneExperiment.loadData import load_data
 
 def fail_node(model,node_array):
     """fails node by making the specified node/nodes output 0
@@ -84,7 +84,7 @@ def train_model(training_data,training_labels,model_type, survive_rates):
         return trained Keras Model
     """
     # variable to save the model
-    save_model = True
+    save_model = False
 
     # create model
     if model_type == 0:
@@ -93,6 +93,8 @@ def train_model(training_data,training_labels,model_type, survive_rates):
         model = define_deepFogGuard(num_vars,num_classes,250,survive_rates)
     elif model_type == 2:
         model = define_deepFogGuardPlus(num_vars,num_classes,250,survive_rates)
+    elif model_type == 3:
+        model = define_adjusted_deepFogGuardPlus(num_vars,num_classes,250,survive_rates)
     else:
         raise ValueError("Incorrect model type")
 
@@ -162,7 +164,7 @@ def evaluate_withFailures(model,test_data,test_labels):
     for failure in failure_list:
         print(failure)
         fail_node(model,failure)
-        acc = model.evaluate(test_data,test_labels)[1]
+        acc = model.evaluate(test_data,test_labels,verbose=0)[1]
         print(acc)
         # reset the model with the original weights 
         model.set_weights(original_weights)
@@ -196,7 +198,7 @@ if __name__ == "__main__":
     num_classes = 13
 
     # define model type
-    model_type = 1
+    model_type = 3
 
     load_weights = False
     if load_weights:

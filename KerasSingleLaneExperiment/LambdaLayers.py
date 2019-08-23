@@ -1,5 +1,5 @@
 from keras.layers import add
-
+import keras.backend as K
 def add_node_layers(input_tensors):
     """lambda function to add physical nodes in the network 
     ### Arguments
@@ -8,6 +8,9 @@ def add_node_layers(input_tensors):
         returns the sum of the output layers
     """  
     output = []
-    for tensors in input_tensors:
-       output.append(tensors)
-    return add(output)
+    if(len(input_tensors) == 1):
+            return input_tensors
+    else:
+        for tensors in input_tensors:
+            output.append(tensors)
+        return add(output)

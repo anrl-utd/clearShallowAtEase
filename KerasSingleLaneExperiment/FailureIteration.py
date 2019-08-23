@@ -4,8 +4,8 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import precision_score
 
 
-from main import fail_node,test
-from random_guess import model_guess, cnnmodel_guess
+from KerasSingleLaneExperiment.main import fail_node,test
+from KerasSingleLaneExperiment.random_guess import model_guess, cnnmodel_guess
 
 
 def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,output_list,training_labels,test_data,test_labels):
@@ -143,7 +143,7 @@ def normalizeWeights(weights):
     weightNormalized = [(x/sumWeights) for x in weights]
     return weightNormalized
  
-def run(model,surv,output_list,training_labels,test_data,test_labels):
+def calculateExpectedAccuracy(model,surv,output_list,training_labels,test_data,test_labels):
     """run full survival configuration failure
     ### Arguments
         model (Model): Keras model
