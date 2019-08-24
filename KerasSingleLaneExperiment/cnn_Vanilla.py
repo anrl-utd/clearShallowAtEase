@@ -94,16 +94,16 @@ def define_cnn_architecture_IoT(img_input,alpha, strides = (2,2)):
     return  _conv_block(img_input, 32, alpha, strides=strides)
 
 def define_cnn_architecture_edge(iot_output,alpha, depth_multiplier, strides =(2,2)):
-    edge_input = _depthwise_conv_block(iot_output, 64, alpha, depth_multiplier, block_id=1)
-    edge = _depthwise_conv_block(edge_input, 128, alpha, depth_multiplier,
+    edge = _depthwise_conv_block(iot_output, 64, alpha, depth_multiplier, block_id=1)
+    edge = _depthwise_conv_block(edge, 128, alpha, depth_multiplier,
                               strides=strides, block_id=2)
     edge_output = _depthwise_conv_block(edge, 128, alpha, depth_multiplier, block_id=3)
     return edge_output
 
 def define_cnn_architecture_fog(edge_output,alpha, depth_multiplier):
-    fog_input = _depthwise_conv_block(edge_output, 256, alpha, depth_multiplier,
+    fog = _depthwise_conv_block(edge_output, 256, alpha, depth_multiplier,
                           strides=(2, 2), block_id=4)
-    fog = _depthwise_conv_block(fog_input, 256, alpha, depth_multiplier, block_id=5)
+    fog = _depthwise_conv_block(fog, 256, alpha, depth_multiplier, block_id=5)
     fog = _depthwise_conv_block(fog, 512, alpha, depth_multiplier,
                               strides=(2, 2), block_id=6)
     fog = _depthwise_conv_block(fog, 512, alpha, depth_multiplier, block_id=7)
@@ -111,8 +111,8 @@ def define_cnn_architecture_fog(edge_output,alpha, depth_multiplier):
     return fog_output
 
 def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,include_top,pooling):
-    cloud_input = _depthwise_conv_block(fog_output, 512, alpha, depth_multiplier, block_id=9)
-    cloud = _depthwise_conv_block(cloud_input, 512, alpha, depth_multiplier, block_id=10)
+    cloud = _depthwise_conv_block(fog_output, 512, alpha, depth_multiplier, block_id=9)
+    cloud = _depthwise_conv_block(cloud, 512, alpha, depth_multiplier, block_id=10)
     cloud = _depthwise_conv_block(cloud, 512, alpha, depth_multiplier, block_id=11)
 
     cloud = _depthwise_conv_block(cloud, 1024, alpha, depth_multiplier,
