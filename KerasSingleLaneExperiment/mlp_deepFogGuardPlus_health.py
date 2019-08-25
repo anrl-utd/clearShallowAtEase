@@ -49,21 +49,6 @@ def define_deepFogGuardPlus(num_vars,num_classes,hidden_units,survive_rates,skip
     multiply_weight_layer_f2c = Lambda((lambda x: x * connection_weight_f2c), name = "connection_weight_f2c")
     multiply_weight_layer_f1c = Lambda((lambda x: x * connection_weight_f1c), name = "connection_weight_f1c")
 
-    # variables for active guard 
-    e_rand = K.variable(0)
-    f2_rand = K.variable(0)
-    f1_rand = K.variable(0)
-    e_survive_rate = K.variable(survive_rates[0])
-    f2_survive_rate = K.variable(survive_rates[1])
-    f1_survive_rate = K.variable(survive_rates[2])
-
-    # set training phase to true to enable dropout
-    K.set_learning_phase(1)
-    if K.learning_phase():
-        # seeds so the random_number is different for each fog node 
-        e_rand = K.random_uniform(shape=e_rand.shape,seed=7)
-        f2_rand = K.random_uniform(shape=f2_rand.shape,seed=11)
-        f1_rand = K.random_uniform(shape=f1_rand.shape,seed=42)
 
     # define lambda for fog failure, failures are only during training
     e_failure_lambda = Lambda(lambda x : K.switch(K.greater(e_rand,e_survive_rate), x * 0, x),name = 'e_failure_lambda')
@@ -165,21 +150,6 @@ def define_adjusted_deepFogGuardPlus(num_vars,num_classes,hidden_units,survive_r
     multiply_weight_layer_f1c = Lambda((lambda x: x * connection_weight_f1c), name = "connection_weight_f1c")
 
 
-    # variables for active guard 
-    e_rand = K.variable(0)
-    f2_rand = K.variable(0)
-    f1_rand = K.variable(0)
-    e_survive_rate = K.variable(survive_rates[0])
-    f2_survive_rate = K.variable(survive_rates[1])
-    f1_survive_rate = K.variable(survive_rates[2])
-
-    # set training phase to true to enable dropout
-    if K.eval(K.learning_phase()):
-        # seeds so the random_number is different for each fog node 
-        e_rand = K.random_uniform(shape=e_rand.shape,seed=7)
-        f2_rand = K.random_uniform(shape=f2_rand.shape,seed=11)
-        f1_rand = K.random_uniform(shape=f1_rand.shape,seed=42)
-
     # define lambda for fog failure, failures are only during training
     e_failure_lambda = Lambda(lambda x : K.switch(K.greater(e_rand,e_survive_rate), x * 0, x),name = 'e_failure_lambda')
     f2_failure_lambda = Lambda(lambda x : K.switch(K.greater(f2_rand,f2_survive_rate), x * 0, x),name = 'f2_failure_lambda')
@@ -251,3 +221,32 @@ def define_adjusted_deepFogGuardPlus(num_vars,num_classes,hidden_units,survive_r
     model = Model(inputs=IoT_node, outputs=normal_output_layer)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
+
+def mlp_nodewise_dropout_definitions(survivability_setting, standard_dropout = False):
+    edge_survivability = survivability_setting[0]
+    fog2_survivability = survivability_setting[1]
+    fog1_survivability = survivability_setting[2]
+    # variables for node-wise dropout
+    edge_rand = K.variable(0)
+    fog2_rand = K.variable(0)
+    fog1_rand = K.variable(0)
+    edge_survivability_keras = K.variable(edge_survivability)
+    fog2_survivability_keras = K.variable(fog2_survivability)
+    fog1_survivability_keras = K.variable(fog1_survivability)
+    # node-wise dropout occurs only during training
+    if K.eval(K.learning_phase()):
+        # seeds so the random_number is different for each node 
+        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
+        fog2_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
+        fog1_rand = K.random_uniform(shape=fog_rand.shape,seed=42)
+    # define lambda for failure, only fail during training
+    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'edge_failure_lambda')
+    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survivability_keras), x * 0, x),name = 'fog_failure_lambda')
+    if standard_dropout:
+        # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
+        ef_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(), x, x * edge_survivability),name = 'ef_dropout_lambda') 
+        ec_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(), x, x * edge_survivability),name = 'ec_dropout_lambda')
+        fc_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(),x, x * fog_survivability),name = 'fc_dropout_lambda')
+        return edge_failure_lambda, fog_failure_lambda, ef_dropout_multiply, ec_dropout_multiply, fc_dropout_multiply
+    else:
+        return edge_failure_lambda, fog_failure_lambda, None, None, None

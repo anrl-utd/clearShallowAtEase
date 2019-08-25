@@ -36,14 +36,12 @@ def define_vanilla_model(num_vars,num_classes,hidden_units):
     return model
 
 def define_mlp_architecture_edge(img_input,hidden_units):
-    edge = Dense(units=hidden_units,name="edge_output_layer",activation='relu')(img_input)
-    edge_output = Lambda(lambda x: x * 1,name="F2_Input")(edge)
+    edge_output = Dense(units=hidden_units,name="edge_output_layer",activation='relu')(img_input)
     return edge_output
 
 def define_mlp_architecture_fog2(fog2_input,hidden_units):
     fog2 = Dense(units=hidden_units,name="fog2_input_layer",activation='relu')(fog2_input)
-    fog2 = Dense(units=hidden_units,name="fog2_output_layer",activation='relu')(fog2)
-    fog2_output = Lambda(lambda x: x * 1,name="F1_Input")(fog2)
+    fog2_output = Dense(units=hidden_units,name="fog2_output_layer",activation='relu')(fog2)
     return fog2_output
 
 def define_mlp_architecture_fog1(fog1_input,hidden_units):
