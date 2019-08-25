@@ -15,16 +15,16 @@ import random
 from KerasSingleLaneExperiment.cnn_Vanilla import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog
 
 def define_deepFogGuard_CNN(input_shape=None,
-              alpha=1.0,
-              depth_multiplier=1,
-              include_top=True,
-              input_tensor=None,
-              pooling=None,
-              classes=1000,
-              skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive
-              survivability_setting=[1.0,1.0], # survivability of a node between 0 and 1
-              hyperconnection_weights_scheme = 1,
-              **kwargs):
+                            alpha=1.0,
+                            depth_multiplier=1,
+                            include_top=True,
+                            input_tensor=None,
+                            pooling=None,
+                            classes=1000,
+                            skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive
+                            survivability_setting=[1.0,1.0], # survivability of a node between 0 and 1
+                            hyperconnection_weights_scheme = 1,
+                            **kwargs):
     """Instantiates the MobileNet architecture.
 
     # Arguments

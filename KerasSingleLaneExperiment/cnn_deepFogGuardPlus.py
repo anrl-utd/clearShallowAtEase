@@ -16,17 +16,14 @@ from KerasSingleLaneExperiment.cnn_deepFogGuard import define_cnn_deepFogGuard_a
 
 # ResiliNet
 def define_deepFogGuardPlus_CNN(input_shape=None,
-              alpha=1.0,
-              depth_multiplier=1,
-              dropout=1e-3,
-              include_top=True,
-              weights='imagenet',
-              input_tensor=None,
-              pooling=None,
-              classes=1000, 
-              survivability_setting = [1,1],
-              standard_dropout = False,
-              **kwargs):
+                                alpha=1.0,
+                                depth_multiplier=1,
+                                include_top=True,
+                                pooling=None,
+                                classes=1000, 
+                                survivability_setting = [1.0,1.0],
+                                standard_dropout = False,
+                                **kwargs):
     """Instantiates the MobileNet architecture.
 
     # Arguments
@@ -48,15 +45,8 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
                  are used at each layer.
         depth_multiplier: depth multiplier for depthwise convolution. This
             is called the resolution multiplier in the MobileNet paper.
-        dropout: dropout rate
         include_top: whether to include the fully-connected
             layer at the top of the network.
-        weights: one of `None` (random initialization),
-              'imagenet' (pre-training on ImageNet),
-              or the path to the weights file to be loaded.
-        input_tensor: optional Keras tensor (i.e. output of
-            `layers.Input()`)
-            to use as image input for the model.
         pooling: Optional pooling mode for feature extraction
             when `include_top` is `False`.
             - `None` means that the output of the model
@@ -118,7 +108,7 @@ def cnn_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     fog_survivability_keras = K.variable(fog_survivability)
     # node-wise dropout occurs only during training
     if K.eval(K.learning_phase()):
-        # seeds so the random_number is different for each fog node 
+        # seeds so the random_number is different for each node 
         edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
         fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
     # define lambda for failure, only fail during training
