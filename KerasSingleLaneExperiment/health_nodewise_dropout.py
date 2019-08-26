@@ -1,5 +1,5 @@
 
-from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus, define_adjusted_deepFogGuardPlus
+from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
 from KerasSingleLaneExperiment.loadData import load_data
 from sklearn.model_selection import train_test_split
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
@@ -135,10 +135,10 @@ if __name__ == "__main__":
         for nodewise_survival_rate in nodewise_survival_rates:
             # node-wise dropout
             deepFogGuardPlus_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_nodewise_dropout.h5'
-            deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus(num_vars,num_classes,hidden_units,nodewise_survival_rate)
+            deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate)
             # adjusted node_wise dropout
             deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_nodewise_dropout.h5'
-            deepFogGuardPlus_adjusted_nodewise_dropout = define_adjusted_deepFogGuardPlus(num_vars,num_classes,hidden_units,nodewise_survival_rate)
+            deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate,standard_dropout=True)
             if load_model:
                 deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
                 deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)

@@ -104,6 +104,10 @@ if __name__ == "__main__":
                 deepGuardPlus_acc = average(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)])
                 output_list.append(str(survivability_setting) + " nodewise_survival_rate Accuracy: " + str(deepGuardPlus_acc) + '\n')
                 print(str(survivability_setting), " variable nodewise_survival_rate Accuracy:",deepGuardPlus_acc)
+
+                deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)],ddof=1)
+                output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
+                print(str(survivability_setting), " variable nodewise_survival_rate std:",deepGuardPlus_std)
         file.writelines(output_list)
         file.flush()
         os.fsync(file)

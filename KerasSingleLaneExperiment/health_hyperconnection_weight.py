@@ -1,5 +1,5 @@
 
-from KerasSingleLaneExperiment.deepFogGuard import define_deepFogGuard
+from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from KerasSingleLaneExperiment.loadData import load_data
 from sklearn.model_selection import train_test_split
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
@@ -120,7 +120,7 @@ if __name__ == "__main__":
             # loop through all the weight schemes
             for weight_scheme in weight_schemes:
                 # deepFogGuard hyperconnection weight 
-                deepFogGuard_hyperconnection_weight = define_deepFogGuard(num_vars,num_classes,hidden_units,survivability_setting, weight_config = weight_scheme)
+                deepFogGuard_hyperconnection_weight = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,survivability_setting, hyperconnection_weights_scheme = weight_scheme)
                 deepFogGuard_hyperconnection_weight_file = str(iteration) + "_" + str(survivability_setting) + "_" + str(weight_scheme) + 'health_hyperconnection_fixed_random_weight.h5'
                 if load_model:
                     deepFogGuard_hyperconnection_weight.load_weights(deepFogGuard_hyperconnection_weight_file)

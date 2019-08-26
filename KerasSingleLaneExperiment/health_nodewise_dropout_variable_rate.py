@@ -1,5 +1,4 @@
-
-from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus, define_adjusted_deepFogGuardPlus
+from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
 from KerasSingleLaneExperiment.loadData import load_data
 from sklearn.model_selection import train_test_split
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
@@ -9,10 +8,6 @@ import gc
 import os
 from keras.callbacks import ModelCheckpoint
 
-def multiply_dropout_rate(survivability_setting):
-    complement_setting = list(map(lambda num : 1 - num,survivability_setting))
-    complement_setting = list(map(lambda num : num * 10,complement_setting))
-    return list(map(lambda num : 1 - num,complement_setting))
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True
@@ -73,16 +68,10 @@ if __name__ == "__main__":
         for survivability_setting in survivability_settings:
             # variable node-wise dropout
             deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_dropout.h5'
-            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus(num_vars,num_classes,hidden_units,survivability_setting)
+            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,survivability_setting)
 
-            # 10x variable node_wise dropout
-            deepFogGuardPlus_variable_10x_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_fixed_10xvariable_nodewise_dropout.h5'
-            # multiply the dropout rate by 10
-            survivability_setting_10x = multiply_dropout_rate(survivability_setting)
-            deepFogGuardPlus_variable_10x_nodewise_dropout = define_deepFogGuardPlus(num_vars,num_classes,hidden_units,survivability_setting_10x)
             if load_model:
                 deepFogGuardPlus_variable_nodewise_dropout.load_weights(deepFogGuardPlus_variable_nodewise_dropout_file)
-                deepFogGuardPlus_variable_10x_nodewise_dropout.load_weights(deepFogGuardPlus_variable_10x_nodewise_dropout_file)
             else:
                 print("Training deepFogGuardPlus Variable Node-wise Dropout")
                 print(str(survivability_setting))
@@ -90,29 +79,18 @@ if __name__ == "__main__":
                 deepFogGuardPlus_variable_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_variable_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
                 deepFogGuardPlus_variable_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_variable_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
                 deepFogGuardPlus_variable_nodewise_dropout.load_weights(deepFogGuardPlus_variable_nodewise_dropout_file)
-                # 10x Variable Dropout
-                print("deepFogGuardPlus Node-wise 10x Variable Dropout")
-                deepFogGuardPlus_variable_10x_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_variable_10x_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-                deepFogGuardPlus_variable_10x_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_variable_10x_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
-                deepFogGuardPlus_variable_10x_nodewise_dropout.load_weights(deepFogGuardPlus_variable_10x_nodewise_dropout_file)
 
                 output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_variable_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
-                output["deepFogGuardPlus Node-wise 10x Variable Dropout"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_variable_10x_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
+        
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
             del deepFogGuardPlus_variable_nodewise_dropout
-            del deepFogGuardPlus_variable_10x_nodewise_dropout
     # calculate average accuracies for deepFogGuardPlus Node-wise Dropout
     for survivability_setting in survivability_settings:
         deepFogGuardPlus_variable_nodewise_dropout_acc = average(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)])
         output_list.append(str(survivability_setting) + " deepFogGuardPlus Node-wise Variable Dropout: " + '\n')
         print(survivability_setting,"deepFogGuardPlus Node-wise Variable Dropout:",deepFogGuardPlus_variable_nodewise_dropout_acc)  
-
-        deepFogGuardPlus_variable_10x_nodewise_dropout_acc = average(output["deepFogGuardPlus Node-wise 10x Variable Dropout"][str(survivability_setting)])
-        output_list.append(str(survivability_setting) + " deepFogGuardPlus Node-wise Dropout: " + str(deepFogGuardPlus_variable_10x_nodewise_dropout_acc) + '\n')
-        print(survivability_setting,"deepFogGuardPlus Node-wise Dropout:",deepFogGuardPlus_variable_10x_nodewise_dropout_acc)  
-
 
     # write experiments output to file
     with open(output_name,'w') as file:
