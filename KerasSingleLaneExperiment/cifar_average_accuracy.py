@@ -6,7 +6,7 @@ from keras.callbacks import ModelCheckpoint
 import keras.backend as K
 import math
 import os 
-from KerasSingleLaneExperiment.cnn_Vanilla import define_Vanilla_CNN
+from KerasSingleLaneExperiment.cnn_Vanilla import define_vanilla_model_CNN
 from KerasSingleLaneExperiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from KerasSingleLaneExperiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     alpha = .5
     input_shape = (32,32,3)
     classes = 10
-    default_nodewise_survival_rate = [.95,.95,.95]
+    default_nodewise_survival_rate = [.95,.95]
     train_steps_per_epoch = math.ceil(len(x_train) / batch_size)
     val_steps_per_epoch = math.ceil(len(x_val) / batch_size)
     output = {
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         deepFogGuard_name = "deepFogGuard_cifar_average_accuracy" + str(iteration) + ".h5"
         deepFogGuardPlus_name = "deepFogGuardPlus_cifar_average_accuracy" + str(iteration) + ".h5"
 
-        vanilla = define_Vanilla_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
+        vanilla = define_vanilla_model_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
         deepFogGuard = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
         deepFogGuardPlus = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,survivability_setting=default_nodewise_survival_rate)
 
