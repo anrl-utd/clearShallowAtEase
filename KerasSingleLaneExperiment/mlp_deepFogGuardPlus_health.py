@@ -32,22 +32,22 @@ def define_deepFogGuardPlus_MLP(num_vars,
     iot_output = define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units)
 
     # nodewise droput definitions
-    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, ef2_dropout_multiply, ef1_dropout_multiply, f2f1_dropout_multiply, f2c_dropout_multiply, f1c_dropout_multiply = MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout)
+    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda,e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply  = MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout)
   
     # edge node
-    edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units)
+    edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, e_dropout_multiply)
     edge_output = edge_failure_lambda(edge_output)
 
     # fog node 2
-    fog2_output = define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2)
+    fog2_output = define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, f2_dropout_multiply)
     fog2_output = fog2_failure_lambda(fog2_output)
 
     # fog node 1
-    fog1_output = define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_units, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1)
+    fog1_output = define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_units, f1_dropout_multiply)
     fog1_output = fog1_failure_lambda(fog1_output)
 
     # cloud node
-    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer_f1c, multiply_hyperconnection_weight_layer_f2c)
+    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes)
 
 
     model = Model(inputs=img_input, outputs=cloud_output)
@@ -66,7 +66,8 @@ def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     fog2_survivability_keras = K.variable(fog2_survivability)
     fog1_survivability_keras = K.variable(fog1_survivability)
     # node-wise dropout occurs only during training
-    if K.eval(K.learning_phase()):
+    K.set_learning_phase(1)
+    if K.learning_phase():
         # seeds so the random_number is different for each node 
         edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
         fog2_rand = K.random_uniform(shape=fog2_rand.shape,seed=11)
@@ -77,11 +78,10 @@ def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     fog1_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog1_rand,fog1_survivability_keras), x * 0, x),name = 'f1_failure_lambda')
     if standard_dropout:
         # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
-        ef2_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(), x, x * edge_survivability),name = 'ef2_dropout_lambda') 
-        ef1_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(), x, x * edge_survivability),name = 'ef1_dropout_lambda')
-        f2f1_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(),x, x * fog2_survivability),name = 'f2f1_dropout_lambda')
-        f2c_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(),x, x * fog2_survivability),name = 'f2c_dropout_lambda')
-        f1c_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(),x, x * fog1_survivability),name = 'f1c_dropout_lambda')
-        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, ef2_dropout_multiply, ef1_dropout_multiply, f2f1_dropout_multiply, f2c_dropout_multiply, f1c_dropout_multiply
+        learning_phase = K.variable(K.learning_phase())
+        e_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase, x, x * edge_survivability),name = 'ef2_dropout_lambda') 
+        f2_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog2_survivability),name = 'f2f1_dropout_lambda')
+        f1_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog1_survivability),name = 'f1c_dropout_lambda')
+        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply
     else:
-        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, None, None, None, None, None
+        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, None, None, None
