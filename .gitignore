@@ -6,3 +6,5 @@ models
 models/
 split_train
 split_val
+.vscode
+Untitled-1.py
