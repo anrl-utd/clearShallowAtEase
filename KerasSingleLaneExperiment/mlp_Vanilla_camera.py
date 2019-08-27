@@ -29,14 +29,14 @@ def define_vanilla_model_MLP(num_vars,
     edge4 = define_MLP_architecture_edge(img_input_4, hidden_units, "edge4_output_layer")
 
     # fog node 4
-    fog4_input = Lambda(add_node_layers,name="fog4_input")([edge2,edge3, edge4])
+    fog4_input = Lambda(add_node_layers,name="fog4_input_lambda")([edge2,edge3, edge4])
     fog4 = define_MLP_architecture_fog_with_two_layers(fog4_input, hidden_units,"fog4_output_layer","fog4_input_layer")
 
     # fog node 3
     fog3 = define_MLP_architecture_fog_with_one_layer(edge1, hidden_units, "fog3_output_layer")
 
     # fog node 2
-    fog2_input = Lambda(add_node_layers,name="fog2_input")([fog3, fog4])
+    fog2_input = Lambda(add_node_layers,name="fog2_input_lambda")([fog3, fog4])
     fog2 = define_MLP_architecture_fog_with_two_layers(fog2_input, hidden_units, "fog2_output_layer", "fog2_input_layer")
 
     # fog node 1
@@ -49,8 +49,8 @@ def define_vanilla_model_MLP(num_vars,
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def define_MLP_architecture_edge(img_input, hidden_units, output_layer_name):
-    edge_output = Dense(units=hidden_units, name=output_layer_name, activation='relu')(img_input)
+def define_MLP_architecture_edge(edge_input, hidden_units, output_layer_name):
+    edge_output = Dense(units=hidden_units, name=output_layer_name, activation='relu')(edge_input)
     return edge_output
 
 def define_MLP_architecture_fog_with_two_layers(fog_input, hidden_units, output_layer_name, input_layer_name):
