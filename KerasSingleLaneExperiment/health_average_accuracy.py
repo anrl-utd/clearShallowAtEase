@@ -1,7 +1,7 @@
 
-from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus
-from KerasSingleLaneExperiment.deepFogGuard import define_deepFogGuard
-from KerasSingleLaneExperiment.Vanilla import define_vanilla_model
+from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
+from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
+from KerasSingleLaneExperiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from KerasSingleLaneExperiment.loadData import load_data
 from sklearn.model_selection import train_test_split
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         print("ITERATION ", iteration)
 
         # deepFogGuardPlus
-        deepFogGuardPlus = define_deepFogGuardPlus(num_vars,num_classes,hidden_units,default_nodewise_survival_rate)
+        deepFogGuardPlus = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,default_nodewise_survival_rate)
         deepFogGuardPlus_file = "new_split_" + str(iteration) + '_deepFogGuardPlus.h5'
         if load_model:
             deepFogGuardPlus.load_weights(deepFogGuardPlus_file)
@@ -97,7 +97,7 @@ if __name__ == "__main__":
             deepFogGuardPlus.load_weights(deepFogGuardPlus_file)
 
         # deepFogGuard
-        deepFogGuard = define_deepFogGuard(num_vars,num_classes,hidden_units,default_survivability_setting,allpresent_skip_hyperconnections_configuration)
+        deepFogGuard = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,default_survivability_setting,allpresent_skip_hyperconnections_configuration)
         deepFogGuard_file = "new_split_" + str(iteration) + '_deepFogGuard.h5'
         if load_model:
             deepFogGuard.load_weights(deepFogGuard_file)
@@ -109,7 +109,7 @@ if __name__ == "__main__":
             deepFogGuard.load_weights(deepFogGuard_file)
 
         # vanilla model
-        vanilla = define_vanilla_model(num_vars,num_classes,hidden_units)
+        vanilla = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
         vanilla_file = "new_split_" + str(iteration) + '_vanilla.h5'
         if load_model:
             vanilla.load_weights(vanilla_file)

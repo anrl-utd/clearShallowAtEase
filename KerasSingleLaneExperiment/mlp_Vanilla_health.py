@@ -27,7 +27,7 @@ def define_vanilla_model_MLP(num_vars,num_classes,hidden_units):
 
     # fog node 1
     fog1 = define_MLP_architecture_fog1(fog2, hidden_units)
-
+    fog1 = Lambda(lambda x: x * 1,name="Cloud_Input")(fog1)
     # cloud node
     cloud = define_MLP_architecture_cloud(fog1, hidden_units, num_classes)
 
@@ -47,8 +47,7 @@ def define_MLP_architecture_fog2(fog2_input,hidden_units):
 def define_MLP_architecture_fog1(fog1_input,hidden_units):
     fog1 = Dense(units=hidden_units,name="fog1_input_layer",activation='relu')(fog1_input)
     fog1 = Dense(units=hidden_units,name="fog1_layer_1",activation='relu')(fog1)
-    fog1 = Dense(units=hidden_units,name="fog1_output_layer",activation='relu')(fog1)
-    fog1_output = Lambda(lambda x: x * 1,name="Cloud_Input")(fog1)
+    fog1_output = Dense(units=hidden_units,name="fog1_output_layer",activation='relu')(fog1)
     return fog1_output
 
 def define_MLP_architecture_cloud(cloud_input, hidden_units, num_classes):

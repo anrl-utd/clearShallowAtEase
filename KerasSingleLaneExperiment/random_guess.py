@@ -20,23 +20,15 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     preds = model.predict(test_data)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
-    f1 = model.get_layer(name = "F2_Input").output
-    f2 = model.get_layer(name = "F1_Input").output
     f3 = model.get_layer(name = "Cloud_Input").output
     # get the output from the layer
-    output_model_f1 = Model(inputs = model.input,outputs=f1)
-    output_model_f2 = Model(inputs = model.input,outputs=f2)
     output_model_f3 = Model(inputs = model.input,outputs=f3)
-    f1_output = output_model_f1.predict(test_data)
-    f2_output = output_model_f2.predict(test_data)
     f3_output = output_model_f3.predict(test_data)
-    no_connection_flow_f1 = np.array_equal(f1_output,f1_output * 0)
-    no_connection_flow_f2 = np.array_equal(f2_output,f2_output * 0)
     no_connection_flow_f3 = np.array_equal(f3_output,f3_output * 0)
     # there is no connection flow, make random guess 
     # variable that keeps track if the network has failed
     failure = 0
-    if no_connection_flow_f1 or no_connection_flow_f2 or no_connection_flow_f3:
+    if no_connection_flow_f3:
         print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
         failure = 1
