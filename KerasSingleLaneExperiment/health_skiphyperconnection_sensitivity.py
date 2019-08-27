@@ -1,5 +1,5 @@
-from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus
-from KerasSingleLaneExperiment.deepFogGuard import define_deepFogGuard
+
+from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from KerasSingleLaneExperiment.loadData import load_data
 from sklearn.model_selection import train_test_split
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
@@ -128,7 +128,7 @@ if __name__ == "__main__":
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
           
             # deepFogGuard
-            deepFogGuard = define_deepFogGuard(num_vars,num_classes,hidden_units,default_survivability_setting,skip_hyperconnection_configuration)
+            deepFogGuard = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,default_survivability_setting,skip_hyperconnection_configuration)
             deepFogGuard_file = str(iteration) + " " + str(skip_hyperconnection_configuration) +  'health_skiphyperconnection_sensitivity_deepFogGuard.h5'
             if load_model:
                 deepFogGuard.load_weights(deepFogGuard_file)
@@ -175,3 +175,4 @@ if __name__ == "__main__":
     print(output)
     if use_GCP:
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(file_name))
+        os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')

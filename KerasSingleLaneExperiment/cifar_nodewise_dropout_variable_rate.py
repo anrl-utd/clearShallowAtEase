@@ -101,6 +101,7 @@ if __name__ == "__main__":
     with open(file_name,'a+') as file:
         for survivability_setting in survivability_settings:
                 output_list.append(str(survivability_setting) + '\n')
+                
                 deepGuardPlus_acc = average(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)])
                 output_list.append(str(survivability_setting) + " nodewise_survival_rate Accuracy: " + str(deepGuardPlus_acc) + '\n')
                 print(str(survivability_setting), " variable nodewise_survival_rate Accuracy:",deepGuardPlus_acc)

@@ -28,6 +28,7 @@ def define_vanilla_model_MLP(num_vars,num_classes,hidden_units):
     # fog node 1
     fog1 = define_MLP_architecture_fog1(fog2, hidden_units)
     fog1 = Lambda(lambda x: x * 1,name="Cloud_Input")(fog1)
+    
     # cloud node
     cloud = define_MLP_architecture_cloud(fog1, hidden_units, num_classes)
 
