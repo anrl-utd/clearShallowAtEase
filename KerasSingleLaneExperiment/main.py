@@ -1,8 +1,4 @@
-# set the RNG seeds
-import numpy as np
-np.random.seed(7)
-from tensorflow import set_random_seed
-set_random_seed(2)
+
 
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -12,12 +8,12 @@ import keras.backend as K
 import datetime
 import os
 
-from KerasSingleLaneExperiment.deepFogGuardPlus import define_deepFogGuardPlus, define_adjusted_deepFogGuardPlus
-from KerasSingleLaneExperiment.deepFogGuard import define_deepFogGuard
-from KerasSingleLaneExperiment.Vanilla import define_vanilla_model
+from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
+from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
+from KerasSingleLaneExperiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from KerasSingleLaneExperiment.random_guess import model_guess
 from KerasSingleLaneExperiment.loadData import load_data
-
+import numpy as np
 def fail_node(model,node_array):
     """fails node by making the specified node/nodes output 0
     ### Arguments
@@ -88,13 +84,13 @@ def train_model(training_data,training_labels,model_type, survive_rates):
 
     # create model
     if model_type == 0:
-        model = define_vanilla_model(num_vars,num_classes,250)
+        model = define_vanilla_model_MLP(num_vars,num_classes,250)
     elif model_type == 1:
-        model = define_deepFogGuard(num_vars,num_classes,250,survive_rates)
+        model = define_deepFogGuard_MLP(num_vars,num_classes,250,survive_rates)
     elif model_type == 2:
-        model = define_deepFogGuardPlus(num_vars,num_classes,250,survive_rates)
+        model = define_deepFogGuardPlus_MLP(num_vars,num_classes,250,survive_rates)
     elif model_type == 3:
-        model = define_adjusted_deepFogGuardPlus(num_vars,num_classes,250,survive_rates)
+        model = define_deepFogGuardPlus_MLP(num_vars,num_classes,250,survive_rates,standard_dropout = True)
     else:
         raise ValueError("Incorrect model type")
 
@@ -131,11 +127,11 @@ def load_model(num_vars, num_classes, hidden_units, weights_path,model_type,surv
     """
    # create model
     if model_type == 0:
-        model = define_vanilla_model(num_vars,num_classes,250)
+        model = define_vanilla_model_MLP(num_vars,num_classes,250)
     elif model_type == 1:
-        model = define_deepFogGuard(num_vars,num_classes,250,survive_rates)
+        model = define_deepFogGuard_MLP(num_vars,num_classes,250,survive_rates)
     elif model_type == 2:
-        model = define_deepFogGuardPlus(num_vars,num_classes,250,survive_rates)
+        model = define_deepFogGuardPlus_MLP(num_vars,num_classes,250,survive_rates)
     else:
         raise ValueError("Incorrect model type")
     model.load_weights(weights_path)
