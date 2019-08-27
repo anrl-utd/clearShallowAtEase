@@ -8,7 +8,7 @@ import keras.backend as K
 import gc
 import os
 from keras.callbacks import ModelCheckpoint
-
+import numpy as np
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True
@@ -141,9 +141,9 @@ if __name__ == "__main__":
             deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate,standard_dropout=True)
             if load_model:
                 deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
-                deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
+                deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
             else:
-                print("Training deepFogGuardPlus Node-wise Dropout")
+                #print("Training deepFogGuardPlus Node-wise Dropout")
                 print(str(nodewise_survival_rate))
                 # node-wise dropout
                 deepFogGuardPlus_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
@@ -164,7 +164,8 @@ if __name__ == "__main__":
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
-            del deepFogGuardPlus_nodewise_dropout
+            #del deepFogGuardPlus_nodewise_dropout
+            del deepFogGuardPlus_adjusted_nodewise_dropout
 
     # calculate average accuracies for deepFogGuardPlus Node-wise Dropout
     for nodewise_survival_rate in nodewise_survival_rates:
@@ -174,9 +175,17 @@ if __name__ == "__main__":
             output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Node-wise Dropout: " + str(deepFogGuardPlus_nodewise_dropout_acc) + '\n')
             print(nodewise_survival_rate,survivability_setting,"deepFogGuardPlus Node-wise Dropout:",deepFogGuardPlus_nodewise_dropout_acc)  
 
+            deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Dropout"][str(survivability_setting)],ddof=1)
+            output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
+            print(str(survivability_setting), "nodewise_survival_rate std:",deepGuardPlus_std)
+
             deepFogGuardPlus_adjusted_nodewise_dropout_acc = average(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
-            output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Adjusted Node-wise Dropout: " + str(deepFogGuardPlus_nodewise_dropout_acc) + '\n')
-            print(nodewise_survival_rate,survivability_setting,"deepFogGuardPlus Adjusted Node-wise Dropout:",deepFogGuardPlus_nodewise_dropout_acc)  
+            output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Adjusted Node-wise Dropout: " + str(deepFogGuardPlus_adjusted_nodewise_dropout_acc) + '\n')
+            print(nodewise_survival_rate,survivability_setting,"deepFogGuardPlus Adjusted Node-wise Dropout:",deepFogGuardPlus_adjusted_nodewise_dropout_acc) 
+
+            adjusted_deepGuardPlus_std = np.std(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)], ddof=1)
+            output_list.append(str(survivability_setting) + " adjusted nodewise_survival_rate std: " + str(adjusted_deepGuardPlus_std) + '\n')
+            print(str(survivability_setting), "adjusted nodewise_survival_rate std:",adjusted_deepGuardPlus_std) 
     # write experiments output to file
     with open(output_name,'w') as file:
         file.writelines(output_list)
@@ -184,4 +193,4 @@ if __name__ == "__main__":
         os.fsync(file)
     if use_GCP:
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
-    print(output)
+        os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')

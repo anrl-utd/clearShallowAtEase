@@ -7,7 +7,7 @@ import keras.backend as K
 import gc
 import os
 from keras.callbacks import ModelCheckpoint
-
+import numpy as np
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     load_model = False
     num_train_epochs = 25 
     # file name with the experiments accuracy output
-    output_name = "results/health_fixed10xvariable_nodewise_dropout.txt"
+    output_name = "results/health_variable_nodewise_dropout.txt"
     num_iterations = 10
     verbose = 2
     # keep track of output so that output is in order
@@ -92,6 +92,9 @@ if __name__ == "__main__":
         output_list.append(str(survivability_setting) + " deepFogGuardPlus Node-wise Variable Dropout: " + '\n')
         print(survivability_setting,"deepFogGuardPlus Node-wise Variable Dropout:",deepFogGuardPlus_variable_nodewise_dropout_acc)  
 
+        deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)],ddof=1)
+        output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
+        print(str(survivability_setting), " variable nodewise_survival_rate std:",deepGuardPlus_std)
     # write experiments output to file
     with open(output_name,'w') as file:
         file.writelines(output_list)

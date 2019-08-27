@@ -14,7 +14,7 @@ import datetime
 import gc
 from sklearn.model_selection import train_test_split
 
-# deepFogGuard Plus Ablation experiment
+# deepFogGuard Plus dropout experiment
 if __name__ == "__main__":
     # get cifar10 data 
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -173,7 +173,7 @@ if __name__ == "__main__":
             callbacks = [deepFogGuardPlus_adjusted_nodewise_dropout_Checkpoint])
 
             #load weights with the highest validaton acc
-            #deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
+            deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
             deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
             for survivability_setting in survivability_settings:
                 output_list.append(str(survivability_setting) + '\n')
@@ -193,9 +193,17 @@ if __name__ == "__main__":
                 output_list.append(str(survivability_setting) + str(nodewise_survival_rate) + " nodewise_survival_rate Accuracy: " + str(deepGuardPlus_acc) + '\n')
                 print(str(survivability_setting), str(nodewise_survival_rate), " nodewise_survival_rate Accuracy:",deepGuardPlus_acc)
 
+                deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)],ddof=1)
+                output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
+                print(str(survivability_setting), "nodewise_survival_rate std:",deepGuardPlus_std)
+
                 adjusted_deepGuardPlus_acc = average(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
                 output_list.append(str(survivability_setting) + str(nodewise_survival_rate) + " adjusted nodewise_survival_rate Accuracy: " + str(adjusted_deepGuardPlus_acc) + '\n')
                 print(str(survivability_setting), str(nodewise_survival_rate), " adjusted nodewise_survival_rate Accuracy:",adjusted_deepGuardPlus_acc)
+
+                adjusted_deepGuardPlus_std = np.std(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(survivability_setting)],ddof=1)
+                output_list.append(str(survivability_setting) + " adjusted nodewise_survival_rate std: " + str(adjusted_deepGuardPlus_std) + '\n')
+                print(str(survivability_setting), " adjusted variable nodewise_survival_rate std:",adjusted_deepGuardPlus_std)
         file.writelines(output_list)
         file.flush()
         os.fsync(file)

@@ -36,12 +36,12 @@ if __name__ == "__main__":
     random_weight_scheme2 = 5
     fifty_weight_scheme = 6
     weight_schemes = [
-        # one_weight_scheme,
-        # normalized_survivability_weight_scheme,
-        # survivability_weight_scheme,
+        one_weight_scheme,
+        normalized_survivability_weight_scheme,
+        survivability_weight_scheme,
         random_weight_scheme,
         random_weight_scheme2,
-        # fifty_weight_scheme,
+        fifty_weight_scheme,
     ]
     hidden_units = 250
     batch_size = 1028
@@ -148,4 +148,5 @@ if __name__ == "__main__":
         os.fsync(file)
     if use_GCP:
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
-    print(output)
+        os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
+
