@@ -77,7 +77,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     img_input = layers.Input(shape=input_shape)  
 
     # nodewise dropout definitions
-    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, e_dropout_multiply, f_dropout_multiply = cnn_nodewise_dropout_definitions(survivability_setting, standard_dropout)
+    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = cnn_nodewise_dropout_definitions(survivability_setting, standard_dropout)
 
      # iot node
     iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input)
@@ -123,4 +123,4 @@ def cnn_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
         f_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog_survivability),name = 'f_dropout_lambda')
         return edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply
     else:
-        return edge_failure_lambda, fog_failure_lambda, None, None, None
+        return edge_failure_lambda, fog_failure_lambda, None, None
