@@ -66,21 +66,18 @@ def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     fog2_survivability_keras = K.variable(fog2_survivability)
     fog1_survivability_keras = K.variable(fog1_survivability)
     # node-wise dropout occurs only during training
-    K.set_learning_phase(1)
-    if K.learning_phase():
-        edge_rand = K.random_uniform(shape=edge_rand.shape)
-        fog2_rand = K.random_uniform(shape=fog2_rand.shape)
-        fog1_rand = K.random_uniform(shape=fog2_rand.shape)
+    edge_rand = K.in_train_phase(K.random_uniform(shape=K.variable(0).shape), K.variable(0))
+    fog2_rand = K.in_train_phase(K.random_uniform(shape=K.variable(0).shape), K.variable(0))
+    fog1_rand = K.in_train_phase(K.random_uniform(shape=K.variable(0).shape), K.variable(0))
     # define lambda for failure, only fail during training
     edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'e_failure_lambda')
     fog2_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog2_rand,fog2_survivability_keras), x * 0, x),name = 'f2_failure_lambda')
     fog1_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog1_rand,fog1_survivability_keras), x * 0, x),name = 'f1_failure_lambda')
     if standard_dropout:
         # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
-        learning_phase = K.variable(K.learning_phase())
-        e_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase, x, x * edge_survivability),name = 'e_standard_dropout_lambda') 
-        f2_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog2_survivability),name = 'f2_standard_dropout_lambda')
-        f1_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog1_survivability),name = 'f1_standard_dropout_lambda')
+        e_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * edge_survivability),name = 'e_standard_dropout_lambda')
+        f2_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * fog2_survivability),name = 'f2_standard_dropout_lambda')
+        f1_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * fog1_survivability),name = 'f1_standard_dropout_lambda')
         return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply
     else:
         return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, None, None, None
