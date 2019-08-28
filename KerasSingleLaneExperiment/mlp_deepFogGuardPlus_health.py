@@ -32,7 +32,7 @@ def define_deepFogGuardPlus_MLP(num_vars,
     iot_output = define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units)
 
     # nodewise droput definitions
-    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda,e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply  = MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout)
+    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply  = MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout)
   
     # edge node
     edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, e_dropout_multiply)
