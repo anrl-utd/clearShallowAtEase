@@ -68,10 +68,9 @@ def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     # node-wise dropout occurs only during training
     K.set_learning_phase(1)
     if K.learning_phase():
-        # seeds so the random_number is different for each node 
-        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
-        fog2_rand = K.random_uniform(shape=fog2_rand.shape,seed=11)
-        fog1_rand = K.random_uniform(shape=fog2_rand.shape,seed=42)
+        edge_rand = K.random_uniform(shape=edge_rand.shape)
+        fog2_rand = K.random_uniform(shape=fog2_rand.shape)
+        fog1_rand = K.random_uniform(shape=fog2_rand.shape)
     # define lambda for failure, only fail during training
     edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'e_failure_lambda')
     fog2_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog2_rand,fog2_survivability_keras), x * 0, x),name = 'f2_failure_lambda')
