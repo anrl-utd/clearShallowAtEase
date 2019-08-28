@@ -3,7 +3,7 @@ from keras.layers import Dense,Input,Lambda, Activation
 import keras.backend as K
 import keras.layers as layers
 from KerasSingleLaneExperiment.LambdaLayers import add_node_layers
-from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_MLP_deepFogGuard_architecture_cloud, define_MLP_deepFogGuard_architecture_edge, define_MLP_deepFogGuard_architecture_fog1, define_MLP_deepFogGuard_architecture_fog2, define_MLP_deepFogGuard_architecture_IoT
+from KerasSingleLaneExperiment.mlp_deepFogGuard_camera import define_MLP_deepFogGuard_architecture_cloud, define_MLP_deepFogGuard_architecture_edge, define_MLP_deepFogGuard_architecture_fog1, define_MLP_deepFogGuard_architecture_fog2, define_MLP_deepFogGuard_architecture_fog3, define_MLP_deepFogGuard_architecture_fog4
 
 from keras.models import Model
 from keras.backend import constant
@@ -12,7 +12,7 @@ import random
 def define_deepFogGuardPlus_MLP(num_vars,
                             num_classes,
                             hidden_units,
-                            survivability_setting = [1.0,1.0,1.0],
+                            survivability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],
                             standard_dropout = False):
     """Define a deepFogGuardPlus model.
     ### Naming Convention
@@ -29,59 +29,86 @@ def define_deepFogGuardPlus_MLP(num_vars,
 
     # IoT node
     img_input = Input(shape = (num_vars,))
-    iot_output = define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units)
 
     # nodewise droput definitions
-    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, ef2_dropout_multiply, ef1_dropout_multiply, f2f1_dropout_multiply, f2c_dropout_multiply, f1c_dropout_multiply = MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout)
-  
-    # edge node
-    edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units)
-    edge_output = edge_failure_lambda(edge_output)
+    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout)
+
+    # edge nodes
+    edge1_output = define_MLP_deepFogGuard_architecture_edge(img_input_1, hidden_units, "edge1_output_layer", e_dropout_multiply[1])
+    edge1_output = edge_failure_lambda[1](edge1_output)
+    edge2_output = define_MLP_deepFogGuard_architecture_edge(img_input_2, hidden_units, "edge2_output_layer", e_dropout_multiply[2])
+    edge2_output = edge_failure_lambda[2](edge2_output)
+    edge3_output = define_MLP_deepFogGuard_architecture_edge(img_input_3, hidden_units, "edge3_output_layer", e_dropout_multiply[3])
+    edge3_output = edge_failure_lambda[3](edge3_output)
+    edge4_output = define_MLP_deepFogGuard_architecture_edge(img_input_4, hidden_units, "edge4_output_layer", e_dropout_multiply[4])
+    edge4_output = edge_failure_lambda[4](edge4_output)
+
+    # fog node 4
+    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, None, f_dropout_multiply[4])
+    fog4_output = fog_failure_lambda[4](fog4_output)
+
+    # fog node 3
+    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, None, f_dropout_multiply[3])
+    fog3_output = fog_failure_lambda[3](fog3_output)
 
     # fog node 2
-    fog2_output = define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2)
-    fog2_output = fog2_failure_lambda(fog2_output)
+    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, None, f_dropout_multiply[2])
+    fog2_output = fog_failure_lambda[2](fog2_output)
 
     # fog node 1
-    fog1_output = define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_units, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1)
-    fog1_output = fog1_failure_lambda(fog1_output)
+    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, None, f_dropout_multiply[1])
+    fog1_output = fog_failure_lambda[1](fog1_output)
 
     # cloud node
-    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer_f1c, multiply_hyperconnection_weight_layer_f2c)
-
+    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, None)
 
     model = Model(inputs=img_input, outputs=cloud_output)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = False):
-    edge_survivability = survivability_setting[0]
-    fog2_survivability = survivability_setting[1]
-    fog1_survivability = survivability_setting[2]
+    fog_survivability = [0] * 5
+    fog_survivability[1] = survivability_setting[0]
+    fog_survivability[2] = survivability_setting[1]
+    fog_survivability[3] = survivability_setting[2]
+    fog_survivability[4] = survivability_setting[3]
+    edge_survivability = [0] * 5
+    edge_survivability[1] = survivability_setting[4]
+    edge_survivability[2] = survivability_setting[5]
+    edge_survivability[3] = survivability_setting[6]
+    edge_survivability[4] = survivability_setting[7]
+    
     # variables for node-wise dropout
-    edge_rand = K.variable(0)
-    fog2_rand = K.variable(0)
-    fog1_rand = K.variable(0)
-    edge_survivability_keras = K.variable(edge_survivability)
-    fog2_survivability_keras = K.variable(fog2_survivability)
-    fog1_survivability_keras = K.variable(fog1_survivability)
+    edge_rand = [0] * 5
+    fog_rand = [0] * 5
+    edge_survivability_keras = [0] * 5
+    fog_survivability_keras = [0] * 5
+    for i in range(1,5):
+        edge_rand[i] = K.variable(0)
+        fog_rand[i] = K.variable(0)
+        edge_survivability_keras[i] = K.variable(edge_survivability[i])
+        fog_survivability_keras[i] = K.variable(fog_survivability[i])
     # node-wise dropout occurs only during training
-    if K.eval(K.learning_phase()):
+    K.set_learning_phase(1)
+    if K.learning_phase():
         # seeds so the random_number is different for each node 
-        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
-        fog2_rand = K.random_uniform(shape=fog2_rand.shape,seed=11)
-        fog1_rand = K.random_uniform(shape=fog2_rand.shape,seed=42)
+        for i in range(1,5):
+            edge_rand[i] = K.random_uniform(shape=edge_rand[i].shape,seed=7)
+            fog_rand[i] = K.random_uniform(shape=fog_rand[i].shape,seed=11)
     # define lambda for failure, only fail during training
-    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'e_failure_lambda')
-    fog2_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog2_rand,fog2_survivability_keras), x * 0, x),name = 'f2_failure_lambda')
-    fog1_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog1_rand,fog1_survivability_keras), x * 0, x),name = 'f1_failure_lambda')
+    edge_failure_lambda = {}
+    fog_failure_lambda = {}
+    for i in range(1,5):
+        edge_failure_lambda[i] = layers.Lambda(lambda x : K.switch(K.greater(edge_rand[i],edge_survivability_keras[i]), x * 0, x),name = 'e'+str(i)+'_failure_lambda')
+        fog_failure_lambda[i] = layers.Lambda(lambda x : K.switch(K.greater(fog_rand[i],fog_survivability_keras[i]), x * 0, x),name = 'f'+str(i)+'_failure_lambda')
     if standard_dropout:
         # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
-        ef2_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(), x, x * edge_survivability),name = 'ef2_dropout_lambda') 
-        ef1_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(), x, x * edge_survivability),name = 'ef1_dropout_lambda')
-        f2f1_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(),x, x * fog2_survivability),name = 'f2f1_dropout_lambda')
-        f2c_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(),x, x * fog2_survivability),name = 'f2c_dropout_lambda')
-        f1c_dropout_multiply = layers.Lambda(lambda x : K.switch(K.learning_phase(),x, x * fog1_survivability),name = 'f1c_dropout_lambda')
-        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, ef2_dropout_multiply, ef1_dropout_multiply, f2f1_dropout_multiply, f2c_dropout_multiply, f1c_dropout_multiply
+        learning_phase = K.variable(K.learning_phase())
+        e_dropout_multiply = {}
+        f_dropout_multiply = {}
+        for i in range(1,5):
+            e_dropout_multiply[i] = layers.Lambda(lambda x : K.switch(learning_phase, x, x * edge_survivability[i]),name = 'e'+str(i)+'_standard_dropout_lambda') 
+            f_dropout_multiply[i] = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog_survivability[i]),name = 'f'+str(i)+'_standard_dropout_lambda')
+        return edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply
     else:
-        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, None, None, None, None, None
+        return edge_failure_lambda, fog_failure_lambda, None, None

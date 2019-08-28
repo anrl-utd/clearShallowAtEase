@@ -79,9 +79,9 @@ def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     if standard_dropout:
         # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
         learning_phase = K.variable(K.learning_phase())
-        e_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase, x, x * edge_survivability),name = 'ef2_dropout_lambda') 
-        f2_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog2_survivability),name = 'f2f1_dropout_lambda')
-        f1_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog1_survivability),name = 'f1c_dropout_lambda')
+        e_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase, x, x * edge_survivability),name = 'e_standard_dropout_lambda') 
+        f2_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog2_survivability),name = 'f2_standard_dropout_lambda')
+        f1_dropout_multiply = layers.Lambda(lambda x : K.switch(learning_phase,x, x * fog1_survivability),name = 'f1_standard_dropout_lambda')
         return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply
     else:
         return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, None, None, None

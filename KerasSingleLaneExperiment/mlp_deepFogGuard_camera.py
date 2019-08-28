@@ -35,27 +35,27 @@ def define_deepFogGuard_MLP(num_vars,
     # Brian: I think we need something like 4 different 'img_input's, so I named them img_input_1 through img_input_4
 
     # edge nodes
-    edge1 = define_MLP_deepFogGuard_architecture_edge(img_input_1, hidden_units, "edge1_output_layer")
-    edge2 = define_MLP_deepFogGuard_architecture_edge(img_input_2, hidden_units, "edge2_output_layer")
-    edge3 = define_MLP_deepFogGuard_architecture_edge(img_input_3, hidden_units, "edge3_output_layer")
-    edge4 = define_MLP_deepFogGuard_architecture_edge(img_input_4, hidden_units, "edge4_output_layer")
+    edge1_output = define_MLP_deepFogGuard_architecture_edge(img_input_1, hidden_units, "edge1_output_layer")
+    edge2_output = define_MLP_deepFogGuard_architecture_edge(img_input_2, hidden_units, "edge2_output_layer")
+    edge3_output = define_MLP_deepFogGuard_architecture_edge(img_input_3, hidden_units, "edge3_output_layer")
+    edge4_output = define_MLP_deepFogGuard_architecture_edge(img_input_4, hidden_units, "edge4_output_layer")
 
     # fog node 4
-    fog4 = define_MLP_deepFogGuard_architecture_fog4(edge2, edge3, edge4, hidden_units, multiply_hyperconnection_weight_layer)
+    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_hyperconnection_weight_layer)
 
     # fog node 3
-    fog3 = define_MLP_deepFogGuard_architecture_fog3(edge1, hidden_units, multiply_hyperconnection_weight_layer)
+    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_hyperconnection_weight_layer)
     
     # fog node 2
-    fog2 = define_MLP_deepFogGuard_architecture_fog2(edge1, edge2, edge3, edge4, fog3, fog4, hidden_units, multiply_hyperconnection_weight_layer)
+    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer)
 
     # fog node 1
-    fog1 = define_MLP_deepFogGuard_architecture_fog1(fog2, fog3, fog4, hidden_units, multiply_hyperconnection_weight_layer)
+    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer)
 
     # cloud node
-    cloud = define_MLP_deepFogGuard_architecture_cloud(fog2, fog1, hidden_units, num_classes, multiply_hyperconnection_weight_layer)
+    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer)
 
-    model = Model(inputs=img_input, outputs=cloud)
+    model = Model(inputs=img_input, outputs=cloud_output)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
@@ -89,7 +89,6 @@ def set_hyperconnection_weights(hyperconnection_weight, hyperconnection_weights_
         hyperconnection_weight["f2c"] = survivability_setting[1] / cloud_input_surviability
     # survivability
     elif hyperconnection_weights_scheme == 3:
-        connection_ends = ["e1f2","e2f2","e3f2","e4f2","f3f1","f4f1","f2c","e1f3","e2f4","e3f4","e4f4","f3f2","f4f2","f2f1","f1c"]
         hyperconnection_weight["e1f2"] = survivability_setting[4]
         hyperconnection_weight["e2f2"] = survivability_setting[5]
         hyperconnection_weight["e3f2"] = survivability_setting[6]
@@ -155,42 +154,52 @@ def define_hyperconnection_weight_lambda_layers(hyperconnection_weight, connecti
         multiply_hyperconnection_weight_layer[connection_end] = Lambda((lambda x: x * hyperconnection_weight[connection_end]), name = "hyperconnection_weight_"+connection_end)
     return multiply_hyperconnection_weight_layer
 
-def define_MLP_deepFogGuard_architecture_edge(edge_input, hidden_units, output_layer_name):
+def define_MLP_deepFogGuard_architecture_edge(edge_input, hidden_units, output_layer_name, multiply_dropout_layer_e = None):
     edge_output = define_MLP_architecture_edge(edge_input, hidden_units, output_layer_name)
+    if multiply_dropout_layer_e != None:
+        edge_output = multiply_dropout_layer_e(edge_output)
     return edge_output
 
-def define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_hyperconnection_weight_layer):
+def define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_hyperconnection_weight_layer = None, multiply_dropout_layer_f4 = None):
     if multiply_hyperconnection_weight_layer["e2f4"] == None or multiply_hyperconnection_weight_layer["e3f4"] == None or multiply_hyperconnection_weight_layer["e4f4"]:
         fog4_input = Lambda(add_node_layers,name="fog4_Input_lambda")([edge2_output,edge3_output, edge4_output])
     else:
         fog4_input = Lambda(add_node_layers,name="fog4_Input_lambda")([multiply_hyperconnection_weight_layer["e2f4"](edge2_output),multiply_hyperconnection_weight_layer["e3f4"](edge3_output), multiply_hyperconnection_weight_layer["e4f4"](edge4_output)])
     fog4_output = define_MLP_architecture_fog_with_two_layers(fog4_input, hidden_units, "fog4_output_layer", "fog4_input_layer")
+    if multiply_dropout_layer_f4 != None:
+        fog4_output = multiply_dropout_layer_f4(fog4_output)
     return fog4_output
 
-def define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_hyperconnection_weight_layer):
+def define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_hyperconnection_weight_layer = None, multiply_dropout_layer_f3 = None):
     if multiply_hyperconnection_weight_layer["e1f3"] != None:
         edge1_output = multiply_hyperconnection_weight_layer["e1f3"](edge1_output)
     fog3_output = define_MLP_architecture_fog_with_one_layer(edge1_output, hidden_units, "fog3_output_layer")
+    if multiply_dropout_layer_f3 != None:
+        fog3_output = multiply_dropout_layer_f3(fog3_output)
     return fog3_output
 
-def define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer):
+def define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer = None, multiply_dropout_layer_f2 = None):
     if multiply_hyperconnection_weight_layer["e1f2"] == None or multiply_hyperconnection_weight_layer["e2f2"] == None or multiply_hyperconnection_weight_layer["e3f2"] == None or multiply_hyperconnection_weight_layer["e4f2"] == None or multiply_hyperconnection_weight_layer["f3f2"] == None or multiply_hyperconnection_weight_layer["f4f2"] == None:
         fog2_input = Lambda(add_node_layers,name="fog2_Input_lambda")([edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output])
     else: 
         fog2_input = Lambda(add_node_layers,name="fog2_Input_lambda")([multiply_hyperconnection_weight_layer["e1f2"](edge1_output), multiply_hyperconnection_weight_layer["e2f2"](edge2_output), multiply_hyperconnection_weight_layer["e3f2"](edge3_output), multiply_hyperconnection_weight_layer["e4f2"](edge4_output), multiply_hyperconnection_weight_layer["f3f2"](fog3_output), multiply_hyperconnection_weight_layer["f4f2"](fog4_output)])
     fog2_output = define_MLP_architecture_fog_with_two_layers(fog2_input, hidden_units, "fog2_output_layer", "fog2_input_layer")
+    if multiply_dropout_layer_f2 != None:
+        fog2_output = multiply_dropout_layer_f2(fog2_output)
     return fog2_output
 
-def define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer):
+def define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer = None, multiply_dropout_layer_f1 = None):
     if multiply_hyperconnection_weight_layer["f2f1"] == None or multiply_hyperconnection_weight_layer["f3f1"] == None or multiply_hyperconnection_weight_layer["f4f1"]:
         fog1_input = Lambda(add_node_layers,name="fog1_Input_lambda")([fog2_output, fog3_output, fog4_output])
     else:
         fog1_input = Lambda(add_node_layers,name="fog1_Input_lambda")([multiply_hyperconnection_weight_layer["f2f1"](fog2_output), multiply_hyperconnection_weight_layer["f3f1"](fog3_output), multiply_hyperconnection_weight_layer["f4f1"](fog4_output)])
     fog1_output = define_MLP_architecture_fog_with_two_layers(fog1_input, hidden_units, "fog1_output_layer", "fog1_input_layer")
+    if multiply_dropout_layer_f1 != None:
+        fog1_output = multiply_dropout_layer_f1(fog1_output)
     return fog1_output
 
 
-def define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer):
+def define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer = None):
     if multiply_hyperconnection_weight_layer["f1c"] == None or multiply_hyperconnection_weight_layer["f2c"] == None:
         cloud_input = Lambda(add_node_layers,name="Cloud_Input")([fog1_output,fog2_output])
     else:
