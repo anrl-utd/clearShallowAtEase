@@ -44,23 +44,23 @@ def define_deepFogGuardPlus_MLP(num_vars,
     edge4_output = edge_failure_lambda[4](edge4_output)
 
     # fog node 4
-    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, None, f_dropout_multiply[4])
+    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_dropout_layer_f4 = f_dropout_multiply[4])
     fog4_output = fog_failure_lambda[4](fog4_output)
 
     # fog node 3
-    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, None, f_dropout_multiply[3])
+    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_dropout_layer_f3 = f_dropout_multiply[3])
     fog3_output = fog_failure_lambda[3](fog3_output)
 
     # fog node 2
-    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, None, f_dropout_multiply[2])
+    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_dropout_layer_f2 = f_dropout_multiply[2])
     fog2_output = fog_failure_lambda[2](fog2_output)
 
     # fog node 1
-    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, None, f_dropout_multiply[1])
+    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, multiply_dropout_layer_f1 = f_dropout_multiply[1])
     fog1_output = fog_failure_lambda[1](fog1_output)
 
     # cloud node
-    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, None)
+    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes)
 
     model = Model(inputs=img_input, outputs=cloud_output)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
