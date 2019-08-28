@@ -142,7 +142,7 @@ if __name__ == "__main__":
         os.mkdir('results/')
     if not os.path.exists('results/' + date):
         os.mkdir('results/' + date)
-    file_name = 'results/' + date + '/cifar_nodewise_dropout_results.txt'
+    file_name = 'results/' + date + '/cifar_adjusted_nodewise_dropout_withstd_results.txt'
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         for nodewise_survival_rate in nodewise_survival_rates:
@@ -189,11 +189,12 @@ if __name__ == "__main__":
         for survivability_setting in survivability_settings:
             for nodewise_survival_rate in nodewise_survival_rates:
                 output_list.append(str(survivability_setting) + '\n')
+
                 deepGuardPlus_acc = average(output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
                 output_list.append(str(survivability_setting) + str(nodewise_survival_rate) + " nodewise_survival_rate Accuracy: " + str(deepGuardPlus_acc) + '\n')
                 print(str(survivability_setting), str(nodewise_survival_rate), " nodewise_survival_rate Accuracy:",deepGuardPlus_acc)
 
-                deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)],ddof=1)
+                deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Dropout"][str(survivability_setting)],ddof=1)
                 output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
                 print(str(survivability_setting), "nodewise_survival_rate std:",deepGuardPlus_std)
 
@@ -201,7 +202,7 @@ if __name__ == "__main__":
                 output_list.append(str(survivability_setting) + str(nodewise_survival_rate) + " adjusted nodewise_survival_rate Accuracy: " + str(adjusted_deepGuardPlus_acc) + '\n')
                 print(str(survivability_setting), str(nodewise_survival_rate), " adjusted nodewise_survival_rate Accuracy:",adjusted_deepGuardPlus_acc)
 
-                adjusted_deepGuardPlus_std = np.std(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(survivability_setting)],ddof=1)
+                adjusted_deepGuardPlus_std = np.std(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)],ddof=1)
                 output_list.append(str(survivability_setting) + " adjusted nodewise_survival_rate std: " + str(adjusted_deepGuardPlus_std) + '\n')
                 print(str(survivability_setting), " adjusted variable nodewise_survival_rate std:",adjusted_deepGuardPlus_std)
         file.writelines(output_list)

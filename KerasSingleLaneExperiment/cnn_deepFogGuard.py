@@ -116,12 +116,11 @@ def define_cnn_deepFogGuard_architecture_IoT(input_shape, alpha, img_input):
 
 def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplier, multiply_dropout_layer_ef = None, multply_dropout_layer_ec = None):
     edge_output = define_cnn_architecture_edge(iot_output,alpha,depth_multiplier, strides= (1,1))
+    if(multiply_dropout_layer_ef != None and multply_dropout_layer_ec != None):
+        edge_output = multiply_dropout_layer_ef(edge_output)
     # used stride 4 to match (31,31,64) to (7,7,256)
     # 1x1 conv2d is used to change the filter size (from 64 to 256)
     skip_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(edge_output)
-    if(multiply_dropout_layer_ef != None and multply_dropout_layer_ec != None):
-        edge_output = multiply_dropout_layer_ef(edge_output)
-        skip_edgecloud = multply_dropout_layer_ec(skip_edgecloud)
     return edge_output, skip_edgecloud
    
 
