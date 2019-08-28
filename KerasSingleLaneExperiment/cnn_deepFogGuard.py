@@ -131,7 +131,7 @@ def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, de
         fog_input = layers.add([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)], name = "connection_fog")
     fog = define_cnn_architecture_fog(fog_input,alpha,depth_multiplier)
     if(multiply_dropout_layer_f != None):
-        fog_output = multiply_dropout_layer_f(fog_output)
+        fog = multiply_dropout_layer_f(fog)
     # pad from (7,7,256) to (8,8,256)
     fog_output = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
     

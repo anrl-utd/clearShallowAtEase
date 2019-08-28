@@ -83,12 +83,12 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input)
     
     # edge node
-    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, e_dropout_multiply)
+    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, e_dropout_multiply = e_dropout_multiply)
     edge_output = edge_failure_lambda(edge_output)
     skip_edgecloud = edge_failure_lambda(skip_edgecloud)
     
     # fog node
-    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, f_dropout_multiply)
+    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, f_dropout_multiply = f_dropout_multiply)
     fog_output = fog_failure_lambda(fog_output)
 
     # cloud node

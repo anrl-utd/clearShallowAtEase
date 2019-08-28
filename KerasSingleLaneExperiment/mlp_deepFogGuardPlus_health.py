@@ -39,11 +39,11 @@ def define_deepFogGuardPlus_MLP(num_vars,
     edge_output = edge_failure_lambda(edge_output)
 
     # fog node 2
-    fog2_output = define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, f2_dropout_multiply)
+    fog2_output = define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, f2_dropout_multiply = f2_dropout_multiply)
     fog2_output = fog2_failure_lambda(fog2_output)
 
     # fog node 1
-    fog1_output = define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_units, f1_dropout_multiply)
+    fog1_output = define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_units, f1_dropout_multiply = f1_dropout_multiply)
     fog1_output = fog1_failure_lambda(fog1_output)
 
     # cloud node
