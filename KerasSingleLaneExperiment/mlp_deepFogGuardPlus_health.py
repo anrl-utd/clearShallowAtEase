@@ -59,9 +59,6 @@ def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     fog2_survivability = survivability_setting[1]
     fog1_survivability = survivability_setting[2]
     # variables for node-wise dropout
-    edge_rand = K.variable(0)
-    fog2_rand = K.variable(0)
-    fog1_rand = K.variable(0)
     edge_survivability_keras = K.variable(edge_survivability)
     fog2_survivability_keras = K.variable(fog2_survivability)
     fog1_survivability_keras = K.variable(fog1_survivability)
