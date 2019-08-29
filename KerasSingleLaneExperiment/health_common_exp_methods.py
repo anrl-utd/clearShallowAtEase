@@ -5,7 +5,8 @@ from sklearn.model_selection import train_test_split
 def init_data(use_GCP):
     if use_GCP == True:
         os.system('gsutil -m cp -r gs://anrl-storage/data/mHealth_complete.log ./')
-        os.mkdir('models/')
+        if not os.path.exists('models/'):
+            os.mkdir('models/')
     data,labels= load_data('mHealth_complete.log')
     # split data into train, val, and test
     # 80/10/10 split

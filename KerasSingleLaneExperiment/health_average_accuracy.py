@@ -11,6 +11,77 @@ import gc
 import os
 from keras.callbacks import ModelCheckpoint
 
+
+
+def make_output_dictionary(survivability_settings, num_iterations):
+    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
+
+    # dictionary to store all the results
+    output = {
+        "ResiliNet":
+        {
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        }, 
+        "deepFogGuard":
+        {
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        },
+        "Vanilla": 
+        {
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        },
+    }
+    return output
+
+def define_and_train(iteration, model_name, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
+    # ResiliNet
+    if model_name == "ResiliNet":
+        model = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
+        model_file = "new_split_" + str(iteration) + '_deepFogGuardPlus.h5'
+    # deepFogGuard
+    if model_name == "deepFogGuard":
+        model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,default_survivability_setting,allpresent_skip_hyperconnections_configuration)
+        model_file = "new_split_" + str(iteration) + '_deepFogGuard.h5'
+    # Vanilla model
+    if model_name == "Vanilla":
+        model = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
+        model_file = "new_split_" + str(iteration) + '_vanilla.h5'
+    
+    if load_model:
+        model.load_weights(model_file)
+    else:
+        print("Training " + model_name)
+        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
+        model.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [modelCheckPoint],validation_data=(val_data,val_labels))
+        # load weights from epoch with the highest val acc
+        model.load_weights(model_file)
+    return model
+
+def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,training_labels,test_data,test_labels):
+    output_list.append(model_name + "\n")
+    print(model_name)
+    output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list,training_labels,test_data,test_labels)
+
+def write_n_upload(output_name, output_list, use_GCP):
+    # write experiments output to file
+    with open(output_name,'w') as file:
+        file.writelines(output_list)
+        file.flush()
+        os.fsync(file)
+    # upload file to GCP
+    if use_GCP:
+        os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
+    print(output)
+    
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True
@@ -69,151 +140,3 @@ if __name__ == "__main__":
         print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
 
     write_n_upload(output_name, output_list, use_GCP)
-
-def make_output_dictionary(survivability_settings, num_iterations):
-    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
-
-    # dictionary to store all the results
-    output = {
-        "ResiliNet":
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        }, 
-        "deepFogGuard":
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        },
-        "Vanilla": 
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        },
-    }
-    return output
-
-<<<<<<< HEAD
-    # make folder for outputs 
-    if not os.path.exists('results/'):
-        os.mkdir('results/')
-    for iteration in range(1,num_iterations+1):   
-        output_list.append('ITERATION ' + str(iteration) +  '\n')
-        print("ITERATION ", iteration)
-
-        # deepFogGuardPlus
-        deepFogGuardPlus = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,default_nodewise_survival_rate)
-        deepFogGuardPlus_file = "new_split_test" + str(iteration) + '_deepFogGuardPlus.h5'
-        if load_model:
-            deepFogGuardPlus.load_weights(deepFogGuardPlus_file)
-        else:
-            print("Training deepFogGuardPlus")
-            dFGPlusCheckPoint = ModelCheckpoint(deepFogGuardPlus_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-            deepFogGuardPlus.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [dFGPlusCheckPoint],validation_data=(val_data,val_labels))
-            # load weights from epoch with the highest val acc
-            deepFogGuardPlus.load_weights(deepFogGuardPlus_file)
-
-        # deepFogGuard
-        deepFogGuard = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,default_survivability_setting,allpresent_skip_hyperconnections_configuration)
-        deepFogGuard_file = "new_split_test" + str(iteration) + '_deepFogGuard.h5'
-        if load_model:
-            deepFogGuard.load_weights(deepFogGuard_file)
-        else:
-            print("Training deepFogGuard")
-            dFGCheckPoint = ModelCheckpoint(deepFogGuard_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-            deepFogGuard.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [dFGCheckPoint], validation_data=(val_data,val_labels))
-            # load weights from epoch with the highest val acc
-            deepFogGuard.load_weights(deepFogGuard_file)
-
-        # vanilla model
-        vanilla = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
-        vanilla_file = "new_split_test" + str(iteration) + '_vanilla.h5'
-        if load_model:
-            vanilla.load_weights(vanilla_file)
-        else:
-            print("Training vanilla")
-            vanillaCheckPoint = ModelCheckpoint(vanilla_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-            vanilla.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [vanillaCheckPoint],validation_data=(val_data,val_labels))
-            # load weights from epoch with the highest val acc
-            vanilla.load_weights(vanilla_file)
- 
-        # test models
-        for survivability_setting in survivability_settings:
-         
-            # deepFogGuard Plus
-            output_list.append('deepFogGuard Plus' + '\n')
-            print("deepFogGuard Plus")
-            output["deepFogGuard Plus"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus,survivability_setting,output_list,training_labels,test_data,test_labels)
-
-            # deepFogGuard
-            output_list.append('deepFogGuard' + '\n')
-            print("deepFogGuard")
-            output["deepFogGuard"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard,survivability_setting,output_list,training_labels,test_data,test_labels)
-
-            # vanilla
-            output_list.append('Vanilla' + '\n')                    
-            print("Vanilla")
-            output["Vanilla"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(vanilla,survivability_setting,output_list,training_labels,test_data,test_labels)
-
-        # clear session so that model will recycled back into memory
-        K.clear_session()
-        gc.collect()
-        del deepFogGuard
-        del deepFogGuardPlus
-        del vanilla
-   # calculate average accuracies from all expected accuracies
-    for survivability_setting in survivability_settings:
-        deepfogGuardPlus_acc = average(output["deepFogGuard Plus"][str(survivability_setting)])
-        deepFogGuard_acc = average(output["deepFogGuard"][str(survivability_setting)])
-        vanilla_acc = average(output["Vanilla"][str(survivability_setting)])
-
-        output_list.append(str(survivability_setting) + " deepFogGuard Plus Accuracy: " + str(deepfogGuardPlus_acc) + '\n')
-        output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
-        output_list.append(str(survivability_setting) + " Vanilla Accuracy: " + str(vanilla_acc) + '\n')
-=======
-def define_and_train(iteration, model_name, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
-    # ResiliNet
-    if model_name == "ResiliNet":
-        model = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
-        model_file = "new_split_" + str(iteration) + '_deepFogGuardPlus.h5'
-    # deepFogGuard
-    if model_name == "deepFogGuard":
-        model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,default_survivability_setting,allpresent_skip_hyperconnections_configuration)
-        model_file = "new_split_" + str(iteration) + '_deepFogGuard.h5'
-    # Vanilla model
-    if model_name == "Vanilla":
-        model = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
-        model_file = "new_split_" + str(iteration) + '_vanilla.h5'
-    
-    if load_model:
-        model.load_weights(model_file)
-    else:
-        print("Training " + model_name)
-        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        model.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [modelCheckPoint],validation_data=(val_data,val_labels))
-        # load weights from epoch with the highest val acc
-        model.load_weights(model_file)
-    return model
->>>>>>> 212749e23f2cb80671f6e5279de222015d491fac
-
-def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,training_labels,test_data,test_labels):
-    output_list.append(model_name + "\n")
-    print(model_name)
-    output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list,training_labels,test_data,test_labels)
-
-def write_n_upload(output_name, output_list, use_GCP):
-    # write experiments output to file
-    with open(output_name,'w') as file:
-        file.writelines(output_list)
-        file.flush()
-        os.fsync(file)
-    # upload file to GCP
-    if use_GCP:
-        os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
-    print(output)
