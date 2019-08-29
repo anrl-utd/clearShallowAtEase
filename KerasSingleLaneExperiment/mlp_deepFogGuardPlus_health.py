@@ -78,14 +78,11 @@ def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = F
     edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'e_failure_lambda')
     fog2_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog2_rand,fog2_survivability_keras), x * 0, x),name = 'f2_failure_lambda')
     fog1_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog1_rand,fog1_survivability_keras), x * 0, x),name = 'f1_failure_lambda')
-    # if standard_dropout:
-    #     # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
-    #     learning_phase = K.variable(K.learning_phase())
-    #     if (not learning_phase):
-    #         print("standard ropout is happening")
-    #     e_dropout_multiply = layers.Lambda(lambda x : K.switch(K.variable(K.learning_phase()), x, x * edge_survivability),name = 'ef2_dropout_lambda') 
-    #     f2_dropout_multiply = layers.Lambda(lambda x : K.switch(K.variable(K.learning_phase()),x, x * fog2_survivability),name = 'f2f1_dropout_lambda')
-    #     f1_dropout_multiply = layers.Lambda(lambda x : K.switch(K.variable(K.learning_phase()),x, x * fog1_survivability),name = 'f1c_dropout_lambda')
-        #return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply
-    #else:
-    return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, None, None, None
+    if standard_dropout:
+        # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
+        e_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * edge_survivability),name = 'e_standard_dropout_lambda')
+        f2_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * fog2_survivability),name = 'f2_standard_dropout_lambda')
+        f1_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * fog1_survivability),name = 'f1_standard_dropout_lambda')
+        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply
+    else:
+        return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, None, None, None
