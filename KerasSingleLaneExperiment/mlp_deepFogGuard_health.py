@@ -165,7 +165,7 @@ def define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_u
     if multiply_hyperconnection_weight_layer_ef1 == None or multiply_hyperconnection_weight_layer_f2f1 == None:
         fog1_input = Lambda(add_node_layers,name="F1_Input")([edge_output,fog2_output])
     else:
-        fog1_input = Lambda(add_node_layers,name="F2_Input")([multiply_hyperconnection_weight_layer_ef1(edge_output), multiply_hyperconnection_weight_layer_f2f1(fog2_output)])
+        fog1_input = Lambda(add_node_layers,name="F1_Input")([multiply_hyperconnection_weight_layer_ef1(edge_output), multiply_hyperconnection_weight_layer_f2f1(fog2_output)])
     fog1_output = define_MLP_architecture_fog1(fog1_input, hidden_units)   
     if(f1_dropout_multiply != None):
         fog1_output =  f1_dropout_multiply(fog1_output)
