@@ -39,8 +39,8 @@ if __name__ == "__main__":
     num_train_epochs = 25 
 
     # file name with the experiments accuracy output
-    output_name = "results/health_normal.txt"
-    num_iterations = 10
+    output_name = "results/health_normal_testfordfg.txt"
+    num_iterations = 1
     verbose = 2
 
     # keep track of output so that output is in order
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
         # deepFogGuardPlus
         deepFogGuardPlus = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,default_nodewise_survival_rate)
-        deepFogGuardPlus_file = "new_split_" + str(iteration) + '_deepFogGuardPlus.h5'
+        deepFogGuardPlus_file = "new_split_test" + str(iteration) + '_deepFogGuardPlus.h5'
         if load_model:
             deepFogGuardPlus.load_weights(deepFogGuardPlus_file)
         else:
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
         # deepFogGuard
         deepFogGuard = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,default_survivability_setting,allpresent_skip_hyperconnections_configuration)
-        deepFogGuard_file = "new_split_" + str(iteration) + '_deepFogGuard.h5'
+        deepFogGuard_file = "new_split_test" + str(iteration) + '_deepFogGuard.h5'
         if load_model:
             deepFogGuard.load_weights(deepFogGuard_file)
         else:
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
         # vanilla model
         vanilla = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
-        vanilla_file = "new_split_" + str(iteration) + '_vanilla.h5'
+        vanilla_file = "new_split_test" + str(iteration) + '_vanilla.h5'
         if load_model:
             vanilla.load_weights(vanilla_file)
         else:

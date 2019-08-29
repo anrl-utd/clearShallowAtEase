@@ -31,17 +31,17 @@ if __name__ == "__main__":
     # nodewise survival rates for deepFogGuardPlus
     # elements of the vector are 1 - node-wise_dropout_rate
     nodewise_survival_rates = [
-        [.95,.95,.95],
+        # [.95,.95,.95],
         [.9,.9,.9],
-        [.7,.7,.7],
-        [.5,.5,.5],
+        # [.7,.7,.7],
+        # [.5,.5,.5],
     ]
     hidden_units = 250
     batch_size = 1028
     load_model = False
     num_train_epochs = 25 
     # file name with the experiments accuracy output
-    output_name = "results/health_nodewise_dropout.txt"
+    output_name = "results/health_updatednodewise_dropout_10dropout__withstd.txt"
     num_iterations = 10
     verbose = 2
     # keep track of output so that output is in order
@@ -55,9 +55,9 @@ if __name__ == "__main__":
     
     # convert dropout rates into strings
     nodewise_dropout_rate_05 =  str(nodewise_survival_rates[0])
-    nodewise_dropout_rate_10 = str(nodewise_survival_rates[1])
-    nodewise_dropout_rate_30 = str(nodewise_survival_rates[2])
-    nodewise_dropout_rate_50 = str(nodewise_survival_rates[3])
+    # nodewise_dropout_rate_10 = str(nodewise_survival_rates[1])
+    # nodewise_dropout_rate_30 = str(nodewise_survival_rates[2])
+    # nodewise_dropout_rate_50 = str(nodewise_survival_rates[3])
     # dictionary to store all the results
     output = {
         "deepFogGuardPlus Node-wise Dropout": 
@@ -69,27 +69,27 @@ if __name__ == "__main__":
                 normal:[0] * num_iterations,
                 no_failure:[0] * num_iterations,
             },
-            nodewise_dropout_rate_10 :
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_30:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_50:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
+        #     nodewise_dropout_rate_10 :
+        #     {
+        #         hazardous:[0] * num_iterations,
+        #         poor:[0] * num_iterations,
+        #         normal:[0] * num_iterations,
+        #         no_failure:[0] * num_iterations,
+        #     },
+        #     nodewise_dropout_rate_30:
+        #     {
+        #         hazardous:[0] * num_iterations,
+        #         poor:[0] * num_iterations,
+        #         normal:[0] * num_iterations,
+        #         no_failure:[0] * num_iterations,
+        #     },
+        #     nodewise_dropout_rate_50:
+        #     {
+        #         hazardous:[0] * num_iterations,
+        #         poor:[0] * num_iterations,
+        #         normal:[0] * num_iterations,
+        #         no_failure:[0] * num_iterations,
+        #     },
         },
         "deepFogGuardPlus Adjusted Node-wise Dropout": 
         {
@@ -100,27 +100,27 @@ if __name__ == "__main__":
                 normal:[0] * num_iterations,
                 no_failure:[0] * num_iterations,
             },
-            nodewise_dropout_rate_10 :
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_30:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_50:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
+            # nodewise_dropout_rate_10 :
+            # {
+            #     hazardous:[0] * num_iterations,
+            #     poor:[0] * num_iterations,
+            #     normal:[0] * num_iterations,
+            #     no_failure:[0] * num_iterations,
+            # },
+            # nodewise_dropout_rate_30:
+            # {
+            #     hazardous:[0] * num_iterations,
+            #     poor:[0] * num_iterations,
+            #     normal:[0] * num_iterations,
+            #     no_failure:[0] * num_iterations,
+            # },
+            # nodewise_dropout_rate_50:
+            # {
+            #     hazardous:[0] * num_iterations,
+            #     poor:[0] * num_iterations,
+            #     normal:[0] * num_iterations,
+            #     no_failure:[0] * num_iterations,
+            # },
         }
     }
 
@@ -134,21 +134,21 @@ if __name__ == "__main__":
         print("deepFogGuardPlus Node-wise Dropout")
         for nodewise_survival_rate in nodewise_survival_rates:
             # node-wise dropout
-            deepFogGuardPlus_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_nodewise_dropout.h5'
-            deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate)
+            # deepFogGuardPlus_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_updated_nodewise_dropout.h5'
+            # deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate)
             # adjusted node_wise dropout
-            deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_nodewise_dropout.h5'
+            deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_adjusted_nodewise_dropout_10.h5'
             deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate,standard_dropout=True)
             if load_model:
-                deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
+                # deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
                 deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
             else:
-                #print("Training deepFogGuardPlus Node-wise Dropout")
+                print("Training deepFogGuardPlus Node-wise Dropout")
                 print(str(nodewise_survival_rate))
                 # node-wise dropout
-                deepFogGuardPlus_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-                deepFogGuardPlus_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
-                deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
+                # deepFogGuardPlus_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
+                # deepFogGuardPlus_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
+                # deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
                 # adjusted node-wise dropout
                 print("Training deepFogGuardPlus Adjusted Node-wise Dropout")
                 deepFogGuardPlus_adjusted_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_adjusted_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
@@ -159,25 +159,25 @@ if __name__ == "__main__":
                 for survivability_setting in survivability_settings:
                     output_list.append(str(survivability_setting)+ '\n')
                     print(survivability_setting)
-                    output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
+                    # output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
                     output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_adjusted_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
-            #del deepFogGuardPlus_nodewise_dropout
+            # del deepFogGuardPlus_nodewise_dropout
             del deepFogGuardPlus_adjusted_nodewise_dropout
 
     # calculate average accuracies for deepFogGuardPlus Node-wise Dropout
     for nodewise_survival_rate in nodewise_survival_rates:
         print(nodewise_survival_rate)
         for survivability_setting in survivability_settings:
-            deepFogGuardPlus_nodewise_dropout_acc = average(output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
-            output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Node-wise Dropout: " + str(deepFogGuardPlus_nodewise_dropout_acc) + '\n')
-            print(nodewise_survival_rate,survivability_setting,"deepFogGuardPlus Node-wise Dropout:",deepFogGuardPlus_nodewise_dropout_acc)  
+            # deepFogGuardPlus_nodewise_dropout_acc = average(output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
+            # output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Node-wise Dropout: " + str(deepFogGuardPlus_nodewise_dropout_acc) + '\n')
+            # print(nodewise_survival_rate,survivability_setting,"deepFogGuardPlus Node-wise Dropout:",deepFogGuardPlus_nodewise_dropout_acc)  
 
-            deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Dropout"][str(survivability_setting)],ddof=1)
-            output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
-            print(str(survivability_setting), "nodewise_survival_rate std:",deepGuardPlus_std)
+            # deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)],ddof=1)
+            # output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
+            # print(str(survivability_setting), "nodewise_survival_rate std:",deepGuardPlus_std)
 
             deepFogGuardPlus_adjusted_nodewise_dropout_acc = average(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
             output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Adjusted Node-wise Dropout: " + str(deepFogGuardPlus_adjusted_nodewise_dropout_acc) + '\n')

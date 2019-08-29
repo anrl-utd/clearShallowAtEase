@@ -31,7 +31,7 @@ if __name__ == "__main__":
     load_model = False
     num_train_epochs = 25 
     # file name with the experiments accuracy output
-    output_name = "results/health_variable_nodewise_dropout.txt"
+    output_name = "results/health_variable_nodewise_standard_dropout.txt"
     num_iterations = 10
     verbose = 2
     # keep track of output so that output is in order
@@ -67,8 +67,8 @@ if __name__ == "__main__":
         output_list.append('deepFogGuardPlus Node-wise Dropout' + '\n')                  
         for survivability_setting in survivability_settings:
             # variable node-wise dropout
-            deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_dropout.h5'
-            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,survivability_setting)
+            deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_standard_dropout.h5'
+            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,survivability_setting, standard_dropout= True)
 
             if load_model:
                 deepFogGuardPlus_variable_nodewise_dropout.load_weights(deepFogGuardPlus_variable_nodewise_dropout_file)
@@ -103,4 +103,4 @@ if __name__ == "__main__":
     if use_GCP:
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
         os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
-    print(output)
+
