@@ -18,7 +18,7 @@ if __name__ == "__main__":
     
     load_model = False
     # file name with the experiments accuracy output
-    output_name = "results/health_variable_nodewise_dropout.txt"
+    output_name = "results/health_variable_dropoutlike_nodewise_dropout.txt"
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
@@ -40,7 +40,7 @@ if __name__ == "__main__":
             normal:[0] * num_iterations,
         },
     }
-
+    standard_dropout = True
     # make folder for outputs 
     if not os.path.exists('results/'):
         os.mkdir('results/')
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         output_list.append('deepFogGuardPlus Node-wise Dropout' + '\n')                  
         for survivability_setting in survivability_settings:
             # variable node-wise dropout
-            deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_standard_dropout.h5'
+            deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_dropoutlike_dropout.h5'
             deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,survivability_setting, standard_dropout= True)
 
             if load_model:
@@ -63,6 +63,21 @@ if __name__ == "__main__":
                 deepFogGuardPlus_variable_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_variable_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
                 deepFogGuardPlus_variable_nodewise_dropout.load_weights(deepFogGuardPlus_variable_nodewise_dropout_file)
 
+                if standard_dropout == True:
+                    nodes = ["fog2_input_layer","fog1_input_layer","cloud_input_layer"]
+                    for index, node in enumerate(nodes):
+                        survival_rate = survivability_setting[index]
+                        # node failed
+                        layer_name = node
+                        layer = deepFogGuardPlus_variable_nodewise_dropout.get_layer(name=layer_name)
+                        layer_weights = layer.get_weights()
+                        # make new weights for the connections
+                        new_weights = layer_weights[0] * survival_rate
+    
+                        # make new weights for biases
+                        new_bias_weights = layer_weights[1] * survival_rate
+                        layer.set_weights([new_weights,new_bias_weights])
+                        print(layer_name, "was multiplied")
                 output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_variable_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
         
             # clear session so that model will recycled back into memory
