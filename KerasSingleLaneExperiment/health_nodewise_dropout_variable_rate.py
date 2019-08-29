@@ -18,7 +18,7 @@ if __name__ == "__main__":
     
     load_model = False
     # file name with the experiments accuracy output
-    output_name = "results/health_variable_testifdropoutworks_nodewise_dropout.txt"
+    output_name = "results/health_variable_dropoutlike_nodewise_dropout.txt"
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
@@ -26,11 +26,7 @@ if __name__ == "__main__":
     no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
     
     # variable dropout should not have no failure
-    survivability_settings = [
-        [.92,.96,.99],
-        [.87,.91,.95],
-        [.78,.8,.85],
-    ]
+    survivability_settings.remove([1,1,1])
     # dictionary to store all the results
     output = {
          "deepFogGuardPlus Node-wise Variable Dropout": 
@@ -46,7 +42,7 @@ if __name__ == "__main__":
             normal:[0] * num_iterations,
         },
     }
-    standard_dropout = False
+    standard_dropout = True
     # make folder for outputs 
     if not os.path.exists('results/'):
         os.mkdir('results/')
@@ -56,7 +52,7 @@ if __name__ == "__main__":
         output_list.append('deepFogGuardPlus Node-wise Dropout' + '\n')                  
         for survivability_setting in survivability_settings:
             # variable node-wise dropout
-            deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_testifdropoutworks_dropout.h5'
+            deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_dropoutlike_dropout.h5'
             deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,survivability_setting, standard_dropout= True)
 
             if load_model:
