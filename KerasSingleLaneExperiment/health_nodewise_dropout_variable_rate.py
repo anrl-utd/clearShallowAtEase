@@ -1,46 +1,29 @@
 from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
-from KerasSingleLaneExperiment.loadData import load_data
-from sklearn.model_selection import train_test_split
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
 from KerasSingleLaneExperiment.main import average
+from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string
 import keras.backend as K
 import gc
 import os
 from keras.callbacks import ModelCheckpoint
 import numpy as np
+
+
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True
-    if use_GCP == True:
-        os.system('gsutil -m cp -r gs://anrl-storage/data/mHealth_complete.log ./')
-        os.mkdir('models/')
-    data,labels= load_data('mHealth_complete.log')
-    # split data into train, val, and test
-    # 80/10/10 split
-    training_data, test_data, training_labels, test_labels = train_test_split(data,labels,random_state = 42, test_size = .20, shuffle = True)
-    val_data, test_data, val_labels, test_labels = train_test_split(test_data,test_labels,random_state = 42, test_size = .50, shuffle = True)
-    num_vars = len(training_data[0])
-    num_classes = 13
-    survivability_settings = [
-        [.92,.96,.99],
-        [.87,.91,.95],
-        [.78,.8,.85],
-    ]
-    hidden_units = 250
-    batch_size = 1028
+    training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data(use_GCP)
+
+    num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
+    
     load_model = False
-    num_train_epochs = 25 
     # file name with the experiments accuracy output
-    output_name = "results/health_variable_nodewise_standard_dropout.txt"
-    num_iterations = 10
+    output_name = "results/health_variable_nodewise_dropout.txt"
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
     
-    # convert survivability settings into strings so it can be used in the dictionary as keys
-    normal = str(survivability_settings[0])
-    poor = str(survivability_settings[1])
-    hazardous = str(survivability_settings[2])
+    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
     
     # dictionary to store all the results
     output = {
