@@ -4,14 +4,12 @@ from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuar
 from KerasSingleLaneExperiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
 from KerasSingleLaneExperiment.main import average
-from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string
+from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string, write_n_upload
 import keras.backend as K
 import datetime
 import gc
 import os
 from keras.callbacks import ModelCheckpoint
-
-
 
 def make_output_dictionary(survivability_settings, num_iterations):
     no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
@@ -49,7 +47,7 @@ def define_and_train(iteration, model_name, training_data, training_labels, val_
         model_file = "new_split_" + str(iteration) + '_deepFogGuardPlus.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
-        model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units,default_survivability_setting,allpresent_skip_hyperconnections_configuration)
+        model = define_deepFogGuard_MLP(num_vars, num_classes, hidden_units, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
         model_file = "new_split_" + str(iteration) + '_deepFogGuard.h5'
     # Vanilla model
     if model_name == "Vanilla":
@@ -71,17 +69,6 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
     print(model_name)
     output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list,training_labels,test_data,test_labels)
 
-def write_n_upload(output_name, output_list, use_GCP):
-    # write experiments output to file
-    with open(output_name,'w') as file:
-        file.writelines(output_list)
-        file.flush()
-        os.fsync(file)
-    # upload file to GCP
-    if use_GCP:
-        os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
-    print(output)
-    
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True
@@ -140,3 +127,4 @@ if __name__ == "__main__":
         print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
 
     write_n_upload(output_name, output_list, use_GCP)
+    print(output)
