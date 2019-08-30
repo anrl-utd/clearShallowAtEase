@@ -65,6 +65,8 @@ if __name__ == "__main__":
     alpha = .5
     input_shape = (32,32,3)
     classes = 10
+
+    load_model = False
     train_steps_per_epoch = math.ceil(len(x_train) / batch_size)
     val_steps_per_epoch = math.ceil(len(x_val) / batch_size)
     output = {

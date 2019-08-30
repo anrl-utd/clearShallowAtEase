@@ -4,41 +4,13 @@ from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuar
 from KerasSingleLaneExperiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
 from KerasSingleLaneExperiment.utility import average
-from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string, write_n_upload
-from KerasSingleLaneExperiment.utility import get_model_weights
+from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, write_n_upload
+from KerasSingleLaneExperiment.utility import get_model_weights_MLP
+from KerasSingleLaneExperiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy
 import keras.backend as K
 import datetime
 import gc
 import os
-
-def make_output_dictionary(survivability_settings, num_iterations):
-    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
-
-    # dictionary to store all the results
-    output = {
-        "ResiliNet":
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        }, 
-        "deepFogGuard":
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        },
-        "Vanilla": 
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        },
-    }
-    return output
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
     # ResiliNet
@@ -54,7 +26,7 @@ def define_and_train(iteration, model_name, load_model, training_data, training_
         model = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
         model_file = "new_split_" + str(iteration) + '_vanilla.h5'
     
-    get_model_weights(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    get_model_weights_MLP(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,training_labels,test_data,test_labels):
@@ -82,7 +54,7 @@ if __name__ == "__main__":
     # keep track of output so that output is in order
     output_list = []
     
-    output = make_output_dictionary(survivability_settings, num_iterations)
+    output = make_output_dictionary_average_accuracy(survivability_settings, num_iterations)
 
     # make folder for outputs 
     if not os.path.exists('results/'):
