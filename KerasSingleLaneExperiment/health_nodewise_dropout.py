@@ -16,14 +16,14 @@ if __name__ == "__main__":
     num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
     load_model = False
     nodewise_survival_rates = [
-        # [.95,.95,.95],
-       # [.9,.9,.9],
-        [.7,.7,.7],
+        [.95,.95,.95],
+    #    [.9,.9,.9],
+        # [.7,.7,.7],
         # [.5,.5,.5],
     ]
 
     # file name with the experiments accuracy output
-    output_name = "results/health_nodewise_testdropout_30dropout.txt"
+    output_name = "results/health_nodewise_dropoutlike_failout_05dropout.txt"
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             # },
         }
     }
-    standard_dropout = False
+    standard_dropout = True
 
     # make folder for outputs 
     if not os.path.exists('results/'):
@@ -115,7 +115,7 @@ if __name__ == "__main__":
             # deepFogGuardPlus_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_updated_nodewise_dropout.h5'
             # deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate)
             # adjusted node_wise dropout
-            deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_testnodedropout_nodewise_dropout_30.h5'
+            deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_dropoutlike_failout_nodewise_dropout_05.h5'
             deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate,standard_dropout=standard_dropout)
             if load_model:
                 # deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
                 deepFogGuardPlus_adjusted_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_adjusted_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
                 deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
                 if standard_dropout == True:
-                    nodes = ["fog2_input_layer","fog1_input_layer","cloud_input_layer"]
+                    nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
                     default_survival_rate = .95
                     for node in nodes:
                         # node failed
@@ -141,10 +141,10 @@ if __name__ == "__main__":
                         layer = deepFogGuardPlus_adjusted_nodewise_dropout.get_layer(name=layer_name)
                         layer_weights = layer.get_weights()
                         # make new weights for the connections
-                        new_weights = layer_weights[0] * .90
+                        new_weights = layer_weights[0] * default_survival_rate
     
                         # make new weights for biases
-                        new_bias_weights = layer_weights[1] * .90
+                        new_bias_weights = layer_weights[1] * default_survival_rate
                         layer.set_weights([new_weights,new_bias_weights])
                         print(layer_name, "was multiplied")
                 print("Test on normal survival rates")
@@ -153,6 +153,7 @@ if __name__ == "__main__":
                     output_list.append(str(survivability_setting)+ '\n')
                     print(survivability_setting)
                     # output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
+                    K.set_learning_phase(0)
                     output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_adjusted_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()

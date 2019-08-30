@@ -64,9 +64,8 @@ if __name__ == "__main__":
                 deepFogGuardPlus_variable_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_variable_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
                 deepFogGuardPlus_variable_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_variable_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
                 deepFogGuardPlus_variable_nodewise_dropout.load_weights(deepFogGuardPlus_variable_nodewise_dropout_file)
-
                 if standard_dropout == True:
-                    nodes = ["fog2_input_layer","fog1_input_layer","cloud_input_layer"]
+                    nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
                     for index, node in enumerate(nodes):
                         survival_rate = survivability_setting[index]
                         # node failed
