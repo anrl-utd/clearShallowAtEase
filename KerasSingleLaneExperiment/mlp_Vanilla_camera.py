@@ -1,9 +1,9 @@
 from keras.models import Sequential
-from keras.layers import Dense,Input,Lambda, Activation
+from keras.layers import Dense,Input,Lambda, Activation, add
 from KerasSingleLaneExperiment.LambdaLayers import add_node_layers
 from keras.models import Model
 
-def define_vanilla_model_MLP(num_vars,
+def define_vanilla_model_MLP(input_shape,
                              num_classes,
                              hidden_units = 32):
     """Define a normal neural network.
@@ -19,14 +19,23 @@ def define_vanilla_model_MLP(num_vars,
     """
 
     # IoT Node (input image)
-    img_input = Input(shape = (num_vars,))
-    # Brian: I think we need something like 4 different 'img_input's, so I named them img_input_1 through img_input_4
+    img_input_1 = Input(shape = input_shape)    
+    img_input_2 = Input(shape = input_shape)
+    img_input_3 = Input(shape = input_shape)
+    img_input_4 = Input(shape = input_shape)    
+    img_input_5 = Input(shape = input_shape) 
+    img_input_6 = Input(shape = input_shape) 
+    
+    input_edge1 = add([img_input_1,img_input_2])
+    input_edge2 = img_input_3
+    input_edge3 = add([img_input_4,img_input_5])
+    input_edge4 = img_input_6
 
     # edge nodes
-    edge1 = define_MLP_architecture_edge(img_input_1, hidden_units, "edge1_output_layer")
-    edge2 = define_MLP_architecture_edge(img_input_2, hidden_units, "edge2_output_layer")
-    edge3 = define_MLP_architecture_edge(img_input_3, hidden_units, "edge3_output_layer")
-    edge4 = define_MLP_architecture_edge(img_input_4, hidden_units, "edge4_output_layer")
+    edge1 = define_MLP_architecture_edge(input_edge1, hidden_units, "edge1_output_layer")
+    edge2 = define_MLP_architecture_edge(input_edge2, hidden_units, "edge2_output_layer")
+    edge3 = define_MLP_architecture_edge(input_edge3, hidden_units, "edge3_output_layer")
+    edge4 = define_MLP_architecture_edge(input_edge4, hidden_units, "edge4_output_layer")
 
     # fog node 4
     fog4_input = Lambda(add_node_layers,name="fog4_input_lambda")([edge2,edge3, edge4])
@@ -45,7 +54,7 @@ def define_vanilla_model_MLP(num_vars,
     # cloud node
     cloud = define_MLP_architecture_cloud(fog1, hidden_units, num_classes)
 
-    model = Model(inputs=img_input, outputs=cloud)
+    model = Model(inputs=[img_input_1,img_input_2,img_input_3,img_input_4,img_input_5,img_input_6], outputs=cloud)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
