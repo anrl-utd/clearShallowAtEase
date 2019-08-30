@@ -9,9 +9,11 @@ Download Google Cloud SDK and CLI
 
 Setup Google Cloud credentials using gcloud init, must have API access to Google AI Platform enabled on GCP account.
 
-Run sh gcloud_train.sh to start training on gcp servers, can specify main python driver file to run based on experiment variable in shell script.
+Run `sh gcloud_train.sh` to start training on gcp servers, can specify main python driver file to run based on experiment variable in shell script.
 
-Run sh local_train.sh to run code locally, can also specify main python driver to run based on variables in shell script.
+Run `sh local_train.sh` to run code locally, can also specify main python driver to run based on variables on experiment variable in shell script
+
+Experiment variable in both shell scripts looks like this: `experiment="cifar_nodewise_dropout_variable_rate"`
 
   
 
