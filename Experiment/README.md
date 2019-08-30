@@ -15,7 +15,8 @@ Run `sh local_train.sh` to run code locally, can also specify main python driver
 
 Experiment variable in both shell scripts looks like this: `experiment="cifar_nodewise_dropout_variable_rate"`
 
-  
+ ### Google Cloud AI Platform Setup Documentation
+ [https://cloud.google.com/ml-engine/docs/tensorflow/getting-started-keras](https://cloud.google.com/ml-engine/docs/tensorflow/getting-started-keras)
 
 # Potential issues
 
