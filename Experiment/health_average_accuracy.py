@@ -4,9 +4,9 @@ from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.utility import average
-from Experiment.health_common_exp_methods import init_data, init_common_experiment_params, write_n_upload
+from Experiment.health_common_exp_methods import init_data, init_common_experiment_params
 from Experiment.utility import get_model_weights_MLP
-from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy
+from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import keras.backend as K
 import datetime
 import gc
@@ -56,9 +56,7 @@ if __name__ == "__main__":
     
     output = make_output_dictionary_average_accuracy(survivability_settings, num_iterations)
 
-    # make folder for outputs 
-    if not os.path.exists('results/'):
-        os.mkdir('results/')
+    make_results_folder()
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)

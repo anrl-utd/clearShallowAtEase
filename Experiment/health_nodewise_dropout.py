@@ -3,7 +3,7 @@ from Experiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.utility import average
 from Experiment.health_common_exp_methods import init_data, init_common_experiment_params
-from Experiment.common_exp_methods import convert_to_string
+from Experiment.common_exp_methods import convert_to_string, make_results_folder
 import keras.backend as K
 import gc
 import os
@@ -103,9 +103,7 @@ if __name__ == "__main__":
     }
     standard_dropout = True
 
-    # make folder for outputs 
-    if not os.path.exists('results/'):
-        os.mkdir('results/')
+    make_results_folder()
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
