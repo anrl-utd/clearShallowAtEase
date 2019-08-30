@@ -1,7 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation
-from KerasSingleLaneExperiment.LambdaLayers import add_node_layers
-from KerasSingleLaneExperiment.mlp_Vanilla_camera import define_MLP_architecture_cloud, define_MLP_architecture_edge, define_MLP_architecture_fog_with_one_layer, define_MLP_architecture_fog_with_two_layers
+from Experiment.LambdaLayers import add_node_layers
+from Experiment.mlp_Vanilla_camera import define_MLP_architecture_cloud, define_MLP_architecture_edge, define_MLP_architecture_fog_with_one_layer, define_MLP_architecture_fog_with_two_layers
 from keras.models import Model
 import random
 def define_deepFogGuard_MLP(num_vars,

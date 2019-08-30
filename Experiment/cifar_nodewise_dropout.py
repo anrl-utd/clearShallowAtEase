@@ -6,10 +6,10 @@ from keras.callbacks import ModelCheckpoint
 import keras.backend as K
 import math
 import os 
-from KerasSingleLaneExperiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
-from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
+from Experiment.FailureIteration import calculateExpectedAccuracy
 import numpy as np
-from KerasSingleLaneExperiment.utility import average
+from Experiment.utility import average
 import datetime
 import gc
 from sklearn.model_selection import train_test_split
@@ -68,6 +68,8 @@ if __name__ == "__main__":
     alpha = .5
     input_shape = (32,32,3)
     classes = 10
+
+    load_model = False
     train_steps_per_epoch = math.ceil(len(x_train) / batch_size)
     val_steps_per_epoch = math.ceil(len(x_val) / batch_size)
     output = {

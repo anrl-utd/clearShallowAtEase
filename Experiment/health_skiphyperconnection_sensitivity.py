@@ -1,8 +1,9 @@
 
-from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
-from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string, write_n_upload
-from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
-from KerasSingleLaneExperiment.utility import average, get_model_weights
+from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
+from Experiment.health_common_exp_methods import init_data, init_common_experiment_params, write_n_upload
+from Experiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.utility import average, get_model_weights_MLP
+from Experiment.common_exp_methods import convert_to_string
 import keras.backend as K
 import os
 import gc 
@@ -72,7 +73,7 @@ def make_output_dictionary(survivability_settings, num_iterations):
 def define_and_train(iteration, model_name, load_model, default_survivability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units, default_survivability_setting,skip_hyperconnection_configuration)
     model_file = str(iteration) + " " + str(skip_hyperconnection_configuration) +  'health_skiphyperconnection_sensitivity_deepFogGuard.h5'
-    get_model_weights(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    get_model_weights_MLP(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 
@@ -111,7 +112,6 @@ if __name__ == "__main__":
     # make folder for outputs 
     if not os.path.exists('results/' ):
         os.mkdir('results/')
-        os.mkdir('results/' )
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)

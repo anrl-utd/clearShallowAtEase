@@ -10,8 +10,8 @@ Run sh local_train.sh to run code locally, can also specify main python driver t
 
 # Running locally
 Current issues are that you cannot run via python command because current python import setup is configured for gcp. 
-In order to fix issue, you have to remove KerasSingleLaneExperiment from all the file imports. 
-ex: from KerasSingleLaneExperiment.cnn_deepFogGuard import define_deepFogGuard_CNN to from cnn_deepFogGuard import define_deepFogGuard_CNN
+In order to fix issue, you have to remove Experiment from all the file imports. 
+ex: from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN to from cnn_deepFogGuard import define_deepFogGuard_CNN
 
 # Saving output files and text files 
 In this program, there are mentions of gs://anrl-storage/* like gs://anrl-storage/results/ or gs://anrl-storage/models.

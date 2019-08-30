@@ -8,7 +8,7 @@ import warnings
 import keras.backend as K
 import keras
 import keras.layers as layers
-from KerasSingleLaneExperiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
+from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
 
 BASE_WEIGHT_PATH = ('https://github.com/fchollet/deep-learning-models/'
                     'releases/download/v0.6/')

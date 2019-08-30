@@ -1,8 +1,8 @@
 
-TRAINER_PACKAGE_PATH="./KerasSingleLaneExperiment"
+TRAINER_PACKAGE_PATH="./Experiment"
 # main driver path
 experiment="cifar_nodewise_dropout_variable_rate"
-MAIN_TRAINER_MODULE="KerasSingleLaneExperiment.$experiment"
+MAIN_TRAINER_MODULE="Experiment.$experiment"
 PACKAGE_STAGING_PATH="gs://anrl-storage"
 
 

@@ -1,5 +1,5 @@
 import os
-from KerasSingleLaneExperiment.health_data_handler import load_data
+from Experiment.health_data_handler import load_data
 from sklearn.model_selection import train_test_split
 
 def init_data(use_GCP):
@@ -28,14 +28,6 @@ def init_common_experiment_params(training_data):
     batch_size = 1028
     num_iterations = 10
     return num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size
-
-def convert_to_string(survivability_settings):
-    # convert survivability settings into strings so it can be used in the dictionary as keys
-    no_failure = str(survivability_settings[0])
-    normal = str(survivability_settings[1])
-    poor = str(survivability_settings[2])
-    hazardous = str(survivability_settings[3])
-    return no_failure, normal, poor, hazardous
 
 def write_n_upload(output_name, output_list, use_GCP):
     # write experiments output to file

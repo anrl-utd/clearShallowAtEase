@@ -8,10 +8,10 @@ import keras.backend as K
 import datetime
 import os
 
-from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
-from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
-from KerasSingleLaneExperiment.mlp_Vanilla_health import define_vanilla_model_MLP
-from KerasSingleLaneExperiment.random_guess import model_guess
+from Experiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
+from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
+from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
+from Experiment.random_guess import model_guess
 from keras.callbacks import ModelCheckpoint
 import numpy as np
 
@@ -72,7 +72,7 @@ def average(list):
     else:
         return sum(list) / len(list)
         
-def get_model_weights(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose):
+def get_model_weights_MLP(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose):
     if load_model:
         model.load_weights(model_file)
     else:
@@ -80,4 +80,22 @@ def get_model_weights(model, model_name, load_model, model_file, training_data, 
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
         model.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [modelCheckPoint],validation_data=(val_data,val_labels))
         # load weights from epoch with the highest val acc
+        model.load_weights(model_file)
+
+def get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
+    if load_model:
+        model.load_weights(model_file)
+    else:
+        # checkpoints to keep track of model with best validation accuracy 
+        print(model_name)
+        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
+        model.fit_generator(
+            train_datagen.flow(training_data,training_labels,batch_size = batch_size),
+            epochs = epochs,
+            validation_data = (val_data,val_labels), 
+            steps_per_epoch = train_steps_per_epoch, 
+            verbose = progress_verbose, 
+            validation_steps = val_steps_per_epoch,
+            callbacks = [modelCheckPoint])
+        # load weights with the highest val accuracy
         model.load_weights(model_file)
