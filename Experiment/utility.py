@@ -8,10 +8,10 @@ import keras.backend as K
 import datetime
 import os
 
-from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
-from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
-from KerasSingleLaneExperiment.mlp_Vanilla_health import define_vanilla_model_MLP
-from KerasSingleLaneExperiment.random_guess import model_guess
+from Experiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
+from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
+from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
+from Experiment.random_guess import model_guess
 from keras.callbacks import ModelCheckpoint
 import numpy as np
 

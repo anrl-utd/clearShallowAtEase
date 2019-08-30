@@ -1,9 +1,9 @@
 
-from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
-from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, write_n_upload
-from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
-from KerasSingleLaneExperiment.utility import average, get_model_weights_MLP
-from KerasSingleLaneExperiment.common_exp_methods import convert_to_string
+from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
+from Experiment.health_common_exp_methods import init_data, init_common_experiment_params, write_n_upload
+from Experiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.utility import average, get_model_weights_MLP
+from Experiment.common_exp_methods import convert_to_string
 import keras.backend as K
 import os
 import gc 

@@ -3,13 +3,13 @@ from keras.applications.mobilenet import MobileNet
 import keras.backend as K
 import math
 import os 
-from KerasSingleLaneExperiment.cnn_Vanilla import define_vanilla_model_CNN
-from KerasSingleLaneExperiment.cnn_deepFogGuard import define_deepFogGuard_CNN
-from KerasSingleLaneExperiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
-from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
-from KerasSingleLaneExperiment.cifar_common_exp_methods import init_data, init_common_experiment_params 
-from KerasSingleLaneExperiment.utility import average, get_model_weights_CNN
-from KerasSingleLaneExperiment.common_exp_methods import make_output_dictionary_average_accuracy
+from Experiment.cnn_Vanilla import define_vanilla_model_CNN
+from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
+from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
+from Experiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.cifar_common_exp_methods import init_data, init_common_experiment_params 
+from Experiment.utility import average, get_model_weights_CNN
+from Experiment.common_exp_methods import make_output_dictionary_average_accuracy
 import gc
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):

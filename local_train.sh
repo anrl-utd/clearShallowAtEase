@@ -1,6 +1,6 @@
 
-TRAINER_PACKAGE_PATH="./KerasSingleLaneExperiment"
-MAIN_TRAINER_MODULE="KerasSingleLaneExperiment.test"
+TRAINER_PACKAGE_PATH="./Experiment"
+MAIN_TRAINER_MODULE="Experiment.test"
 PACKAGE_STAGING_PATH="gs://anrl-storage"
 
 now=$(date +"%Y%m%d_%H%M%S")
