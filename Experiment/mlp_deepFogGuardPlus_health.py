@@ -12,7 +12,7 @@ import random
 def define_deepFogGuardPlus_MLP(num_vars,
                             num_classes,
                             hidden_units,
-                            survivability_setting = [1.0,1.0,1.0],
+                            failout_survival_setting = [1.0,1.0,1.0],
                             standard_dropout = False):
     """Define a deepFogGuardPlus model.
     ### Naming Convention
@@ -21,7 +21,7 @@ def define_deepFogGuardPlus_MLP(num_vars,
         num_vars (int): specifies number of variables from the data, used to determine input size.
         num_classes (int): specifies number of classes to be outputted by the model
         hidden_units (int): specifies number of hidden units per layer in network
-        survivability_setting (list): specifies the survival rate of each node in the network
+        failout_survival_setting (list): specifies the failout survival rate of each node in the network
         skip_hyperconnections (list): specifies the alive skip hyperconnections in the network, default value is [1,1,1]
     ### Returns
         Keras Model object
@@ -32,7 +32,7 @@ def define_deepFogGuardPlus_MLP(num_vars,
     iot_output = define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units)
 
     # nodewise droput definitions
-    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply  = MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout)
+    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda, e_dropout_multiply, f2_dropout_multiply, f1_dropout_multiply  = MLP_nodewise_dropout_definitions(failout_survival_setting, standard_dropout)
   
     # edge node
     edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, e_dropout_multiply)
@@ -54,10 +54,10 @@ def define_deepFogGuardPlus_MLP(num_vars,
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def MLP_nodewise_dropout_definitions(survivability_setting, standard_dropout = False):
-    edge_survivability = survivability_setting[0]
-    fog2_survivability = survivability_setting[1]
-    fog1_survivability = survivability_setting[2]
+def MLP_nodewise_dropout_definitions(failout_survival_setting, standard_dropout = False):
+    edge_survivability = failout_survival_setting[0]
+    fog2_survivability = failout_survival_setting[1]
+    fog1_survivability = failout_survival_setting[2]
 
     # variables for node-wise dropout
     edge_rand = K.variable(0)

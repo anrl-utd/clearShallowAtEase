@@ -52,7 +52,7 @@ if __name__ == "__main__":
         for survivability_setting in survivability_settings:
             # variable node-wise dropout
             deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_dropoutlike_dropout.h5'
-            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,survivability_setting, standard_dropout= True)
+            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting=survivability_setting, standard_dropout= True)
 
             if load_model:
                 deepFogGuardPlus_variable_nodewise_dropout.load_weights(deepFogGuardPlus_variable_nodewise_dropout_file)
@@ -91,8 +91,8 @@ if __name__ == "__main__":
         print(survivability_setting,"deepFogGuardPlus Node-wise Variable Dropout:",deepFogGuardPlus_variable_nodewise_dropout_acc)  
 
         deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)],ddof=1)
-        output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
-        print(str(survivability_setting), " variable nodewise_survival_rate std:",deepGuardPlus_std)
+        output_list.append(str(survivability_setting) + " failout_survival_rate std: " + str(deepGuardPlus_std) + '\n')
+        print(str(survivability_setting), " variable failout_survival_rate std:",deepGuardPlus_std)
     # write experiments output to file
     with open(output_name,'w') as file:
         file.writelines(output_list)
