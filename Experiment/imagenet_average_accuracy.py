@@ -47,7 +47,7 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         Vanilla = define_and_train(iteration, "Vanilla", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
-        deepFogGuard = define_and_train(iteration, "deepFogGuard", model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+        deepFogGuard = define_and_train(iteration,"deepFogGuard", model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
         ResiliNet = define_and_train(iteration, "ResiliNet", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
         
         for survivability_setting in survivability_settings:
