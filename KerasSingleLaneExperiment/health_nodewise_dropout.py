@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
     load_model = False
-    nodewise_survival_rates = [
+    failout_survival_rates = [
         # [.95,.95,.95],
        # [.9,.9,.9],
         [.7,.7,.7],
@@ -31,10 +31,10 @@ if __name__ == "__main__":
     no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
     
     # convert dropout rates into strings
-    nodewise_dropout_rate_05 =  str(nodewise_survival_rates[0])
-    # nodewise_dropout_rate_10 = str(nodewise_survival_rates[1])
-    # nodewise_dropout_rate_30 = str(nodewise_survival_rates[2])
-    # nodewise_dropout_rate_50 = str(nodewise_survival_rates[3])
+    nodewise_dropout_rate_05 =  str(failout_survival_rates[0])
+    # nodewise_dropout_rate_10 = str(failout_survival_rates[1])
+    # nodewise_dropout_rate_30 = str(failout_survival_rates[2])
+    # nodewise_dropout_rate_50 = str(failout_survival_rates[3])
     # dictionary to store all the results
     output = {
         "deepFogGuardPlus Node-wise Dropout": 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
         print("ITERATION ", iteration)
         output_list.append('deepFogGuardPlus Node-wise Dropout' + '\n')                  
         print("deepFogGuardPlus Node-wise Dropout")
-        for nodewise_survival_rate in nodewise_survival_rates:
+        for nodewise_survival_rate in failout_survival_rates:
             # node-wise dropout
             # deepFogGuardPlus_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_updated_nodewise_dropout.h5'
             # deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate)
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             del deepFogGuardPlus_adjusted_nodewise_dropout
 
     # calculate average accuracies for deepFogGuardPlus Node-wise Dropout
-    for nodewise_survival_rate in nodewise_survival_rates:
+    for nodewise_survival_rate in failout_survival_rates:
         print(nodewise_survival_rate)
         for survivability_setting in survivability_settings:
             # deepFogGuardPlus_nodewise_dropout_acc = average(output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])

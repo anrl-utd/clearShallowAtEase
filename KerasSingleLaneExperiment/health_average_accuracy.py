@@ -62,6 +62,7 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
     print(model_name)
     output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list,training_labels,test_data,test_labels)
 
+
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = True
