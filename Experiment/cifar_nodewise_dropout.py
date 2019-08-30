@@ -178,7 +178,7 @@ if __name__ == "__main__":
             #deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
             deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
             if standard_dropout == True:
-                    nodes = ["fog2_input_layer","fog1_input_layer","cloud_input_layer"]
+                    nodes = ["conv_pw_3","conv_pw_8"]
                     default_survival_rate = .90
                     for node in nodes:
                         # node failed
@@ -188,9 +188,7 @@ if __name__ == "__main__":
                         # make new weights for the connections
                         new_weights = layer_weights[0] * .90
     
-                        # make new weights for biases
-                        new_bias_weights = layer_weights[1] * .90
-                        layer.set_weights([new_weights,new_bias_weights])
+                        layer.set_weights([new_weights])
                         print(layer_name, "was multiplied")
             for survivability_setting in survivability_settings:
                 output_list.append(str(survivability_setting) + '\n')
