@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense,Input,Lambda, Activation
+from keras.layers import Dense,Input,Lambda, Activation, add
 from Experiment.LambdaLayers import add_node_layers
 from keras.models import Model
 
