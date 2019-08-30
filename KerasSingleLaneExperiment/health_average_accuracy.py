@@ -3,13 +3,13 @@ from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFog
 from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from KerasSingleLaneExperiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
-from KerasSingleLaneExperiment.main import average
+from KerasSingleLaneExperiment.utility import average
 from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string, write_n_upload
+from KerasSingleLaneExperiment.utility import get_model_weights
 import keras.backend as K
 import datetime
 import gc
 import os
-from keras.callbacks import ModelCheckpoint
 
 def make_output_dictionary(survivability_settings, num_iterations):
     no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
@@ -40,7 +40,7 @@ def make_output_dictionary(survivability_settings, num_iterations):
     }
     return output
 
-def define_and_train(iteration, model_name, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
+def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
     # ResiliNet
     if model_name == "ResiliNet":
         model = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
@@ -54,14 +54,7 @@ def define_and_train(iteration, model_name, training_data, training_labels, val_
         model = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
         model_file = "new_split_" + str(iteration) + '_vanilla.h5'
     
-    if load_model:
-        model.load_weights(model_file)
-    else:
-        print("Training " + model_name)
-        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        model.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [modelCheckPoint],validation_data=(val_data,val_labels))
-        # load weights from epoch with the highest val acc
-        model.load_weights(model_file)
+    get_model_weights(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,training_labels,test_data,test_labels):
@@ -96,9 +89,9 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
-        ResiliNet = define_and_train(iteration, "ResiliNet", training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
-        deepFogGuard = define_and_train(iteration, "deepFogGuard", training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
-        Vanilla = define_and_train(iteration, "Vanilla", training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
+        ResiliNet = define_and_train(iteration, "ResiliNet", load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
+        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
+        Vanilla = define_and_train(iteration, "Vanilla", load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
  
         # test models
         for survivability_setting in survivability_settings:

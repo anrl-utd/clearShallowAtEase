@@ -1,7 +1,7 @@
 
 from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
-from KerasSingleLaneExperiment.main import average
+from KerasSingleLaneExperiment.utility import average, get_model_weights
 from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string, write_n_upload
 import keras.backend as K
 import gc
@@ -78,17 +78,10 @@ def make_output_dictionary(survivability_settings, num_iterations):
     }
     return output, weight_schemes
 
-def define_and_train(iteration, model_name, weight_scheme, survivability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
+def define_and_train(iteration, model_name, load_model, weight_scheme, survivability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units, survivability_setting, hyperconnection_weights_scheme = weight_scheme)
     model_file = str(iteration) + "_" + str(survivability_setting) + "_" + str(weight_scheme) + 'health_hyperconnection_fixed_random_weight.h5'
-    if load_model:
-        model.load_weights(model_file)
-    else:
-        print(model_name)
-        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        model.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [modelCheckPoint],validation_data=(val_data,val_labels))
-        # load weights from epoch with the highest val acc
-        model.load_weights(model_file)
+    get_model_weights(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 # runs all 3 failure configurations for all 3 models
@@ -119,7 +112,7 @@ if __name__ == "__main__":
             # loop through all the weight schemes
             for weight_scheme in weight_schemes:
                 # deepFogGuard hyperconnection weight 
-                deepFogGuard_hyperconnection_weight = define_and_train(iteration, model_name, weight_scheme, survivability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
+                deepFogGuard_hyperconnection_weight = define_and_train(iteration, model_name, load_model, weight_scheme, survivability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
                 output[model_name][weight_scheme][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard_hyperconnection_weight,survivability_setting,output_list,training_labels,test_data,test_labels)
                 # clear session so that model will recycled back into memory
                 K.clear_session()

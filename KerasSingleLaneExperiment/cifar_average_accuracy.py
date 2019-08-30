@@ -11,7 +11,7 @@ from KerasSingleLaneExperiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from KerasSingleLaneExperiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
 import numpy as np
-from KerasSingleLaneExperiment.main import average
+from KerasSingleLaneExperiment.utility import average
 import datetime
 import gc
 from sklearn.model_selection import train_test_split

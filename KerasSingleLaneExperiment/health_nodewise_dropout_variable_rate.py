@@ -1,6 +1,6 @@
 from KerasSingleLaneExperiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
-from KerasSingleLaneExperiment.main import average
+from KerasSingleLaneExperiment.utility import average
 from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string
 import keras.backend as K
 import gc
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     
     no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
     
-    # variable dropout should not have no failure
+    # failout based on survivaility  should not have the `no failure`, as with `no failure` there would be no 
     survivability_settings.remove([1,1,1])
     # dictionary to store all the results
     output = {

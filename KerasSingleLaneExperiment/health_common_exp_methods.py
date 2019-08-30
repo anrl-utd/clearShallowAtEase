@@ -1,5 +1,5 @@
 import os
-from KerasSingleLaneExperiment.loadData import load_data
+from KerasSingleLaneExperiment.health_data_handler import load_data
 from sklearn.model_selection import train_test_split
 
 def init_data(use_GCP):

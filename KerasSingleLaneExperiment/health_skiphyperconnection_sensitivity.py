@@ -2,7 +2,7 @@
 from KerasSingleLaneExperiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from KerasSingleLaneExperiment.health_common_exp_methods import init_data, init_common_experiment_params, convert_to_string
 from KerasSingleLaneExperiment.FailureIteration import calculateExpectedAccuracy
-from KerasSingleLaneExperiment.main import average
+from KerasSingleLaneExperiment.utility import average
 import keras.backend as K
 import datetime
 import os
