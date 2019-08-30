@@ -13,8 +13,8 @@ Run `sh gcloud_train.sh` to start training on gcp servers, can specify main pyth
 
 Run `sh local_train.sh` to run code locally, can also specify main python driver to run based on variables on experiment variable in shell script
 
-Experiment variable in both shell scripts looks like this: `experiment="cifar_nodewise_dropout_variable_rate"`
-
+Experiment variable in both shell scripts looks like this: `experiment="pythonfile"`
+**Note**: the specified python driver file should not include the `.py` extension.
  ### Google Cloud AI Platform Setup Documentation
  [https://cloud.google.com/ml-engine/docs/tensorflow/getting-started-keras](https://cloud.google.com/ml-engine/docs/tensorflow/getting-started-keras)
 
