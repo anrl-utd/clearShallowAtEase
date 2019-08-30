@@ -109,19 +109,19 @@ if __name__ == "__main__":
         print("ITERATION ", iteration)
         output_list.append('deepFogGuardPlus Node-wise Dropout' + '\n')                  
         print("deepFogGuardPlus Node-wise Dropout")
-        for nodewise_survival_rate in failout_survival_rates:
+        for failout_survival_setting in failout_survival_rates:
             # node-wise dropout
-            deepFogGuardPlus_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_updated_nodewise_dropout.h5'
-            deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate)
+            deepFogGuardPlus_nodewise_dropout_file = str(iteration) + " " + str(failout_survival_setting) + 'health_updated_nodewise_dropout.h5'
+            deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting)
             # adjusted node_wise dropout
-            deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(nodewise_survival_rate) + 'health_dropoutlike_failout_nodewise_dropout_05.h5'
-            deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,nodewise_survival_rate,standard_dropout=standard_dropout)
+            deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(failout_survival_setting) + 'health_dropoutlike_failout_nodewise_dropout_05.h5'
+            deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting,standard_dropout=standard_dropout)
             if load_model:
                 deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
                 deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
             else:
                 print("Training deepFogGuardPlus Node-wise Dropout")
-                print(str(nodewise_survival_rate))
+                print(str(failout_survival_setting))
                 # node-wise dropout
                 deepFogGuardPlus_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
                 deepFogGuardPlus_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
@@ -151,9 +151,9 @@ if __name__ == "__main__":
                 for survivability_setting in survivability_settings:
                     output_list.append(str(survivability_setting)+ '\n')
                     print(survivability_setting)
-                    output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
+                    output["deepFogGuardPlus Node-wise Dropout"][str(failout_survival_setting)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
                     K.set_learning_phase(0)
-                    output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_adjusted_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
+                    output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(failout_survival_setting)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuardPlus_adjusted_nodewise_dropout,survivability_setting,output_list,training_labels,test_data,test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
@@ -161,24 +161,24 @@ if __name__ == "__main__":
             del deepFogGuardPlus_adjusted_nodewise_dropout
 
     # calculate average accuracies for deepFogGuardPlus Node-wise Dropout
-    for nodewise_survival_rate in failout_survival_rates:
-        print(nodewise_survival_rate)
+    for failout_survival_setting in failout_survival_rates:
+        print(failout_survival_setting)
         for survivability_setting in survivability_settings:
-            deepFogGuardPlus_nodewise_dropout_acc = average(output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
-            output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Node-wise Dropout: " + str(deepFogGuardPlus_nodewise_dropout_acc) + '\n')
-            print(nodewise_survival_rate,survivability_setting,"deepFogGuardPlus Node-wise Dropout:",deepFogGuardPlus_nodewise_dropout_acc)  
+            deepFogGuardPlus_nodewise_dropout_acc = average(output["deepFogGuardPlus Node-wise Dropout"][str(failout_survival_setting)][str(survivability_setting)])
+            output_list.append(str(failout_survival_setting) + str(survivability_setting) + " deepFogGuardPlus Node-wise Dropout: " + str(deepFogGuardPlus_nodewise_dropout_acc) + '\n')
+            print(failout_survival_setting,survivability_setting,"deepFogGuardPlus Node-wise Dropout:",deepFogGuardPlus_nodewise_dropout_acc)  
 
-            deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)],ddof=1)
-            output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
-            print(str(survivability_setting), "nodewise_survival_rate std:",deepGuardPlus_std)
+            deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Dropout"][str(failout_survival_setting)][str(survivability_setting)],ddof=1)
+            output_list.append(str(survivability_setting) + " failout_survival_setting std: " + str(deepGuardPlus_std) + '\n')
+            print(str(survivability_setting), "failout_survival_setting std:",deepGuardPlus_std)
 
-            deepFogGuardPlus_adjusted_nodewise_dropout_acc = average(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)])
-            output_list.append(str(nodewise_survival_rate) + str(survivability_setting) + " deepFogGuardPlus Adjusted Node-wise Dropout: " + str(deepFogGuardPlus_adjusted_nodewise_dropout_acc) + '\n')
-            print(nodewise_survival_rate,survivability_setting,"deepFogGuardPlus Adjusted Node-wise Dropout:",deepFogGuardPlus_adjusted_nodewise_dropout_acc) 
+            deepFogGuardPlus_adjusted_nodewise_dropout_acc = average(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(failout_survival_setting)][str(survivability_setting)])
+            output_list.append(str(failout_survival_setting) + str(survivability_setting) + " deepFogGuardPlus Adjusted Node-wise Dropout: " + str(deepFogGuardPlus_adjusted_nodewise_dropout_acc) + '\n')
+            print(failout_survival_setting,survivability_setting,"deepFogGuardPlus Adjusted Node-wise Dropout:",deepFogGuardPlus_adjusted_nodewise_dropout_acc) 
 
-            adjusted_deepGuardPlus_std = np.std(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(nodewise_survival_rate)][str(survivability_setting)], ddof=1)
-            output_list.append(str(survivability_setting) + " adjusted nodewise_survival_rate std: " + str(adjusted_deepGuardPlus_std) + '\n')
-            print(str(survivability_setting), "adjusted nodewise_survival_rate std:",adjusted_deepGuardPlus_std) 
+            adjusted_deepGuardPlus_std = np.std(output["deepFogGuardPlus Adjusted Node-wise Dropout"][str(failout_survival_setting)][str(survivability_setting)], ddof=1)
+            output_list.append(str(survivability_setting) + " adjusted failout_survival_setting std: " + str(adjusted_deepGuardPlus_std) + '\n')
+            print(str(survivability_setting), "adjusted failout_survival_setting std:",adjusted_deepGuardPlus_std) 
     # write experiments output to file
     with open(output_name,'w') as file:
         file.writelines(output_list)

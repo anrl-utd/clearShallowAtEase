@@ -79,7 +79,7 @@ if __name__ == "__main__":
         for survivability_setting in survivability_settings:
             # # node-wise dropout
             deepFogGuardPlus_variable_nodewise_dropout_file = "cifar_nodewise_variable_dropout_" + str(iteration) + ".h5"
-            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,survivability_setting=survivability_setting)
+            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=survivability_setting)
             deepFogGuardPlus_variable_nodewise_dropout_Checkpoint = ModelCheckpoint(deepFogGuardPlus_variable_nodewise_dropout_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
             deepFogGuardPlus_variable_nodewise_dropout.fit_generator(train_datagen.flow(x_train,y_train,batch_size = batch_size),
             epochs = epochs,
@@ -102,12 +102,12 @@ if __name__ == "__main__":
                 output_list.append(str(survivability_setting) + '\n')
                 
                 deepGuardPlus_acc = average(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)])
-                output_list.append(str(survivability_setting) + " nodewise_survival_rate Accuracy: " + str(deepGuardPlus_acc) + '\n')
-                print(str(survivability_setting), " variable nodewise_survival_rate Accuracy:",deepGuardPlus_acc)
+                output_list.append(str(survivability_setting) + " failout_survival_rate Accuracy: " + str(deepGuardPlus_acc) + '\n')
+                print(str(survivability_setting), " variable failout_survival_rate Accuracy:",deepGuardPlus_acc)
 
                 deepGuardPlus_std = np.std(output["deepFogGuardPlus Node-wise Variable Dropout"][str(survivability_setting)],ddof=1)
-                output_list.append(str(survivability_setting) + " nodewise_survival_rate std: " + str(deepGuardPlus_std) + '\n')
-                print(str(survivability_setting), " variable nodewise_survival_rate std:",deepGuardPlus_std)
+                output_list.append(str(survivability_setting) + " failout_survival_rate std: " + str(deepGuardPlus_std) + '\n')
+                print(str(survivability_setting), " variable failout_survival_rate std:",deepGuardPlus_std)
         file.writelines(output_list)
         file.flush()
         os.fsync(file)

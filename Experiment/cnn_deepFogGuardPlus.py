@@ -21,7 +21,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
                                 include_top=True,
                                 pooling=None,
                                 classes=1000, 
-                                survivability_setting = [1.0,1.0],
+                                failout_survival_setting = [1.0,1.0],
                                 standard_dropout = False,
                                 **kwargs):
     """Instantiates the MobileNet architecture.
@@ -77,7 +77,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     img_input = layers.Input(shape=input_shape)  
 
     # nodewise dropout definitions
-    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = cnn_nodewise_dropout_definitions(survivability_setting, standard_dropout)
+    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = cnn_nodewise_dropout_definitions(failout_survival_setting, standard_dropout)
 
      # iot node
     iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input)
@@ -99,9 +99,9 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def cnn_nodewise_dropout_definitions(survivability_setting, standard_dropout = False):
-    edge_survivability = survivability_setting[0]
-    fog_survivability = survivability_setting[1]
+def cnn_nodewise_dropout_definitions(failout_survival_setting, standard_dropout = False):
+    edge_survivability = failout_survival_setting[0]
+    fog_survivability = failout_survival_setting[1]
     
     # variables for node-wise dropout
     edge_rand = K.variable(0)

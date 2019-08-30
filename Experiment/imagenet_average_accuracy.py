@@ -15,7 +15,7 @@ import gc
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
     # ResiliNet
     if model_name == "ResiliNet":
-        model = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,survivability_setting=default_failout_survival_rate)
+        model = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=default_failout_survival_rate)
         model_file = "deepFogGuardPlus_cifar_average_accuracy" + str(iteration) + ".h5"
     # deepFogGuard
     if model_name == "deepFogGuard":

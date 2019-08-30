@@ -54,3 +54,73 @@ def make_output_dictionary_average_accuracy(survivability_settings, num_iteratio
         },
     }
     return output
+
+def make_output_dictionary_hyperconnection_weight(survivability_settings, num_iterations):
+    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
+
+    # define weight schemes for hyperconnections
+    one_weight_scheme = 1 # weighted by 1
+    normalized_survivability_weight_scheme = 2 # normalized survivability
+    survivability_weight_scheme = 3 # survivability
+    random_weight_scheme = 4 # randomly weighted between 0 and 1
+    random_weight_scheme2 = 5 # randomly weighted between 0 and 10
+    fifty_weight_scheme = 6  # randomly weighted by .5
+
+    weight_schemes = [
+        one_weight_scheme,
+        normalized_survivability_weight_scheme,
+        survivability_weight_scheme,
+        random_weight_scheme,
+        random_weight_scheme2,
+        fifty_weight_scheme,
+    ]
+
+    # dictionary to store all the results
+    output = {
+        "DeepFogGuard Hyperconnection Weight": 
+        {
+            one_weight_scheme:
+            {
+                no_failure: [0] * num_iterations,
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+            },
+            normalized_survivability_weight_scheme:
+            {
+                no_failure: [0] * num_iterations,
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+            },
+            survivability_weight_scheme:
+            {
+                no_failure: [0] * num_iterations,
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+            },
+            random_weight_scheme:
+            {
+                no_failure: [0] * num_iterations,
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+            },
+            random_weight_scheme2:
+            {
+                no_failure: [0] * num_iterations,
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+            },
+            fifty_weight_scheme:
+            {
+                no_failure: [0] * num_iterations,
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+            }
+        },
+    }
+    return output, weight_schemes
