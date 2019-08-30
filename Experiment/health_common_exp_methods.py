@@ -28,14 +28,3 @@ def init_common_experiment_params(training_data):
     batch_size = 1028
     num_iterations = 10
     return num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size
-
-def write_n_upload(output_name, output_list, use_GCP):
-    # write experiments output to file
-    with open(output_name,'w') as file:
-        file.writelines(output_list)
-        file.flush()
-        os.fsync(file)
-    # upload file to GCP
-    if use_GCP:
-        os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
-        os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')

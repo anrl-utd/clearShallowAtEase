@@ -8,6 +8,7 @@ import math
 import os 
 from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
 from Experiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.common_exp_methods import make_results_folder
 import numpy as np
 from Experiment.utility import average
 import datetime
@@ -71,11 +72,7 @@ if __name__ == "__main__":
   
     now = datetime.datetime.now()
     date = str(now.month) + '-' + str(now.day) + '-' + str(now.year)
-    # make folder for outputs 
-    if not os.path.exists('results/'):
-        os.mkdir('results/')
-    if not os.path.exists('results/' + date):
-        os.mkdir('results/' + date)
+    make_results_folder()
     file_name = 'results/' + date + '/cifar_nodewise_dropout_results.txt'
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)

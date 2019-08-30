@@ -1,3 +1,22 @@
+import os
+
+def make_results_folder():
+    # makes folder for results and models (if they don't exist)
+    if not os.path.exists('results/' ):
+        os.mkdir('results/' )
+    if not os.path.exists('models'):      
+        os.mkdir('models/')
+
+def write_n_upload(output_name, output_list, use_GCP):
+    # write experiments output to file
+    with open(output_name,'w') as file:
+        file.writelines(output_list)
+        file.flush()
+        os.fsync(file)
+    # upload file to GCP
+    if use_GCP:
+        os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
+        os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
 
 def convert_to_string(survivability_settings):
     # convert survivability settings into strings so it can be used in the dictionary as keys

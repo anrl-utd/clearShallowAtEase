@@ -43,14 +43,3 @@ def init_common_experiment_params():
     input_shape = (32,32,3)
     classes = 10
     return num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape
-
-def write_n_upload(output_name, output_list, use_GCP):
-    # write experiments output to file
-    with open(output_name,'w') as file:
-        file.writelines(output_list)
-        file.flush()
-        os.fsync(file)
-    # upload file to GCP
-    if use_GCP:
-        os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
-        os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
