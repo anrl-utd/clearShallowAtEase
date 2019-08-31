@@ -4,7 +4,7 @@ from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.utility import average, get_model_weights_MLP_camera
-from Experiment.multiview_common_exp_methods import init_data, init_common_experiment_params
+from Experiment.camera_common_exp_methods import init_data, init_common_experiment_params
 from Experiment.common_exp_methods import write_n_upload
 from Experiment.utility import get_model_weights_MLP_health
 from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy

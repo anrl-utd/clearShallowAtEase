@@ -42,7 +42,7 @@ if __name__ == "__main__":
     load_model = False
     
     make_results_folder()
-    file_name = 'results' + '/cifar_average_accuracy_results.txt'
+    output_name = 'results' + '/cifar_average_accuracy_results.txt'
     output_list = []
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
