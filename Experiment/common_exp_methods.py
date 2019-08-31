@@ -124,3 +124,59 @@ def make_output_dictionary_hyperconnection_weight(survivability_settings, num_it
         },
     }
     return output, weight_schemes
+
+def make_output_dictionary_failout_rate(failout_survival_rates, survivability_settings, num_iterations):
+    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
+    
+    # convert dropout rates into strings
+    failout_rate_05 =  str(failout_survival_rates[0])
+    failout_rate_10 = str(failout_survival_rates[1])
+    failout_rate_30 = str(failout_survival_rates[2])
+    failout_rate_50 = str(failout_survival_rates[3])
+    # dictionary to store all the results
+    output = {
+        "ResiliNet": 
+        {
+            failout_rate_05:
+            {
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+                no_failure:[0] * num_iterations,
+            },
+            failout_rate_10 :
+            {
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+                no_failure:[0] * num_iterations,
+            },
+            failout_rate_30:
+            {
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+                no_failure:[0] * num_iterations,
+            },
+            failout_rate_50:
+            {
+                hazardous:[0] * num_iterations,
+                poor:[0] * num_iterations,
+                normal:[0] * num_iterations,
+                no_failure:[0] * num_iterations,
+            },
+            "Variable Failout 1x": 
+            {
+                hazardous:[0] * num_iterations,
+                poor :[0] * num_iterations,
+                normal:[0] * num_iterations,
+            },
+            "Variable Failout 10x": 
+            {
+                hazardous:[0] * num_iterations,
+                poor :[0] * num_iterations,
+                normal:[0] * num_iterations,
+            }
+        }
+    }
+    return output

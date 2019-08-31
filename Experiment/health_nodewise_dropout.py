@@ -3,7 +3,7 @@ from Experiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.utility import average
 from Experiment.health_common_exp_methods import init_data, init_common_experiment_params
-from Experiment.common_exp_methods import convert_to_string, make_results_folder
+from Experiment.common_exp_methods import convert_to_string, make_results_folder, make_output_dictionary_failout_rate
 import keras.backend as K
 import gc
 import os
@@ -11,97 +11,7 @@ from keras.callbacks import ModelCheckpoint
 import numpy as np
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    use_GCP = True
-    training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data(use_GCP)
-
-    num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
-    load_model = False
-    failout_survival_rates = [
-        [.95,.95,.95],
-        [.9,.9,.9],
-        [.7,.7,.7],
-        [.5,.5,.5],
-    ]
-
-    # file name with the experiments accuracy output
-    output_name = "results/health_nodewise_dropoutlike_failout_05dropout.txt"
-    verbose = 2
-    # keep track of output so that output is in order
-    output_list = []
-
-    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
     
-    # convert dropout rates into strings
-    nodewise_dropout_rate_05 =  str(failout_survival_rates[0])
-    nodewise_dropout_rate_10 = str(failout_survival_rates[1])
-    nodewise_dropout_rate_30 = str(failout_survival_rates[2])
-    nodewise_dropout_rate_50 = str(failout_survival_rates[3])
-    # dictionary to store all the results
-    output = {
-        "deepFogGuardPlus Node-wise Dropout": 
-        {
-            nodewise_dropout_rate_05:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_10 :
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_30:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_50:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-        },
-        "deepFogGuardPlus Adjusted Node-wise Dropout": 
-        {
-            nodewise_dropout_rate_05:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_10 :
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_30:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            nodewise_dropout_rate_50:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-        }
-    }
-    standard_dropout = True
 
     make_results_folder()
     for iteration in range(1,num_iterations+1):   
@@ -131,7 +41,7 @@ if __name__ == "__main__":
                 deepFogGuardPlus_adjusted_nodewise_dropout_CheckPoint = ModelCheckpoint(deepFogGuardPlus_adjusted_nodewise_dropout_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
                 deepFogGuardPlus_adjusted_nodewise_dropout.fit(training_data,training_labels,epochs=num_train_epochs, batch_size=batch_size,verbose=verbose,shuffle = True, callbacks = [deepFogGuardPlus_adjusted_nodewise_dropout_CheckPoint],validation_data=(val_data,val_labels))
                 deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
-                if standard_dropout == True:
+                if dropout_like_failout == True:
                     nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
                     default_survival_rate = .95
                     for node in nodes:

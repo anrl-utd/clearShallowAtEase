@@ -137,7 +137,7 @@ if __name__ == "__main__":
             },
         }
     }
-    standard_dropout = True
+    dropout_like_failout = True
     now = datetime.datetime.now()
     date = str(now.month) + '-' + str(now.day) + '-' + str(now.year)
     make_results_folder()
@@ -174,7 +174,7 @@ if __name__ == "__main__":
             #load weights with the highest validaton acc
             #deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
             deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
-            if standard_dropout == True:
+            if dropout_like_failout == True:
                     nodes = ["conv_pw_3","conv_pw_8"]
                     default_survival_rate = .90
                     for node in nodes:
