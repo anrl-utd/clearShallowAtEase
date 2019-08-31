@@ -6,8 +6,8 @@ def init_data(use_GCP):
         os.system('gsutil -m cp -r gs://anrl-storage/data/multiview-dataset ./')
     if not os.path.exists('models/'):
         os.mkdir('models/')
-    train_dir = "home/ubuntu/imagenet/train"
-    test_dir = "home/ubuntu/imagenet/val"
+    train_dir = "/home/ubuntu/imagenet/train"
+    test_dir = "/home/ubuntu/imagenet/val"
     input_shape = (256,256)
     batch_size = 64
     datagen = ImageDataGenerator(

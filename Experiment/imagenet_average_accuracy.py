@@ -9,7 +9,7 @@ import keras.backend as K
 import datetime
 import gc
 import os
-
+import numpy as np
 
 def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs):
     model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate)
@@ -38,9 +38,7 @@ if __name__ == "__main__":
     output = make_output_dictionary_average_accuracy(survivability_settings, num_iterations)
 
     val_generator = None
-    # make folder for outputs 
-    if not os.path.exists('results/'):
-        os.mkdir('results/')
+
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
@@ -102,13 +100,24 @@ if __name__ == "__main__":
         deepFogGuard_acc = average(output["deepFogGuard"][str(survivability_setting)])
         Vanilla_acc = average(output["Vanilla"][str(survivability_setting)])
 
+        ResiliNet_std = np.std(output["ResiliNet"][str(survivability_setting)],ddof=1)
+        deepFogGuard_std = np.std(output["deepFogGuard"][str(survivability_setting)],ddof = 1)
+        Vanilla_std = np.std(output["Vanilla"][str(survivability_setting)],ddof = 1)
+
         output_list.append(str(survivability_setting) + " ResiliNet Accuracy: " + str(ResiliNet_acc) + '\n')
         output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
         output_list.append(str(survivability_setting) + " Vanilla Accuracy: " + str(Vanilla_acc) + '\n')
+
+        output_list.append(str(survivability_setting) + " ResiliNet STD: " + str(ResiliNet_std) + '\n')
+        output_list.append(str(survivability_setting) + " deepFogGuard STD: " + str(deepFogGuard_std) + '\n')
+        output_list.append(str(survivability_setting) + " Vanilla STD: " + str(Vanilla_std) + '\n')
 
         print(str(survivability_setting),"ResiliNet Accuracy:",ResiliNet_acc)
         print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
         print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
 
+        print(str(survivability_setting),"ResiliNet std:",ResiliNet_std)
+        print(str(survivability_setting),"deepFogGuard std:",deepFogGuard_std)
+        print(str(survivability_setting),"Vanilla std:",Vanilla_std)
+        
     write_n_upload(output_name, output_list, use_GCP)
-    print(output)
