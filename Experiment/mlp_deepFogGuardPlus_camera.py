@@ -36,32 +36,32 @@ def define_deepFogGuardPlus_MLP(input_shape,
     img_input_6 = Input(shape = input_shape) 
     
     # nodewise droput definitions
-    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = MLP_nodewise_dropout_definitions(failout_survival_setting)
+    edge_failure_lambda, fog_failure_lambda = MLP_nodewise_dropout_definitions(failout_survival_setting)
 
     # edge nodes
-    edge1_output = define_MLP_deepFogGuard_architecture_edge(img_input_1, hidden_units, "edge1_output_layer", e_dropout_multiply[1])
+    edge1_output = define_MLP_deepFogGuard_architecture_edge(img_input_1, hidden_units, "edge1_output_layer")
     edge1_output = edge_failure_lambda[1](edge1_output)
-    edge2_output = define_MLP_deepFogGuard_architecture_edge(img_input_2, hidden_units, "edge2_output_layer", e_dropout_multiply[2])
+    edge2_output = define_MLP_deepFogGuard_architecture_edge(img_input_2, hidden_units, "edge2_output_layer")
     edge2_output = edge_failure_lambda[2](edge2_output)
-    edge3_output = define_MLP_deepFogGuard_architecture_edge(img_input_3, hidden_units, "edge3_output_layer", e_dropout_multiply[3])
+    edge3_output = define_MLP_deepFogGuard_architecture_edge(img_input_3, hidden_units, "edge3_output_layer")
     edge3_output = edge_failure_lambda[3](edge3_output)
-    edge4_output = define_MLP_deepFogGuard_architecture_edge(img_input_4, hidden_units, "edge4_output_layer", e_dropout_multiply[4])
+    edge4_output = define_MLP_deepFogGuard_architecture_edge(img_input_4, hidden_units, "edge4_output_layer")
     edge4_output = edge_failure_lambda[4](edge4_output)
 
     # fog node 4
-    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_dropout_layer_f4 = f_dropout_multiply[4])
+    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units)
     fog4_output = fog_failure_lambda[4](fog4_output)
 
     # fog node 3
-    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_dropout_layer_f3 = f_dropout_multiply[3])
+    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units)
     fog3_output = fog_failure_lambda[3](fog3_output)
 
     # fog node 2
-    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_dropout_layer_f2 = f_dropout_multiply[2])
+    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units)
     fog2_output = fog_failure_lambda[2](fog2_output)
 
     # fog node 1
-    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, multiply_dropout_layer_f1 = f_dropout_multiply[1])
+    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units)
     fog1_output = fog_failure_lambda[1](fog1_output)
 
     # cloud node

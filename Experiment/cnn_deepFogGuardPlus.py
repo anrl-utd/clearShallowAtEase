@@ -76,18 +76,18 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     img_input = layers.Input(shape=input_shape)  
 
     # nodewise dropout definitions
-    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = cnn_nodewise_dropout_definitions(failout_survival_setting)
+    edge_failure_lambda, fog_failure_lambda = cnn_nodewise_dropout_definitions(failout_survival_setting)
 
      # iot node
     iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input)
     
     # edge node
-    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, e_dropout_multiply = e_dropout_multiply)
+    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier)
     edge_output = edge_failure_lambda(edge_output)
     skip_edgecloud = edge_failure_lambda(skip_edgecloud)
     
     # fog node
-    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, f_dropout_multiply = f_dropout_multiply)
+    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier)
     fog_output = fog_failure_lambda(fog_output)
 
     # cloud node
@@ -116,4 +116,4 @@ def cnn_nodewise_dropout_definitions(failout_survival_setting):
     # define lambda for failure, only fail during training
     edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'edge_failure_lambda')
     fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survivability_keras), x * 0, x),name = 'fog_failure_lambda')
-    return edge_failure_lambda, fog_failure_lambda, None, None
+    return edge_failure_lambda, fog_failure_lambda
