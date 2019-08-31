@@ -10,12 +10,21 @@ from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.common_exp_methods import make_results_folder, make_output_dictionary_hyperconnection_weight, write_n_upload
 from Experiment.cifar_common_exp_methods import init_data, init_common_experiment_params
+from Experiment.utility import get_model_weights_CNN
 import numpy as np
 from Experiment.utility import average
 import datetime
 import gc
 from sklearn.model_selection import train_test_split
 
+
+def define_and_train(iteration, model_name, load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
+    model_file = "cifar_hyperconnection_weight_results_" + str(survivability_setting) + str(weight_scheme) + str(iteration) + ".h5"
+    model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,survivability_setting=survivability_setting, hyperconnection_weights_scheme = weight_scheme)
+    
+    get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+    return model
+           
 
 # deepFogGuard hyperconnection weight experiment      
 if __name__ == "__main__":
@@ -31,7 +40,6 @@ if __name__ == "__main__":
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
     
-    
     make_results_folder()
     output_name = 'results/cifar_hyperconnection_weight_results.txt'
     output_list = []
@@ -39,21 +47,12 @@ if __name__ == "__main__":
         print("iteration:",iteration)
         for survivability_setting in survivability_settings:
             for weight_scheme in weight_schemes:
-                model_name = "cifar_hyperconnection_weight_results_" + str(survivability_setting) + str(weight_scheme) + str(iteration) + ".h5"
-                model = define_deepFogGuard_CNN(weights = weights,classes=classes,input_shape = input_shape, alpha = alpha,hyperconnection_weights=survivability_setting, hyperconnection_weights_scheme = weight_scheme)
-                modelCheckPoint = ModelCheckpoint(model_name, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-                model.fit_generator(train_datagen.flow(training_data,training_labels,batch_size = batch_size),
-                epochs = epochs,
-                validation_data = (val_data,val_labels), 
-                steps_per_epoch = train_steps_per_epoch, 
-                verbose = progress_verbose, 
-                validation_steps = val_steps_per_epoch,
-                callbacks = [modelCheckPoint])
-                #load weights with the highest validaton acc
-                model.load_weights(model_name)
+                model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+                
                 output_list.append(str(survivability_setting) + str(weight_scheme) + '\n')
                 print(survivability_setting,weight_scheme)
                 output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list, training_labels, test_data, test_labels)
+                
                 # clear session so that model will recycled back into memory
                 K.clear_session()
                 gc.collect()
