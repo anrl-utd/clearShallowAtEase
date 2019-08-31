@@ -5,7 +5,7 @@ from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.utility import average
 from Experiment.health_common_exp_methods import init_data, init_common_experiment_params
-from Experiment.utility import get_model_weights_MLP
+from Experiment.utility import get_model_weights_MLP_health
 from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import keras.backend as K
 import datetime
@@ -26,7 +26,7 @@ def define_and_train(iteration, model_name, load_model, training_data, training_
         model = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
         model_file = "new_split_" + str(iteration) + '_vanilla.h5'
     
-    get_model_weights_MLP(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,training_labels,test_data,test_labels):

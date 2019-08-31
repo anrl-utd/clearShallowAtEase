@@ -2,7 +2,7 @@
 from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.health_common_exp_methods import init_data, init_common_experiment_params
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.utility import average, get_model_weights_MLP
+from Experiment.utility import average, get_model_weights_MLP_health
 from Experiment.common_exp_methods import convert_to_string, write_n_upload, make_results_folder
 import keras.backend as K
 import os
@@ -73,7 +73,7 @@ def make_output_dictionary(survivability_settings, num_iterations):
 def define_and_train(iteration, model_name, load_model, default_survivability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units, default_survivability_setting,skip_hyperconnection_configuration)
     model_file = str(iteration) + " " + str(skip_hyperconnection_configuration) +  'health_skiphyperconnection_sensitivity_deepFogGuard.h5'
-    get_model_weights_MLP(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 

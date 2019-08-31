@@ -47,7 +47,7 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
             print("numSurvived:",numSurvived," weight:", weight, " acc:",accuracy)
             output_list.append("numSurvived: " + str(numSurvived) + " weight: " + str(weight) + " acc: " + str(accuracy) + '\n')
     return failure_count
-                
+
 def calcAverageAccuracy(accuracyList, weightList):
     """calculates weighted accuracy based on failure probabilities 
     ### Arguments
@@ -166,3 +166,4 @@ def calculateExpectedAccuracy(model,surv,output_list,training_labels,test_data,t
     print('Number of Failures: ',str(failure_count))
     print("Average Accuracy:", avg_acc)
     return avg_acc
+
