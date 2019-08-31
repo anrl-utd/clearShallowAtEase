@@ -11,11 +11,11 @@ def init_data():
     training_data = training_data / 255
     test_data = test_data / 255
     # Concatenate train and test images
-    x = np.concatenate((training_data,test_data))
-    y = np.concatenate((training_labels,test_labels))
+    data = np.concatenate((training_data,test_data))
+    labels = np.concatenate((training_labels,test_labels))
 
     # split data in to train, validation, and holdout set (80/10/10)
-    training_data, test_data, training_labels, test_labels = train_test_split(x,y,random_state = 42, test_size = .20, shuffle = True)
+    training_data, test_data, training_labels, test_labels = train_test_split(data,labels,random_state = 42, test_size = .20, shuffle = True)
     val_data, test_data, val_labels, test_labels = train_test_split(test_data,test_labels,random_state = 42, test_size = .50, shuffle = True)
     return  training_data, test_data, training_labels, test_labels, val_data, val_labels
 

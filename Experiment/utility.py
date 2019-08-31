@@ -118,6 +118,7 @@ def get_model_weights_CNN(model, model_name, load_model, model_file, training_da
             callbacks = [modelCheckPoint])
         # load weights with the highest val accuracy
         model.load_weights(model_file)
+<<<<<<< HEAD
 
 
 def get_model_weights_cnn_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, verbose):
@@ -137,3 +138,6 @@ def get_model_weights_cnn_imagenet(model, model_name, load_model, model_file, tr
             )
         # load weights from epoch with the highest val acc
         model.load_weights(model_file)
+=======
+        
+>>>>>>> ae17332290b1d5b6f270a6e7996909ff333e9136
