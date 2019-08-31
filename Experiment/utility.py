@@ -119,20 +119,21 @@ def get_model_weights_CNN(model, model_name, load_model, model_file, training_da
         # load weights with the highest val accuracy
         model.load_weights(model_file)
 
-def get_model_weights_cnn_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, verbose):
+def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs):
     if load_model:
         model.load_weights(model_file)
     else:
         print(model_name)
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        num_train_examples = 1300000
+        verbose = 2
         model.fit_generator(
             generator = train_generator,
             steps_per_epoch = num_train_examples / train_generator.batch_size,
-            epochs = 75,
+            epochs = epochs,
             class_weight = None,
             callbacks = [modelCheckPoint],
             verbose = verbose
             )
         # load weights from epoch with the highest val acc
         model.load_weights(model_file)
+    
