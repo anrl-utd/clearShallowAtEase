@@ -119,7 +119,7 @@ def get_model_weights_CNN(model, model_name, load_model, model_file, training_da
         # load weights with the highest val accuracy
         model.load_weights(model_file)
 
-def get_model_weights_cnn_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, verbose):
+def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, verbose):
     if load_model:
         model.load_weights(model_file)
     else:

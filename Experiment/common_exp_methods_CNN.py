@@ -1,45 +1,19 @@
-import os
-from keras.preprocessing.image import ImageDataGenerator
-from keras.datasets import cifar10
-import numpy as np
-from sklearn.model_selection import train_test_split
+from Experiment.cnn_Vanilla import define_vanilla_model_CNN
+from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
+from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
 
-def init_data():
-    # get cifar10 data 
-    (training_data, training_labels), (test_data, test_labels) = cifar10.load_data()
-    # normalize input
-    training_data = training_data / 255
-    test_data = test_data / 255
-    # Concatenate train and test images
-    data = np.concatenate((training_data,test_data))
-    labels = np.concatenate((training_labels,test_labels))
-
-    # split data in to train, validation, and holdout set (80/10/10)
-    training_data, test_data, training_labels, test_labels = train_test_split(data,labels,random_state = 42, test_size = .20, shuffle = True)
-    val_data, test_data, val_labels, test_labels = train_test_split(test_data,test_labels,random_state = 42, test_size = .50, shuffle = True)
-    return  training_data, test_data, training_labels, test_labels, val_data, val_labels
-
-def init_common_experiment_params():
-    train_datagen = ImageDataGenerator(
-        rotation_range=30,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        horizontal_flip=True,
-    )
-    survivability_settings = [
-        [1,1],
-        [.96,.98],
-        [.90,.95],
-        [.80,.85],
-    ]
-
-    num_iterations = 10
-    batch_size = 128
-    epochs = 75
-    progress_verbose = 2
-    checkpoint_verbose = 1
-    use_GCP = True
-    alpha = .5
-    input_shape = (32,32,3)
-    classes = 10
-    return num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape
+def define_model(iteration, model_name, dataset_name, input_shape, classes, alpha, default_failout_survival_rate):
+    # ResiliNet
+    if model_name == "ResiliNet":
+        model = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=default_failout_survival_rate)
+        model_file = "ResiliNet_"+dataset_name+"_average_accuracy" + str(iteration) + ".h5"
+    # deepFogGuard
+    if model_name == "deepFogGuard":
+        model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
+        model_file = "deepFogGuard_"+dataset_name+"_average_accuracy" + str(iteration) + ".h5"
+    # Vanilla model
+    if model_name == "Vanilla":
+        model = define_vanilla_model_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
+        model_file = "vanilla_cifar_"+dataset_name+"_accuracy" + str(iteration) + ".h5"
+    
+    return model, model_file
