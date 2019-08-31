@@ -12,7 +12,7 @@ import gc
 import os
 
 
-def define_and_train(iteration, model_name, load_model, train_datagen, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs):
+def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs):
     model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate)
     get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs)
     return model
