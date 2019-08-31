@@ -4,9 +4,9 @@ from Experiment.mlp_deepFogGuard_camera import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_camera import define_vanilla_model_MLP
 from Experiment.FailureIterationFromImageDataGenerator import calculateExpectedAccuracyFromImageGenerator
 from Experiment.utility import average, get_model_weights_MLP_camera
-from Experiment.camera_common_exp_methods import init_data, init_common_experiment_params
+from Experiment.common_exp_methods_MLP_camera import init_data, init_common_experiment_params
 from Experiment.common_exp_methods import write_n_upload
-from Experiment.utility import get_model_weights_MLP_health
+from Experiment.utility import get_model_weights_MLP_camera
 from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy
 import keras.backend as K
 import datetime

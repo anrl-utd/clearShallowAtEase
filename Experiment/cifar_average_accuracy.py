@@ -3,29 +3,15 @@ from keras.applications.mobilenet import MobileNet
 import keras.backend as K
 import math
 import os 
-from Experiment.cnn_Vanilla import define_vanilla_model_CNN
-from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
-from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
+from Experiment.common_exp_methods_CNN import define_model
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.cifar_common_exp_methods import init_data, init_common_experiment_params 
+from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params 
 from Experiment.utility import average, get_model_weights_CNN
 from Experiment.common_exp_methods import make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import gc
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
-    # ResiliNet
-    if model_name == "ResiliNet":
-        model = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=default_failout_survival_rate)
-        model_file = "deepFogGuardPlus_cifar_average_accuracy" + str(iteration) + ".h5"
-    # deepFogGuard
-    if model_name == "deepFogGuard":
-        model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
-        model_file = "deepFogGuard_cifar_average_accuracy" + str(iteration) + ".h5"
-    # Vanilla model
-    if model_name == "Vanilla":
-        model = define_vanilla_model_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
-        model_file = "vanilla_cifar_average_accuracy" + str(iteration) + ".h5"
-    
+    model, model_file = define_model(iteration, model_name, "cifar", input_shape, classes, alpha, default_failout_survival_rate)
     get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
     return model
 

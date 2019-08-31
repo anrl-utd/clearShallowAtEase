@@ -1,7 +1,5 @@
 
-from Experiment.cnn_Vanilla import define_vanilla_model_CNN
-from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
-from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
+from Experiment.common_exp_methods_CNN import define_model
 from Experiment.FailureIterationFromImageDataGenerator import calculateExpectedAccuracyFromImageGenerator
 from Experiment.utility import average, get_model_weights_MLP_camera
 from Experiment.imagenet_common_exp_methods import init_data, init_common_experiment_params
@@ -13,21 +11,10 @@ import datetime
 import gc
 import os
 
-def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate, num_train_examples, epochs):
-    # ResiliNet
-    if model_name == "ResiliNet":
-        model = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=default_failout_survival_rate)
-        model_file = "deepFogGuardPlus_imagenet_average_accuracy" + str(iteration) + ".h5"
-    # deepFogGuard
-    if model_name == "deepFogGuard":
-        model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
-        model_file = "deepFogGuard_imagenet_average_accuracy" + str(iteration) + ".h5"
-    # Vanilla model
-    if model_name == "Vanilla":
-        model = define_vanilla_model_CNN(classes=classes,input_shape = input_shape,alpha = alpha)
-        model_file = "vanilla_cifar_imagenet_accuracy" + str(iteration) + ".h5"
-    
-    get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs)
+
+def define_and_train(iteration, model_name, load_model, train_datagen, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs):
+    model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate)
+    get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs)
     return model
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,test_generator, num_test_examples):
