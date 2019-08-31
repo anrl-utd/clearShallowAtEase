@@ -7,7 +7,7 @@ from Experiment.cnn_Vanilla import define_vanilla_model_CNN
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.cifar_common_exp_methods import init_data, init_common_experiment_params 
+from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params 
 from Experiment.utility import average, get_model_weights_CNN
 from Experiment.common_exp_methods import make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import gc

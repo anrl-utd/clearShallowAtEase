@@ -8,12 +8,11 @@ import math
 import os 
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.cifar_common_exp_methods import init_data, init_common_experiment_params
+from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params
 from Experiment.common_exp_methods import make_results_folder, convert_to_string, write_n_upload, make_results_folder
 import numpy as np
 from Experiment.utility import average, get_model_weights_CNN
 import gc
-from sklearn.model_selection import train_test_split
 
 
 def make_output_dictionary(survivability_settings, num_iterations):

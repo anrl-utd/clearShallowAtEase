@@ -8,12 +8,11 @@ import math
 import os 
 from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.cifar_common_exp_methods import init_data, init_common_experiment_params
+from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params
 from Experiment.common_exp_methods import make_results_folder, make_output_dictionary_failout_rate, write_n_upload
 import numpy as np
 from Experiment.utility import average, get_model_weights_CNN
 import gc
-from sklearn.model_selection import train_test_split
 
 
 def define_and_train(iteration, model_name, load_model, survivability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
