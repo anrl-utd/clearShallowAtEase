@@ -1,23 +1,30 @@
-from Experiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
-from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.utility import average, get_model_weights_MLP_health
-from Experiment.health_common_exp_methods import init_data, init_common_experiment_params
-from Experiment.common_exp_methods import convert_to_string, write_n_upload,  make_results_folder, make_output_dictionary_failout_rate, make_output_dictionary_failout_rate
-import keras.backend as K
-import gc
-import os
-from keras.callbacks import ModelCheckpoint
-import numpy as np
 
-def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
-    model = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting)
-    model_file = str(iteration) + " " + str(failout_survival_setting) + 'health_failout_rate.h5'
-    get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+from keras.datasets import cifar10
+from keras.applications.mobilenet import MobileNet
+from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import ModelCheckpoint
+import keras.backend as K
+import math
+import os 
+from Experiment.cnn_deepFogGuardPlus import define_deepFogGuardPlus_CNN
+from Experiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.cifar_common_exp_methods import init_data, init_common_experiment_params
+from Experiment.common_exp_methods import make_results_folder, make_output_dictionary_failout_rate, write_n_upload
+import numpy as np
+from Experiment.utility import average, get_model_weights_CNN
+import gc
+from sklearn.model_selection import train_test_split
+
+
+def define_and_train(iteration, model_name, load_model, survivability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
+    model_file = str(iteration) + " " + str(failout_survival_setting) + 'cifar_failout_rate.h5'
+    model = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=survivability_setting)
+    get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
     return model
 
 def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, model):
     if dropout_like_failout == True:
-        nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
+        nodes = ["conv_pw_3","conv_pw_8"]
         for i, node in enumerate(nodes):
             survival_rate = failout_survival_setting[i]
             # node failed
@@ -26,44 +33,42 @@ def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_sett
             layer_weights = layer.get_weights()
             # make new weights for the connections
             new_weights = layer_weights[0] * survival_rate
+            layer.set_weights([new_weights])
 
-            # make new weights for biases
-            new_bias_weights = layer_weights[1] * survival_rate
-            layer.set_weights([new_weights,new_bias_weights])
-            
-# runs all 3 failure configurations for all 3 models
+# deepFogGuard Plus variable dropout experiment
 if __name__ == "__main__":
-    use_GCP = True
-    training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data(use_GCP)
+    
+    training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
-    num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
-    
-    load_model = False
-    failout_survival_settings = [
-        [.95,.95,.95],
-        [.9,.9,.9],
-        [.7,.7,.7],
-        [.5,.5,.5],
-    ]
-    # file name with the experiments accuracy output
-    output_name = "results/health_failout_rate.txt"
-    verbose = 2
-    # keep track of output so that output is in order
+    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape = init_common_experiment_params() 
     output_list = []
+
+    load_model = False
+    train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
+    val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
     
-    output = make_output_dictionary_failout_rate(failout_survival_settings, survivability_settings, num_iterations)
+    failout_survival_settings = [
+        [.95,.95],
+        [.9,.9],
+        [.7,.7],
+        [.5,.5],
+    ]
     dropout_like_failout = False
+    output = make_output_dictionary_failout_rate(failout_survival_settings, survivability_settings, num_iterations)
     make_results_folder()
-    for iteration in range(1,num_iterations+1):   
+    output_name = 'results/cifar_nodewise_dropout_results.txt'
+    for iteration in range(1,num_iterations+1):
         output_list.append('ITERATION ' + str(iteration) +  '\n')
-        print("ITERATION ", iteration)
-        output_list.append('ResiliNet' + '\n')  
-        # variable failout rate                
+        print("iteration:",iteration)
+        output_list.append('ResiliNet' + '\n') 
+        # variable failout rate  
         for survivability_setting in survivability_settings:
-            ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, survivability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
+            # # node-wise dropout
+            ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, survivability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
             multiply_hyperconnection_weights(dropout_like_failout, survivability_setting, ResiliNet_failout_rate_variable)
-            output["Variable Failout 1x"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable,survivability_setting,output_list,training_labels,test_data,test_labels)
-        
+            output_list.append(str(survivability_setting) + '\n')
+            output["Variable Failout 1x"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, survivability_setting,output_list, training_labels, test_data, test_labels)
+            
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
@@ -83,8 +88,8 @@ if __name__ == "__main__":
             K.clear_session()
             gc.collect()
             del ResiliNet_failout_rate_fixed
-
-    # calculate average accuracies for variable failout rate
+    
+     # calculate average accuracies for variable failout rate
     for survivability_setting in survivability_settings:
         ResiliNet_failout_rate_acc = average(output["Variable Failout 1x"][str(survivability_setting)])
         output_list.append(str(survivability_setting) + " Variable Failout 1x: " + str(ResiliNet_failout_rate_acc) + '\n')
@@ -104,8 +109,5 @@ if __name__ == "__main__":
             ResiliNet_failout_rate_std = np.std(output[str(failout_survival_setting)][str(survivability_setting)],ddof=1)
             output_list.append(str(survivability_setting) + " Fixed Failout std: " + str(ResiliNet_failout_rate_std) + '\n')
             print(str(survivability_setting), "Fixed Failout std:",ResiliNet_failout_rate_std)
-
-    # write experiments output to file
     write_n_upload(output_name, output_list, use_GCP)
     print(output)
-
