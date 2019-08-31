@@ -1,6 +1,6 @@
 from Experiment.FailureIteration import numSurvivedComponents, calcWeight, normalizeWeights, calcAverageAccuracy, convertBinaryToList
 from Experiment.utility import fail_node
-def iterateFailuresExperimentFromImageDataGenerator(surv,numComponents,model,accuracyList,weightList,output_list, test_generator):
+def iterateFailuresExperimentFromImageDataGenerator(surv,numComponents,model,accuracyList,weightList,output_list, test_generator, num_test_examples):
     """runs through all failure configurations for one model
     ### Arguments
         surv (list): contains the survival rate of all nodes, ordered from edge to fog node
@@ -15,7 +15,6 @@ def iterateFailuresExperimentFromImageDataGenerator(surv,numComponents,model,acc
     ### Returns
         return how many survival configurations had total network failure
     """  
-    failure_count = 0
     maxNumComponentFailure = 2 ** numComponents
     for i in range(maxNumComponentFailure):
         numSurvived = numSurvivedComponents(i)
@@ -25,11 +24,9 @@ def iterateFailuresExperimentFromImageDataGenerator(surv,numComponents,model,acc
             # saves a copy of the original model so it does not change during failures 
             old_weights = model.get_weights()
             fail_node(model,failures)
-            print(failures)
             output_list.append(str(failures))
-            accuracy,failure = calcModelAccuracy(model,output_list,test_generator)
+            accuracy = calcModelAccuracy(model,output_list,test_generator, num_test_examples)
             # add number of failures for a model
-            failure_count += failure
             # change the changed weights to the original weights
             model.set_weights(old_weights)
             # calculate weight of the result based on survival rates 
@@ -38,11 +35,13 @@ def iterateFailuresExperimentFromImageDataGenerator(surv,numComponents,model,acc
             weightList.append(weight)
             print("numSurvived:",numSurvived," weight:", weight, " acc:",accuracy)
             output_list.append("numSurvived: " + str(numSurvived) + " weight: " + str(weight) + " acc: " + str(accuracy) + '\n')
-    return failure_count
+        
 
-def calcModelAccuracy(model,output_list,test_generator):
-    pass
-def calculateExpectedAccuracyFromImageGenerator(model,surv,output_list,test_generator):
+def calcModelAccuracy(model,output_list,test_generator,num_test_examples):
+    acc = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]
+    return acc
+
+def calculateExpectedAccuracyFromImageGenerator(model,surv,output_list,test_generator, num_test_examples):
     """run full survival configuration failure
     ### Arguments
         model (Model): Keras model
@@ -57,11 +56,9 @@ def calculateExpectedAccuracyFromImageGenerator(model,surv,output_list,test_gene
     numComponents = len(surv)
     accuracyList = []
     weightList = []
-    failure_count = iterateFailuresExperimentFromImageDataGenerator(surv,numComponents, model,accuracyList,weightList,output_list,test_generator)
+    iterateFailuresExperimentFromImageDataGenerator(surv,numComponents, model,accuracyList,weightList,output_list,test_generator, num_test_examples)
     weightList = normalizeWeights(weightList)
     avg_acc = calcAverageAccuracy(accuracyList, weightList)
-    output_list.append('Number of Failures: ' + str(failure_count) + '\n')
     output_list.append('Average Accuracy: ' + str(avg_acc) + '\n')
-    print('Number of Failures: ',str(failure_count))
     print("Average Accuracy:", avg_acc)
     return avg_acc
