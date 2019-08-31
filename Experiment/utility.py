@@ -99,3 +99,4 @@ def get_model_weights_CNN(model, model_name, load_model, model_file, training_da
             callbacks = [modelCheckPoint])
         # load weights with the highest val accuracy
         model.load_weights(model_file)
+        

@@ -13,7 +13,6 @@ from Experiment.cifar_common_exp_methods import init_data, init_common_experimen
 from Experiment.utility import get_model_weights_CNN
 import numpy as np
 from Experiment.utility import average
-import datetime
 import gc
 from sklearn.model_selection import train_test_split
 
