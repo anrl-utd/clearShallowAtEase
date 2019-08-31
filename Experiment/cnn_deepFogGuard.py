@@ -114,24 +114,20 @@ def define_cnn_deepFogGuard_architecture_IoT(input_shape, alpha, img_input):
     skip_iotfog = layers.Conv2D(64,(1,1),strides = 1, use_bias = False, name = "skip_hyperconnection_iotfog")(iot_output)
     return iot_output, skip_iotfog
 
-def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplier, e_dropout_multiply = None):
+def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplier):
     edge_output = define_cnn_architecture_edge(iot_output,alpha,depth_multiplier, strides= (1,1))
-    if e_dropout_multiply != None:
-        edge_output = e_dropout_multiply(edge_output)
     # used stride 4 to match (31,31,64) to (7,7,256)
     # 1x1 conv2d is used to change the filter size (from 64 to 256)
     skip_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(edge_output)
     return edge_output, skip_edgecloud
    
 
-def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None, f_dropout_multiply = None):
+def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None):
     if multiply_hyperconnection_weight_layer_IoTf == None or multiply_hyperconnection_weight_layer_ef == None:
         fog_input = layers.add([skip_iotfog, edge_output], name = "connection_fog")
     else:
         fog_input = layers.add([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)], name = "connection_fog")
     fog = define_cnn_architecture_fog(fog_input,alpha,depth_multiplier)
-    if(f_dropout_multiply != None):
-        fog = f_dropout_multiply(fog)
     # pad from (7,7,256) to (8,8,256)
     fog_output = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
     

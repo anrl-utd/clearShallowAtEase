@@ -46,13 +46,9 @@ if __name__ == "__main__":
     allpresent_skip_hyperconnections_configuration = [1,1,1]
     default_survivability_setting = [1,1,1]
     load_model = False
-
-    # file name with the experiments accuracy output
-    output_name = "results/imagenet_average_accuracy.txt"
-    num_iterations = 1
-    verbose = 2
-
-    # keep track of output so that output is in order
+    num_iterations = 10
+    make_results_folder()
+    output_name = 'results' + '/imagenet_average_accuracy_results.txt'
     output_list = []
     
     output = make_output_dictionary_average_accuracy(survivability_settings, num_iterations)
