@@ -135,48 +135,47 @@ def make_output_dictionary_failout_rate(failout_survival_rates, survivability_se
     failout_rate_50 = str(failout_survival_rates[3])
     # dictionary to store all the results
     output = {
-        "ResiliNet": 
+        failout_rate_05:
         {
-            failout_rate_05:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            failout_rate_10 :
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            failout_rate_30:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            failout_rate_50:
-            {
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-                no_failure:[0] * num_iterations,
-            },
-            "Variable Failout 1x": 
-            {
-                hazardous:[0] * num_iterations,
-                poor :[0] * num_iterations,
-                normal:[0] * num_iterations,
-            },
-            "Variable Failout 10x": 
-            {
-                hazardous:[0] * num_iterations,
-                poor :[0] * num_iterations,
-                normal:[0] * num_iterations,
-            }
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        },
+        failout_rate_10 :
+        {
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        },
+        failout_rate_30:
+        {
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        },
+        failout_rate_50:
+        {
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        },
+        "Variable Failout 1x": 
+        {
+            hazardous:[0] * num_iterations,
+            poor :[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations, # may not be meaningful
+        },
+        "Variable Failout 10x": 
+        {
+            hazardous:[0] * num_iterations,
+            poor :[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations, # may not be meaningful
         }
     }
     return output
