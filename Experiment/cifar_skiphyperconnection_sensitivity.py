@@ -73,7 +73,7 @@ if __name__ == "__main__":
     
     num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape = init_common_experiment_params()
     output = make_output_dictionary(survivability_settings, num_iterations)
-
+    num_iterations = 20
     skip_hyperconnection_configurations = [
         [0,0],
         [1,0],

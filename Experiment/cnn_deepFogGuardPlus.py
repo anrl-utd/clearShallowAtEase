@@ -22,7 +22,6 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
                                 pooling=None,
                                 classes=1000, 
                                 failout_survival_setting = [1.0,1.0],
-                                standard_dropout = False,
                                 **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -77,7 +76,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     img_input = layers.Input(shape=input_shape)  
 
     # nodewise dropout definitions
-    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = cnn_nodewise_dropout_definitions(failout_survival_setting, standard_dropout)
+    edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply = cnn_nodewise_dropout_definitions(failout_survival_setting)
 
      # iot node
     iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input)
@@ -99,7 +98,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def cnn_nodewise_dropout_definitions(failout_survival_setting, standard_dropout = False):
+def cnn_nodewise_dropout_definitions(failout_survival_setting):
     edge_survivability = failout_survival_setting[0]
     fog_survivability = failout_survival_setting[1]
     
@@ -117,10 +116,4 @@ def cnn_nodewise_dropout_definitions(failout_survival_setting, standard_dropout 
     # define lambda for failure, only fail during training
     edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'edge_failure_lambda')
     fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survivability_keras), x * 0, x),name = 'fog_failure_lambda')
-    # if standard_dropout:
-    #     # define lambda for standard dropout (adjust output weights based on node survivability, w' = w * s)
-    #     e_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * edge_survivability),name = 'e_dropout_lambda') 
-    #     f_dropout_multiply = layers.Lambda(lambda x : K.in_train_phase(x, x * fog_survivability),name = 'f_dropout_lambda')
-    #     return edge_failure_lambda, fog_failure_lambda, e_dropout_multiply, f_dropout_multiply
-    # else:
     return edge_failure_lambda, fog_failure_lambda, None, None

@@ -115,10 +115,10 @@ if __name__ == "__main__":
             deepFogGuardPlus_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting)
             # adjusted node_wise dropout
             deepFogGuardPlus_adjusted_nodewise_dropout_file = str(iteration) + " " + str(failout_survival_setting) + 'health_dropoutlike_failout_nodewise_dropout_05.h5'
-            deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting,standard_dropout=standard_dropout)
+            deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting)
             if load_model:
                 deepFogGuardPlus_nodewise_dropout.load_weights(deepFogGuardPlus_nodewise_dropout_file)
-                deepFogGuardPlus_adjusted_nodewise_dropout.load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
+                    .load_weights(deepFogGuardPlus_adjusted_nodewise_dropout_file)
             else:
                 print("Training deepFogGuardPlus Node-wise Dropout")
                 print(str(failout_survival_setting))

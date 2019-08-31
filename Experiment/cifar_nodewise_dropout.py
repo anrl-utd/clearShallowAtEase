@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
             # adjusted node-wise dropout
             deepFogGuardPlus_adjusted_nodewise_dropout_file = "cifar_nodewisedropout_dropoutlike10_" + str(failout_survival_rate) + "_" + str(iteration) + ".h5"
-            deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_rate, standard_dropout= True)
+            deepFogGuardPlus_adjusted_nodewise_dropout = define_deepFogGuardPlus_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_rate)
             deepFogGuardPlus_adjusted_nodewise_dropout_Checkpoint = ModelCheckpoint(deepFogGuardPlus_adjusted_nodewise_dropout_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
             deepFogGuardPlus_adjusted_nodewise_dropout.fit_generator(train_datagen.flow(x_train,y_train,batch_size = batch_size),
             epochs = epochs,

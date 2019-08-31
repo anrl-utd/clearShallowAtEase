@@ -52,7 +52,7 @@ if __name__ == "__main__":
         for survivability_setting in survivability_settings:
             # variable node-wise dropout
             deepFogGuardPlus_variable_nodewise_dropout_file = str(iteration) + " " + str(survivability_setting) + 'health_variable_nodewise_dropoutlike_dropout.h5'
-            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting=survivability_setting, standard_dropout= True)
+            deepFogGuardPlus_variable_nodewise_dropout = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting=survivability_setting)
 
             if load_model:
                 deepFogGuardPlus_variable_nodewise_dropout.load_weights(deepFogGuardPlus_variable_nodewise_dropout_file)

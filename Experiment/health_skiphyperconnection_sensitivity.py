@@ -89,6 +89,7 @@ if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data(use_GCP)
 
     num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
+    num_iterations = 20
     skip_hyperconnection_configurations = [
         [0,0,0],
         [1,0,0],
