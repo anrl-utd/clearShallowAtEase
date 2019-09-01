@@ -9,7 +9,7 @@ def init_data(use_GCP):
     train_dir = "/home/ubuntu/imagenet/train"
     test_dir = "/home/ubuntu/imagenet/val"
     input_shape = (256,256)
-    batch_size = 64
+    batch_size = 8
     datagen = ImageDataGenerator(
         rescale = 1./255
     )
