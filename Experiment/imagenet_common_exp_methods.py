@@ -17,11 +17,13 @@ def init_data(use_GCP):
         directory = train_dir,
         target_size = input_shape,
         batch_size = batch_size,
+        class_mode = "sparse"
     )
     test_generator = datagen.flow_from_directory(
         directory = test_dir,
         target_size = input_shape,
         batch_size = batch_size,
+        class_mode = "sparse"
     )
     return train_generator, test_generator
 
@@ -38,6 +40,6 @@ def init_common_experiment_params():
         [.90,.95],
         [.80,.85],
     ]
-    num_classes = 10
+    num_classes = 1000
     epochs = 100
     return num_iterations, num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs
