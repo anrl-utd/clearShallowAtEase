@@ -82,22 +82,20 @@ def get_model_weights_MLP_health(model, model_name, load_model, model_file, trai
         # load weights from epoch with the highest val acc
         model.load_weights(model_file)
 
-def get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_generator, val_generator, verbose):
+def get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data, val_labels,verbose, batch_size):
     if load_model:
         model.load_weights(model_file)
     else:
         print(model_name)
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        model.fit_generator(
-            generator = train_generator,
-            steps_per_epoch = 10,
-            epochs = 10,
-            validation_data = val_generator,
-            validation_steps = 10,
-            class_weight = None,
+        model.fit(
+            x = train_data,
+            y = train_labels,
+            batch_size = batch_size,
+            validation_data = (val_data,val_labels),
             callbacks = [modelCheckPoint],
             verbose = verbose
-            )
+        )
         # load weights from epoch with the highest val acc
         model.load_weights(model_file)
 
@@ -119,13 +117,13 @@ def get_model_weights_CNN(model, model_name, load_model, model_file, training_da
         # load weights with the highest val accuracy
         model.load_weights(model_file)
 
-def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs):
+def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus):
     if load_model:
         model.load_weights(model_file)
     else:
         print(model_name)
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        verbose = 2
+        verbose = 1
         model.fit_generator(
             generator = train_generator,
             steps_per_epoch = num_train_examples / train_generator.batch_size,

@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense,Input,Lambda, Activation
+from keras.layers import Dense,Input,Lambda, Activation, add
 import keras.backend as K
 import keras.layers as layers
 from Experiment.LambdaLayers import add_node_layers
@@ -27,7 +27,7 @@ def define_deepFogGuardPlus_MLP(input_shape,
         Keras Model object
     """
 
-    # IoT node
+    # IoT Node (input image)
     img_input_1 = Input(shape = input_shape)    
     img_input_2 = Input(shape = input_shape)
     img_input_3 = Input(shape = input_shape)
@@ -35,17 +35,22 @@ def define_deepFogGuardPlus_MLP(input_shape,
     img_input_5 = Input(shape = input_shape) 
     img_input_6 = Input(shape = input_shape) 
     
+    input_edge1 = add([img_input_1,img_input_2])
+    input_edge2 = img_input_3
+    input_edge3 = add([img_input_4,img_input_5])
+    input_edge4 = img_input_6
+    
     # nodewise droput definitions
     edge_failure_lambda, fog_failure_lambda = MLP_nodewise_dropout_definitions(failout_survival_setting)
 
     # edge nodes
-    edge1_output = define_MLP_deepFogGuard_architecture_edge(img_input_1, hidden_units, "edge1_output_layer")
+    edge1_output = define_MLP_deepFogGuard_architecture_edge(input_edge1, hidden_units, "edge1_output_layer")
     edge1_output = edge_failure_lambda[1](edge1_output)
-    edge2_output = define_MLP_deepFogGuard_architecture_edge(img_input_2, hidden_units, "edge2_output_layer")
+    edge2_output = define_MLP_deepFogGuard_architecture_edge(input_edge2, hidden_units, "edge2_output_layer")
     edge2_output = edge_failure_lambda[2](edge2_output)
-    edge3_output = define_MLP_deepFogGuard_architecture_edge(img_input_3, hidden_units, "edge3_output_layer")
+    edge3_output = define_MLP_deepFogGuard_architecture_edge(input_edge3, hidden_units, "edge3_output_layer")
     edge3_output = edge_failure_lambda[3](edge3_output)
-    edge4_output = define_MLP_deepFogGuard_architecture_edge(img_input_4, hidden_units, "edge4_output_layer")
+    edge4_output = define_MLP_deepFogGuard_architecture_edge(input_edge4, hidden_units, "edge4_output_layer")
     edge4_output = edge_failure_lambda[4](edge4_output)
 
     # fog node 4
@@ -67,16 +72,18 @@ def define_deepFogGuardPlus_MLP(input_shape,
     # cloud node
     cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes)
 
-    model = Model(inputs=img_input, outputs=cloud_output)
+    model = Model(inputs=[img_input_1,img_input_2,img_input_3,img_input_4,img_input_5,img_input_6], outputs=cloud_output)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 def MLP_nodewise_dropout_definitions(failout_survival_setting):
     fog_survivability = [0] * 5
+    print(failout_survival_setting)
     fog_survivability[1] = failout_survival_setting[0]
     fog_survivability[2] = failout_survival_setting[1]
     fog_survivability[3] = failout_survival_setting[2]
     fog_survivability[4] = failout_survival_setting[3]
+
     edge_survivability = [0] * 5
     edge_survivability[1] = failout_survival_setting[4]
     edge_survivability[2] = failout_survival_setting[5]

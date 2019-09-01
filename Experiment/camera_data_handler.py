@@ -83,7 +83,6 @@ def load_dataset(train_path, image_size, labels):
             del img_labels[i]
             del cls[i]
             len_imgs = len(images[i])
-            
         #print(len(images[i]), ' :', i)
         #images[i] = np.concatenate((images[i][0],images[i][1],images[i][2],images[i][3],images[i][4],images[i][5]), axis = 1)
         i += 1

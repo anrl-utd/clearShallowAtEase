@@ -41,9 +41,9 @@ if __name__ == "__main__":
     train_data, val_data, test_data, train_labels, val_labels, test_labels = init_data(use_GCP) 
     survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs = init_common_experiment_params()
 
-    default_failout_survival_rate = [.95,.95,.95]
+    default_failout_survival_rate = [.95,.95,.95,.95,.95,.95,.95,.95]
     allpresent_skip_hyperconnections_configuration = [1,1,1]
-    default_survivability_setting = [1,1,1]
+    default_survivability_setting = [1,1,1,1,1,1,1,1]
     load_model = False
 
     # file name with the experiments accuracy output

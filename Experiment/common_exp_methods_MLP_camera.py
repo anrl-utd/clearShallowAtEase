@@ -5,9 +5,9 @@ def init_data(use_GCP):
         os.system('gsutil -m cp -r gs://anrl-storage/data/multiview-dataset ./')
     if not os.path.exists('models/'):
         os.mkdir('models/')
-    train_dir = "multiview_dataset/train_dir"
-    val_dir = "multiview_dataset/test_dir"
-    test_dir = "multiview_dataset/holdout_dir"
+    train_dir = "multiview-dataset/train_dir"
+    val_dir = "multiview-dataset/test_dir"
+    test_dir = "multiview-dataset/holdout_dir"
     img_size = (32,32,3)
     classes = ['person_images', 'car_images', 'bus_images']
     train_data, train_labels,_,_ = load_dataset(train_dir,img_size,classes)
@@ -19,10 +19,10 @@ def init_common_experiment_params():
     input_shape = (32,32,3)
     # need to change this to be accurate
     survivability_settings = [
-        [1,1],
-        [.96,.98],
-        [.90,.95],
-        [.80,.85],
+        [1,1,1,1,1,1,1,1],
+        [.97,.98,.985,.985,.99,.995,.998,.999],
+        [.66,.7,.6,.7,.8,.8,.9,.9],
+        [.6,.6,.65,.65,.7,.75,.8,.8]
     ]
     num_classes = 3
     hidden_units = 32
