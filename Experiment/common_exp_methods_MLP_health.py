@@ -10,12 +10,12 @@ def init_data(use_GCP):
     data,labels= load_data('mHealth_complete.log')
     # split data into train, val, and test
     # 80/10/10 split
-    training_data, test_data, training_labels, test_labels = train_test_split(data,labels,random_state = 42, test_size = .20, shuffle = True)
+    train_data, test_data, train_labels, test_labels = train_test_split(data,labels,random_state = 42, test_size = .20, shuffle = True)
     val_data, test_data, val_labels, test_labels = train_test_split(test_data,test_labels,random_state = 42, test_size = .50, shuffle = True)
-    return  training_data, test_data, training_labels, test_labels, val_data, val_labels
+    return  train_data, val_data, test_data, train_labels, val_labels, test_labels
 
-def init_common_experiment_params(training_data):
-    num_vars = len(training_data[0])
+def init_common_experiment_params(train_data):
+    num_vars = len(train_data[0])
     num_classes = 13
     survivability_settings = [
         [1,1,1],
