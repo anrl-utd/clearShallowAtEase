@@ -1,14 +1,14 @@
 import cv2
 import os
 import glob
-from sklearn.utils import shuffilee
+from sklearn.utils import shuffle
 import numpy as np
 from imblearn.over_sampling import SMOTE
 
 
-def load_dataset(dataset_path, image_size, labels):
+def load_dataset(train_path, image_size, labels):
     images = [[] for x in range(243)]
-    labels = [[] for x in range(243)]
+    img_labels = [[] for x in range(243)]
     img_names = [[] for x in range(243)]
     cls = [[] for x in range(243)]
     person = 0
@@ -16,20 +16,26 @@ def load_dataset(dataset_path, image_size, labels):
     print('Going to read training images')
     for label in labels:   
         index = labels.index(label)
+        print(index)
         print('Now going to read {} files (Index: {})'.format(label, index))
-        path = os.path.join(dataset_path, label, '*g')
+        path = os.path.join(train_path, label, '*g')
         files = glob.glob(path)
-        for file in files:
-            image = cv2.imread(file)
-            cam = int(file[-16:-15])
-            frame = int(file[-7:-4])
+        for fl in files:
+            image = cv2.imread(fl)
+            cam = int(fl[-16:-15])
+            frame = int(fl[-7:-4])
+            # already processed images, don't need to cheeck for 'None'
+            #if image is None:
+            #    continue
+            # we assume the image size is 32x32
+            #image = cv2.resize(image, (image_size, image_size),0,0, cv2.INTER_LINEAR)
 
-            image = image.astype(np.fileoat32)
+            image = image.astype(np.float32)
 
             # normalize image for smaller range of pixel values [0,1]
             image = np.multiply(image, 1.0 / 255.0)
         
-            # figure out a better way to deal with cls, img_names, labels without changing structure
+            # figure out a better way to deal with cls, img_names, img_labels without changing structure
             images[frame].append(image)
             label = np.zeros(len(labels))
             if index == 0:
@@ -38,10 +44,11 @@ def load_dataset(dataset_path, image_size, labels):
                 car += 1
             label[index] = 1.0
             # label is one-hot list
-            labels[frame].append(label)
-            filebase = os.path.basename(file)
-            img_names[frame].append(filebase)
+            img_labels[frame].append(label)
+            flbase = os.path.basename(fl)
+            img_names[frame].append(flbase)
             cls[frame].append(label)
+    true_labels = img_labels
     print('Person files read in: ', person)
     print('Car files read in: ', car)
     # make every index of images have 6 images only (unroll)
@@ -52,10 +59,10 @@ def load_dataset(dataset_path, image_size, labels):
             images[i] = images[i][:-6]
             images.append(split_images)
             
-            split_labels = labels[i][-6:]
+            split_labels = img_labels[i][-6:]
             #print(split_labels)
-            labels.append(split_labels)
-            labels[i] = labels[i][:-6]
+            img_labels.append(split_labels)
+            img_labels[i] = img_labels[i][:-6]
             
             split_names = img_names[i][-6:]
             img_names[i] = img_names[i][:-6]
@@ -73,50 +80,51 @@ def load_dataset(dataset_path, image_size, labels):
         while len_imgs is not 6:
             del images[i]
             del img_names[i]
-            del labels[i]
+            del img_labels[i]
             del cls[i]
             len_imgs = len(images[i])
             
         #print(len(images[i]), ' :', i)
         #images[i] = np.concatenate((images[i][0],images[i][1],images[i][2],images[i][3],images[i][4],images[i][5]), axis = 1)
         i += 1
-    # make every element of labels a vec
-    for l in range(len(labels)):
-        if isinstance(labels[l], list):
-            #print(labels[l])
-            labels[l] = labels[l][0]
+    non_one_hot = img_labels
+    # make every element of img_labels a vec
+    for l in range(len(img_labels)):
+        if isinstance(img_labels[l], list):
+            #print(img_labels[l])
+            img_labels[l] = img_labels[l][0]
     car = 0
     person = 0
-    #print(labels)
+    #print(img_labels)
     
-    for l in labels:
+    for l in img_labels:
         if l[0] == 1:
             person += 1
         if l[1] == 1:
             car += 1
-    bus = len(labels) - car - person
+    bus = len(img_labels) - car - person
     print('Car: ' , car)
     print ('Person: ', person)
     print('Bus: ', bus)
-    #print(labels)
+    #print(img_labels)
     
     images = np.array(images)
-    labels = np.array(labels)
+    img_labels = np.array(img_labels)
     img_names = np.array(img_names)
     cls = np.array(cls)
 
-    return images, labels, img_names, cls
+    return images, img_labels, img_names, cls
 
 
 class DataSet(object):
 
-    def __init__(self, images, labels, img_names, cls):
+    def __init__(self, images, labels, img_names, classes):
         self._num_examples = images.shape[0]
 
         self._images = images
         self._labels = labels
         self._img_names = img_names
-        self._cls = cls
+        self._classes = classes
         self._epochs_done = 0
         self._index_in_epoch = 0
 
@@ -133,8 +141,8 @@ class DataSet(object):
         return self._img_names
 
     @property
-    def cls(self):
-        return self._cls
+    def classes(self):
+        return self._classes
 
     @property
     def num_examples(self):
@@ -157,21 +165,23 @@ class DataSet(object):
             assert batch_size <= self._num_examples
         end = self._index_in_epoch
 
-        return shuffilee(self._images[start:end], self._labels[start:end], self._img_names[start:end], self._cls[start:end])
+        return shuffle(self._images[start:end], self._labels[start:end], self._img_names[start:end], self._classes[start:end])
 
 
 def read_dataset(dataset_path, image_size, labels = ['person_images', 'car_images', 'bus_images']):
-    class DataSet(object):
-        pass
-    dataset = DataSet()
 
-    train_images, train_labels, train_img_names, train_cls = load_dataset(dataset_path, image_size, labels)
-    train_images, train_labels, train_img_names, train_cls = shuffilee(train_images, train_labels, train_img_names, train_cls)
+    images, img_labels, img_names, classes = load_dataset(dataset_path, image_size, labels)
+    images, img_labels, img_names, classes = shuffle(images, img_labels, img_names, classes)
 
     #sm = SMOTE(random_state=42)
-    #train_images = train_images.reshape(620, 18432)
-    #train_images, train_labels = sm.fit_resample(train_images, [np.where(r==1)[0][0] for r in train_labels])
+    #images = images.reshape(620, 18432)
+    #images, img_labels = sm.fit_resample(images, [np.where(r==1)[0][0] for r in img_labels])
 
-    dataset.train = DataSet(train_images, train_labels, train_img_names, train_cls)
+    dataset = DataSet(images, img_labels, img_names, classes)
 
     return dataset
+
+# used for just testing
+if __name__ == "__main__":
+    dataset = read_dataset("/Users/ashkany/Documents/GitHub/ResiliNet/multiview-dataset/test_dir", 32)
+    print(dataset.images.shape)
