@@ -115,59 +115,6 @@ def load_dataset(train_path, image_size, labels):
 
     return images, img_labels, img_names, cls
 
-
-class DataSet(object):
-
-    def __init__(self, images, labels, img_names, classes):
-        self._num_examples = images.shape[0]
-
-        self._images = images
-        self._labels = labels
-        self._img_names = img_names
-        self._classes = classes
-        self._epochs_done = 0
-        self._index_in_epoch = 0
-
-    @property
-    def images(self):
-        return self._images
-
-    @property
-    def labels(self):
-        return self._labels
-
-    @property
-    def img_names(self):
-        return self._img_names
-
-    @property
-    def classes(self):
-        return self._classes
-
-    @property
-    def num_examples(self):
-        return self._num_examples
-
-    @property
-    def epochs_done(self):
-        return self._epochs_done
-
-    def next_batch(self, batch_size):
-        """Return the next `batch_size` examples from this data set."""
-        start = self._index_in_epoch
-        self._index_in_epoch += batch_size
-
-        if self._index_in_epoch > self._num_examples:
-            # After each epoch we update this
-            self._epochs_done += 1
-            start = 0
-            self._index_in_epoch = batch_size
-            assert batch_size <= self._num_examples
-        end = self._index_in_epoch
-
-        return shuffle(self._images[start:end], self._labels[start:end], self._img_names[start:end], self._classes[start:end])
-
-
 def read_dataset(dataset_path, image_size, labels = ['person_images', 'car_images', 'bus_images']):
 
     images, img_labels, img_names, classes = load_dataset(dataset_path, image_size, labels)
@@ -177,11 +124,9 @@ def read_dataset(dataset_path, image_size, labels = ['person_images', 'car_image
     #images = images.reshape(620, 18432)
     #images, img_labels = sm.fit_resample(images, [np.where(r==1)[0][0] for r in img_labels])
 
-    dataset = DataSet(images, img_labels, img_names, classes)
-
-    return dataset
+    return images, img_labels, img_names, classes
 
 # used for just testing
 if __name__ == "__main__":
-    dataset = read_dataset("/Users/ashkany/Documents/GitHub/ResiliNet/multiview-dataset/test_dir", 32)
-    print(dataset.images.shape)
+    images, img_labels, img_names, classes = read_dataset("/Users/ashkany/Documents/GitHub/ResiliNet/multiview-dataset/test_dir", 32)
+    print(images.shape)
