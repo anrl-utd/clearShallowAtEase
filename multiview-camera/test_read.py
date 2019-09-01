@@ -1,9 +1,9 @@
+import dataset
 import cv2
 import os
 import glob
 from sklearn.utils import shuffle
 import numpy as np
-from imblearn.over_sampling import SMOTE
 
 
 def load_train(train_path, image_size, classes):
@@ -175,7 +175,7 @@ def read_train_sets(train_path, val_path, image_size, classes):
 
   train_images, train_labels, train_img_names, train_cls = load_train(train_path, image_size, classes)
   train_images, train_labels, train_img_names, train_cls = shuffle(train_images, train_labels, train_img_names, train_cls)
-  print(train_cls.shape)
+
   #sm = SMOTE(random_state=42)
   #train_images = train_images.reshape(620, 18432)
   #print(train_images)
@@ -204,3 +204,7 @@ def read_train_sets(train_path, val_path, image_size, classes):
   data_sets.valid = DataSet(validation_images, validation_labels, validation_img_names, validation_cls)
 
   return data_sets
+
+if __name__ == "__main__":
+  classes = ['person_images', 'car_images', 'bus_images']
+  dataset.read_train_sets("/Users/ashkany/Documents/GitHub/ResiliNet/multiview-dataset/test_dir", "/Users/ashkany/Documents/GitHub/ResiliNet/multiview-dataset/holdout_dir", 32, classes)
