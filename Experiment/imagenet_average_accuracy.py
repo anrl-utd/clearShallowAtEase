@@ -10,7 +10,8 @@ import datetime
 import gc
 import os
 import numpy as np
-
+from keras.utils.training_utils import multi_gpu_model
+import tensorflow as tf
 def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs):
     model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate)
     get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs)
@@ -25,9 +26,9 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = False
-    train_generator, test_generator = init_data(use_GCP) 
-    num_iterations,num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs = init_common_experiment_params()
-
+    train_generator, test_generator = init_data(use_GCP, num_gpus) 
+    num_iterations,num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus = init_common_experiment_params()
+    
     default_failout_survival_rate = [.95,.95,.95]
     load_model = False
     num_iterations = 1
@@ -38,50 +39,51 @@ if __name__ == "__main__":
     output = make_output_dictionary_average_accuracy(survivability_settings, num_iterations)
 
     val_generator = None
-
+    
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
-        ResiliNet = define_and_train(
-            iteration = iteration, 
-            model_name = "ResiliNet", 
-            load_model = load_model, 
-            train_generator = train_generator, 
-            val_generator = val_generator, 
-            input_shape = input_shape, 
-            classes = num_classes, 
-            alpha = alpha, 
-            default_failout_survival_rate = default_failout_survival_rate,
-            num_train_examples = num_train_examples,
-            epochs = epochs
-            )
-        deepFogGuard = define_and_train(
-            iteration = iteration, 
-            model_name = "deepFogGuard", 
-            load_model = load_model, 
-            train_generator = train_generator, 
-            val_generator = val_generator, 
-            input_shape = input_shape, 
-            classes = num_classes, 
-            alpha = alpha, 
-            default_failout_survival_rate = None,
-            num_train_examples = num_train_examples,
-            epochs = epochs
-            )
-        Vanilla = define_and_train(
-            iteration = iteration, 
-            model_name = "Vanilla", 
-            load_model = load_model, 
-            train_generator = train_generator, 
-            val_generator = val_generator, 
-            input_shape = input_shape, 
-            classes = num_classes, 
-            alpha = alpha, 
-            default_failout_survival_rate = None,
-            num_train_examples = num_train_examples,
-            epochs = epochs
-            )
- 
+        with tf.device("/cpu:0"):
+            ResiliNet = define_and_train(
+                iteration = iteration, 
+                model_name = "ResiliNet", 
+                load_model = load_model, 
+                train_generator = train_generator, 
+                val_generator = val_generator, 
+                input_shape = input_shape, 
+                classes = num_classes, 
+                alpha = alpha, 
+                default_failout_survival_rate = default_failout_survival_rate,
+                num_train_examples = num_train_examples,
+                epochs = epochs,
+                )
+            deepFogGuard = define_and_train(
+                iteration = iteration, 
+                model_name = "deepFogGuard", 
+                load_model = load_model, 
+                train_generator = train_generator, 
+                val_generator = val_generator, 
+                input_shape = input_shape, 
+                classes = num_classes, 
+                alpha = alpha, 
+                default_failout_survival_rate = None,
+                num_train_examples = num_train_examples,
+                epochs = epochs,
+                )
+            Vanilla = define_and_train(
+                iteration = iteration, 
+                model_name = "Vanilla", 
+                load_model = load_model, 
+                train_generator = train_generator, 
+                val_generator = val_generator, 
+                input_shape = input_shape, 
+                classes = num_classes, 
+                alpha = alpha, 
+                default_failout_survival_rate = None,
+                num_train_examples = num_train_examples,
+                epochs = epochs,
+                )
+        ResiliNet =  multi_gpu_model(ResiliNet, gpus=num_gpus)
         # test models
         for survivability_setting in survivability_settings:
             calc_accuracy(iteration, "ResiliNet", ResiliNet, survivability_setting, output_list,test_generator, num_test_examples)
@@ -119,5 +121,4 @@ if __name__ == "__main__":
         print(str(survivability_setting),"ResiliNet std:",ResiliNet_std)
         print(str(survivability_setting),"deepFogGuard std:",deepFogGuard_std)
         print(str(survivability_setting),"Vanilla std:",Vanilla_std)
-        
     write_n_upload(output_name, output_list, use_GCP)

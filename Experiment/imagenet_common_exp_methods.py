@@ -1,7 +1,7 @@
 import os
 from keras.preprocessing.image import ImageDataGenerator 
 from keras.preprocessing.image import load_img
-def init_data(use_GCP):
+def init_data(use_GCP, num_gpus):
     if use_GCP == True:
         os.system('gsutil -m cp -r gs://anrl-storage/data/multiview-dataset ./')
     if not os.path.exists('models/'):
@@ -16,13 +16,13 @@ def init_data(use_GCP):
     train_generator = datagen.flow_from_directory(
         directory = train_dir,
         target_size = input_shape,
-        batch_size = batch_size,
+        batch_size = batch_size * num_gpus,
         class_mode = "sparse"
     )
     test_generator = datagen.flow_from_directory(
         directory = test_dir,
         target_size = input_shape,
-        batch_size = batch_size,
+        batch_size = batch_size * num_gpus,
         class_mode = "sparse"
     )
     return train_generator, test_generator
@@ -42,4 +42,5 @@ def init_common_experiment_params():
     ]
     num_classes = 1000
     epochs = 100
-    return num_iterations, num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs
+    num_gpus = 3
+    return num_iterations, num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus
