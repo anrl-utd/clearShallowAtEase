@@ -42,5 +42,5 @@ def init_common_experiment_params():
     ]
     num_classes = 1000
     epochs = 100
-    num_gpus = 3
+    num_gpus = 2
     return num_iterations, num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus
