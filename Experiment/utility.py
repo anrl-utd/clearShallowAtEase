@@ -129,6 +129,7 @@ def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, tr
         print(model_name)
         verbose = 1
         parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
+        parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         parallel_model.fit_generator(
             generator = train_generator,
             steps_per_epoch = num_train_examples / train_generator.batch_size,
