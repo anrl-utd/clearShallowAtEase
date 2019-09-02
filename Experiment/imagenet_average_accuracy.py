@@ -43,49 +43,48 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
-        with tf.device("/cpu:0"):
-            ResiliNet = define_and_train(
-                iteration = iteration, 
-                model_name = "ResiliNet", 
-                load_model = load_model, 
-                train_generator = train_generator, 
-                val_generator = val_generator, 
-                input_shape = input_shape, 
-                classes = num_classes, 
-                alpha = alpha, 
-                default_failout_survival_rate = default_failout_survival_rate,
-                num_train_examples = num_train_examples,
-                epochs = epochs,
-                num_gpus = num_gpus
-                )
-            deepFogGuard = define_and_train(
-                iteration = iteration, 
-                model_name = "deepFogGuard", 
-                load_model = load_model, 
-                train_generator = train_generator, 
-                val_generator = val_generator, 
-                input_shape = input_shape, 
-                classes = num_classes, 
-                alpha = alpha, 
-                default_failout_survival_rate = None,
-                num_train_examples = num_train_examples,
-                epochs = epochs,
-                num_gpus = num_gpus
-                )
-            Vanilla = define_and_train(
-                iteration = iteration, 
-                model_name = "Vanilla", 
-                load_model = load_model, 
-                train_generator = train_generator, 
-                val_generator = val_generator, 
-                input_shape = input_shape, 
-                classes = num_classes, 
-                alpha = alpha, 
-                default_failout_survival_rate = None,
-                num_train_examples = num_train_examples,
-                epochs = epochs,
-                num_gpus = num_gpus
-                )
+        ResiliNet = define_and_train(
+            iteration = iteration, 
+            model_name = "ResiliNet", 
+            load_model = load_model, 
+            train_generator = train_generator, 
+            val_generator = val_generator, 
+            input_shape = input_shape, 
+            classes = num_classes, 
+            alpha = alpha, 
+            default_failout_survival_rate = default_failout_survival_rate,
+            num_train_examples = num_train_examples,
+            epochs = epochs,
+            num_gpus = num_gpus
+            )
+        deepFogGuard = define_and_train(
+            iteration = iteration, 
+            model_name = "deepFogGuard", 
+            load_model = load_model, 
+            train_generator = train_generator, 
+            val_generator = val_generator, 
+            input_shape = input_shape, 
+            classes = num_classes, 
+            alpha = alpha, 
+            default_failout_survival_rate = None,
+            num_train_examples = num_train_examples,
+            epochs = epochs,
+            num_gpus = num_gpus
+            )
+        Vanilla = define_and_train(
+            iteration = iteration, 
+            model_name = "Vanilla", 
+            load_model = load_model, 
+            train_generator = train_generator, 
+            val_generator = val_generator, 
+            input_shape = input_shape, 
+            classes = num_classes, 
+            alpha = alpha, 
+            default_failout_survival_rate = None,
+            num_train_examples = num_train_examples,
+            epochs = epochs,
+            num_gpus = num_gpus
+            )
         ResiliNet =  multi_gpu_model(ResiliNet, gpus=num_gpus)
         # test models
         for survivability_setting in survivability_settings:
