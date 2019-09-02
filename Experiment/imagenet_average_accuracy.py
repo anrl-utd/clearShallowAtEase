@@ -10,7 +10,7 @@ import datetime
 import gc
 import os
 import numpy as np
-from keras.utils.training_utils import multi_gpu_model
+
 import tensorflow as tf
 def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs,num_gpus):
     model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate)
@@ -85,7 +85,6 @@ if __name__ == "__main__":
             epochs = epochs,
             num_gpus = num_gpus
             )
-        ResiliNet =  multi_gpu_model(ResiliNet, gpus=num_gpus)
         # test models
         for survivability_setting in survivability_settings:
             calc_accuracy(iteration, "ResiliNet", ResiliNet, survivability_setting, output_list,test_generator, num_test_examples)
