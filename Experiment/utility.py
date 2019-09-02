@@ -127,17 +127,15 @@ def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, tr
         model.load_weights(model_file)
     else:
         print(model_name)
-        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
         verbose = 1
-        parallel_model = multi_gpu_model(model, cpu_relocation=True)
+        parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
         parallel_model.fit_generator(
             generator = train_generator,
             steps_per_epoch = num_train_examples / train_generator.batch_size,
             epochs = epochs,
             class_weight = None,
-            callbacks = [modelCheckPoint],
             verbose = verbose
             )
         # load weights from epoch with the highest val acc
-        model.load_weights(model_file)
+        model.save_weights(model_file)
     
