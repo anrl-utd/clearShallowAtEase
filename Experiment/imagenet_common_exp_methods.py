@@ -1,9 +1,16 @@
 import os
 from keras.preprocessing.image import ImageDataGenerator 
 from keras.preprocessing.image import load_img
-def init_data(use_GCP, num_gpus):
-    train_dir = "/home/yousefpour_ashkan/new_disk/train"
-    test_dir = "/home/yousefpour_ashkan/val"
+def init_data(use_GCP, num_gpus, pc = 1):
+    if pc == 1: # google cloud
+        train_dir = "/home/yousefpour_ashkan/new_disk/train"
+        test_dir = "/home/yousefpour_ashkan/val"
+    elif pc == 2: # AWS
+        train_dir = "/home/yousefpour_ashkan/new_disk/train"
+        test_dir = "/home/yousefpour_ashkan/val"
+    elif pc == 3: # local
+        train_dir = "/home/user1/externalDrive/ashkan-imagenet/train"
+        test_dir = "/home/user1/externalDrive/ashkan-imagenet/val"
     input_shape = (256,256)
     batch_size = 8
     datagen = ImageDataGenerator(
