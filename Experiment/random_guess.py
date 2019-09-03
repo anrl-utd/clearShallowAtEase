@@ -49,7 +49,7 @@ def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
     preds = model.predict(test_data)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
-    f1 = model.get_layer(name = "connection_cloud").output
+    f1 = model.get_layer(name = "Cloud_Input").output
     # get the output from the layer
     output_model_f1 = Model(inputs = model.input,outputs=f1)
     f1_output = output_model_f1.predict(test_data)
@@ -91,6 +91,7 @@ def random_guess(train_labels,test_data):
         cumulative_frequency[index] += cumulative_frequency[index-1]
     # make a guess for each test example
     guess_preds = [guess(cumulative_frequency) for example in test_data]
+    # TODO: if the input is one hot, so return one hot for guess
     return guess_preds
 
 def guess(cumulative_frequency):    

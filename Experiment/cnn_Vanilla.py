@@ -82,7 +82,7 @@ def define_vanilla_model_CNN(input_shape=None,
     fog = define_cnn_architecture_fog(edge,alpha,depth_multiplier)
     # layer alias to name cloud input (alias is used for random guessing)
     # don't need between edge and IoT because 0 will propagate to this node
-    fog = layers.Lambda(lambda x : x * 1,name = 'connection_cloud')(fog)
+    fog = layers.Lambda(lambda x : x * 1,name = 'Cloud_Input')(fog)
     # cloud node
     cloud = define_cnn_architecture_cloud(fog,alpha,depth_multiplier,classes,include_top,pooling)
 

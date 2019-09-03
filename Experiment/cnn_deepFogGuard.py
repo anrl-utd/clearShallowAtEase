@@ -142,9 +142,9 @@ def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, de
 
 def define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling, multiply_hyperconnection_weight_layer_fc = None, multiply_hyperconnection_weight_layer_ec = None):
     if multiply_hyperconnection_weight_layer_fc == None or multiply_hyperconnection_weight_layer_ec == None:
-        cloud_input = layers.add([fog_output, skip_edgecloud], name = "connection_cloud")
+        cloud_input = layers.add([fog_output, skip_edgecloud], name = "Cloud_Input")
     else:
-        cloud_input = layers.add([multiply_hyperconnection_weight_layer_fc(fog_output), multiply_hyperconnection_weight_layer_ec(skip_edgecloud)], name = "connection_cloud")
+        cloud_input = layers.add([multiply_hyperconnection_weight_layer_fc(fog_output), multiply_hyperconnection_weight_layer_ec(skip_edgecloud)], name = "Cloud_Input")
     cloud_output = define_cnn_architecture_cloud(cloud_input,alpha,depth_multiplier,classes,include_top,pooling)
     return cloud_output
 
