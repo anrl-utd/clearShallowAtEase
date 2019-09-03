@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense,Input,Lambda, Activation, add
+from keras.layers import Dense,Input,Lambda, Activation, add, Flatten
 from Experiment.LambdaLayers import add_node_layers
 from keras.models import Model
 
@@ -55,7 +55,7 @@ def define_vanilla_model_MLP(input_shape,
     cloud = define_MLP_architecture_cloud(fog1, hidden_units, num_classes)
 
     model = Model(inputs=[img_input_1,img_input_2,img_input_3,img_input_4,img_input_5,img_input_6], outputs=cloud)
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 def define_MLP_architecture_edge(edge_input, hidden_units, output_layer_name):
@@ -75,5 +75,6 @@ def define_MLP_architecture_cloud(cloud_input, hidden_units, num_classes):
     cloud = Dense(units=hidden_units,name="cloud_input_layer",activation='relu')(cloud_input)
     cloud = Dense(units=hidden_units,name="cloud_layer_1",activation='relu')(cloud)
     cloud = Dense(units=hidden_units,name="cloud_layer_2",activation='relu')(cloud)
+    cloud = Flatten()(cloud)
     cloud_output = Dense(units=num_classes,activation='softmax',name = "output")(cloud)
     return cloud_output

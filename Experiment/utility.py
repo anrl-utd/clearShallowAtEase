@@ -89,10 +89,10 @@ def get_model_weights_MLP_camera(model, model_name, load_model, model_file, trai
     else:
         print(model_name)
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        train_labels = np.array([np.where(r==1)[0][0] for r in train_labels])
-        print(train_labels)
-        print(train_labels.shape)
+        #train_labels = np.array([np.where(r==1)[0][0] for r in train_labels])
+        # format the data into six individual arrays
         x = [train_data[:,0],train_data[:,1],train_data[:,2],train_data[:,3],train_data[:,4],train_data[:,5]]
+        val_data = [val_data[:,0],val_data[:,1],val_data[:,2],val_data[:,3],val_data[:,4],val_data[:,5]]
         model.fit(
             x = x,
             y = train_labels,

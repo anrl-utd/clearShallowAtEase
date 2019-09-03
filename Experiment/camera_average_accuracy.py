@@ -3,7 +3,7 @@ from Experiment.mlp_deepFogGuardPlus_camera import define_deepFogGuardPlus_MLP
 from Experiment.mlp_deepFogGuard_camera import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_camera import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.utility import average, get_model_weights_MLP_health
+from Experiment.utility import average, get_model_weights_MLP_camera
 from Experiment.common_exp_methods_MLP_camera import init_data, init_common_experiment_params
 from Experiment.common_exp_methods import write_n_upload
 from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy
@@ -26,7 +26,7 @@ def define_and_train(iteration, model_name, load_model,train_data, train_labels,
         model = define_vanilla_model_MLP(input_shape,num_classes,hidden_units)
         model_file = "new_split_" + str(iteration) + '_vanilla.h5'
     
-    get_model_weights_MLP_health(model, model_name, load_model, model_file, train_data, train_labels, val_data,val_labels,epochs, batch_size, verbose)
+    get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data,val_labels,epochs, batch_size, verbose)
     return model
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,train_labels, test_data, test_labels):
@@ -38,11 +38,11 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = False
-    train_data, val_data, test_data, train_labels, val_labels, test_labels = init_data(use_GCP) 
+    train_data,train_labels,val_data,val_labels,test_data,test_labels = init_data(use_GCP) 
     survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs = init_common_experiment_params()
 
     default_failout_survival_rate = [.95,.95,.95,.95,.95,.95,.95,.95]
-    allpresent_skip_hyperconnections_configuration = [1,1,1]
+    allpresent_skip_hyperconnections_configuration = [1,1,1,1,1,1,1]
     default_survivability_setting = [1,1,1,1,1,1,1,1]
     load_model = False
 
