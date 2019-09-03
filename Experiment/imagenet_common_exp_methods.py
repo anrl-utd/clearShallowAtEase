@@ -5,12 +5,17 @@ def init_data(use_GCP, num_gpus, pc = 1):
     if pc == 1: # google cloud
         train_dir = "/home/yousefpour_ashkan/new_disk/train"
         test_dir = "/home/yousefpour_ashkan/val"
-    elif pc == 2: # AWS
+    elif pc == 2: # our AWS
         train_dir = "/home/yousefpour_ashkan/new_disk/train"
         test_dir = "/home/yousefpour_ashkan/val"
     elif pc == 3: # local
         train_dir = "/home/user1/externalDrive/ashkan-imagenet/train"
         test_dir = "/home/user1/externalDrive/ashkan-imagenet/val"
+        num_gpus = 1
+    elif pc == 4: # Guanhua AWS
+        train_dir = "/home/ubuntu/imagenet/train"
+        test_dir = "/home/ubuntu/imagenet/val"
+        num_gpus = 1
     input_shape = (256,256)
     batch_size = 8
     datagen = ImageDataGenerator(
