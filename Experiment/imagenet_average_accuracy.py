@@ -12,8 +12,8 @@ import os
 import numpy as np
 
 import tensorflow as tf
-def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs,num_gpus):
-    model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate)
+def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs,num_gpus, strides):
+    model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate, strides = strides)
     get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs, num_gpus)
     return model
 
@@ -26,7 +26,7 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = False
-    num_iterations,num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus = init_common_experiment_params()
+    num_iterations,num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides = init_common_experiment_params()
     train_generator, test_generator = init_data(use_GCP, num_gpus) 
     
     default_failout_survival_rate = [.95,.95,.95]
@@ -55,7 +55,8 @@ if __name__ == "__main__":
             default_failout_survival_rate = default_failout_survival_rate,
             num_train_examples = num_train_examples,
             epochs = epochs,
-            num_gpus = num_gpus
+            num_gpus = num_gpus,
+            strides = strides
             )
         deepFogGuard = define_and_train(
             iteration = iteration, 
@@ -69,7 +70,8 @@ if __name__ == "__main__":
             default_failout_survival_rate = None,
             num_train_examples = num_train_examples,
             epochs = epochs,
-            num_gpus = num_gpus
+            num_gpus = num_gpus,
+            strides = strides,
             )
         Vanilla = define_and_train(
             iteration = iteration, 
@@ -83,7 +85,8 @@ if __name__ == "__main__":
             default_failout_survival_rate = None,
             num_train_examples = num_train_examples,
             epochs = epochs,
-            num_gpus = num_gpus
+            num_gpus = num_gpus,
+            strides = strides,
             )
         # test models
         for survivability_setting in survivability_settings:
