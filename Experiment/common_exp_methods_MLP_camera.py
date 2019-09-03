@@ -13,6 +13,10 @@ def init_data(use_GCP):
     train_data, train_labels,_,_ = load_dataset(train_dir,img_size,classes)
     val_data, val_labels,_,_ = load_dataset(val_dir,img_size,classes)
     test_data, test_labels,_,_ = load_dataset(test_dir,img_size,classes)
+    # format images correctly to be used for MLP
+    train_data = [train_data[:,0],train_data[:,1],train_data[:,2],train_data[:,3],train_data[:,4],train_data[:,5]]
+    val_data = [val_data[:,0],val_data[:,1],val_data[:,2],val_data[:,3],val_data[:,4],val_data[:,5]]
+    test_data = [test_data[:,0],test_data[:,1],test_data[:,2],test_data[:,3],test_data[:,4],test_data[:,5]]
     return train_data,train_labels,val_data,val_labels,test_data,test_labels
 
 def init_common_experiment_params():

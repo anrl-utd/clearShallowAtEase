@@ -24,26 +24,51 @@ def fail_node(model,node_array):
     ### Returns
         return a boolean whether the model failed was a cnn or not
     """
-    is_cnn = False
+    is_img_input = False
     # determines type of network by the first layer input shape
     first_layer = model.get_layer(index = 0)
     if len(first_layer.input_shape) == 4:
         # cnn input shape has 4 dimensions
-        is_cnn = True
-    # cnn failure
-    if is_cnn:
-        nodes = ["conv_pw_3","conv_pw_8"]
-        for index,node in enumerate(node_array):
-            # node failed
-            if node == 0:
+        is_img_input = True
+    # input is an img 
+    if is_img_input:
+        # camera MLP
+        if model.get_layer("output").output_shape == (None,3):
+            nodes = [
+                "edge1_output_layer",
+                "edge2_output_layer",
+                "edge3_output_layer",
+                "edge4_output_layer",
+                "fog1_output_layer",
+                "fog2_output_layer",
+                "fog3_output_layer",
+                "fog4_output_layer"
+                ]
+            for index, node in enumerate(node_array):
                 layer_name = nodes[index]
                 layer = model.get_layer(name=layer_name)
                 layer_weights = layer.get_weights()
                 # make new weights for the connections
                 new_weights = np.zeros(layer_weights[0].shape)
-                layer.set_weights([new_weights])
+                #new_weights[:] = np.nan # set weights to nan
+                # make new weights for biases
+                new_bias_weights = np.zeros(layer_weights[1].shape)
+                layer.set_weights([new_weights,new_bias_weights])
                 print(layer_name, "was failed")
-    # regular NN failure
+        # cnn 
+        else:
+            nodes = ["conv_pw_3","conv_pw_8"]
+            for index,node in enumerate(node_array):
+                # node failed
+                if node == 0:
+                    layer_name = nodes[index]
+                    layer = model.get_layer(name=layer_name)
+                    layer_weights = layer.get_weights()
+                    # make new weights for the connections
+                    new_weights = np.zeros(layer_weights[0].shape)
+                    layer.set_weights([new_weights])
+                    print(layer_name, "was failed")
+    # input is from a normal array
     else:
         nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
         for index,node in enumerate(node_array):
@@ -59,7 +84,7 @@ def fail_node(model,node_array):
                 new_bias_weights = np.zeros(layer_weights[1].shape)
                 layer.set_weights([new_weights,new_bias_weights])
                 print(layer_name, "was failed")
-    return is_cnn
+    return is_img_input
 
 def average(list):
     """function to return average of a list 
@@ -91,15 +116,14 @@ def get_model_weights_MLP_camera(model, model_name, load_model, model_file, trai
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
         #train_labels = np.array([np.where(r==1)[0][0] for r in train_labels])
         # format the data into six individual arrays
-        x = [train_data[:,0],train_data[:,1],train_data[:,2],train_data[:,3],train_data[:,4],train_data[:,5]]
-        val_data = [val_data[:,0],val_data[:,1],val_data[:,2],val_data[:,3],val_data[:,4],val_data[:,5]]
         model.fit(
-            x = x,
+            x = train_data,
             y = train_labels,
             batch_size = batch_size,
             validation_data = (val_data,val_labels),
             callbacks = [modelCheckPoint],
-            verbose = verbose
+            verbose = verbose,
+            epochs = num_train_epochs
         )
         # load weights from epoch with the highest val acc
         model.load_weights(model_file)
