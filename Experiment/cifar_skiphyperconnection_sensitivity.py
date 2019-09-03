@@ -59,9 +59,9 @@ def make_output_dictionary(survivability_settings, num_iterations):
     }
     return output
 
-def define_and_train(iteration, model_name, load_model, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
+def define_and_train(iteration, model_name, load_model, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
     model_file = "cifar_skiphyperconnection_sensitivity_results_" + str(skip_hyperconnection_configuration) + str(iteration) + ".h5"
-    model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha,skip_hyperconnection_config = skip_hyperconnection_configuration)
+    model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha,skip_hyperconnection_config = skip_hyperconnection_configuration, strides = strides)
     
     get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
     return model
@@ -70,7 +70,7 @@ def define_and_train(iteration, model_name, load_model, skip_hyperconnection_con
 if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
     
-    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape = init_common_experiment_params()
+    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides = init_common_experiment_params()
     output = make_output_dictionary(survivability_settings, num_iterations)
     num_iterations = 20
     skip_hyperconnection_configurations = [
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-            model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight Sensitivity", load_model, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+            model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight Sensitivity", load_model, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
             for survivability_settings in survivability_settings:
                 output_list.append(str(survivability_settings) + '\n')
                 print(survivability_settings)

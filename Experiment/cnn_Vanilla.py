@@ -19,6 +19,7 @@ def define_vanilla_model_CNN(input_shape=None,
                             input_tensor=None,
                             pooling=None,
                             classes=1000,
+                            strides = (2,2),
                             **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -74,9 +75,9 @@ def define_vanilla_model_CNN(input_shape=None,
     img_input = layers.Input(shape=input_shape)  
     # changed the strides from 2 to 1 since cifar-10 images are smaller
     # IoT Node
-    iot = define_cnn_architecture_IoT(img_input,alpha)
+    iot = define_cnn_architecture_IoT(img_input,alpha, strides = strides)
     # edge 
-    edge = define_cnn_architecture_edge(iot,alpha,depth_multiplier)
+    edge = define_cnn_architecture_edge(iot,alpha,depth_multiplier, strides = strides)
     # fog node
     fog = define_cnn_architecture_fog(edge,alpha,depth_multiplier)
     # layer alias to name cloud input (alias is used for random guessing)

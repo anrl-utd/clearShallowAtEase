@@ -21,6 +21,7 @@ def define_deepFogGuard_CNN(input_shape=None,
                             input_tensor=None,
                             pooling=None,
                             classes=1000,
+                            strides = (2,2),
                             skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive
                             survivability_setting=[1.0,1.0], # survivability of a node between 0 and 1
                             hyperconnection_weights_scheme = 1,
@@ -89,10 +90,10 @@ def define_deepFogGuard_CNN(input_shape=None,
     img_input = layers.Input(shape=input_shape)  
 
     # iot node
-    iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input)
+    iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input, strides = strides)
 
     # edge node
-    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier)
+    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, strides = strides)
 
     # fog node
     fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef)
@@ -105,17 +106,17 @@ def define_deepFogGuard_CNN(input_shape=None,
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def define_cnn_deepFogGuard_architecture_IoT(input_shape, alpha, img_input):
+def define_cnn_deepFogGuard_architecture_IoT(input_shape, alpha, img_input, strides = (2,2)):
     # changed the strides from 2 to 1 since cifar-10 images are smaller
-    iot_output = define_cnn_architecture_IoT(img_input,alpha,strides = (1,1))
+    iot_output = define_cnn_architecture_IoT(img_input,alpha,strides = strides)
 
     # used stride 1 to match (32,32,3) to (32,32,64)
     # 1x1 conv2d is used to change the filter size (from 3 to 64)
     skip_iotfog = layers.Conv2D(64,(1,1),strides = 1, use_bias = False, name = "skip_hyperconnection_iotfog")(iot_output)
     return iot_output, skip_iotfog
 
-def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplier):
-    edge_output = define_cnn_architecture_edge(iot_output,alpha,depth_multiplier, strides= (1,1))
+def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplier, strides = (2,2)):
+    edge_output = define_cnn_architecture_edge(iot_output,alpha,depth_multiplier, strides= strides)
     # used stride 4 to match (31,31,64) to (7,7,256)
     # 1x1 conv2d is used to change the filter size (from 64 to 256)
     skip_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(edge_output)

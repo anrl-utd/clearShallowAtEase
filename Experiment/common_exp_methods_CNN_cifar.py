@@ -32,7 +32,7 @@ def init_common_experiment_params():
         [.90,.95],
         [.80,.85],
     ]
-
+    strides = (1,1)
     num_iterations = 10
     batch_size = 128
     epochs = 75
@@ -42,4 +42,4 @@ def init_common_experiment_params():
     alpha = .5
     input_shape = (32,32,3)
     classes = 10
-    return num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape
+    return num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides

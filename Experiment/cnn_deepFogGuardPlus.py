@@ -21,6 +21,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
                                 include_top=True,
                                 pooling=None,
                                 classes=1000, 
+                                strides = (2,2),
                                 failout_survival_setting = [1.0,1.0],
                                 **kwargs):
     """Instantiates the MobileNet architecture.
@@ -79,10 +80,10 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     edge_failure_lambda, fog_failure_lambda = cnn_nodewise_dropout_definitions(failout_survival_setting)
 
      # iot node
-    iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input)
+    iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input, strides = strides)
     
     # edge node
-    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier)
+    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, strides = strides)
     edge_output = edge_failure_lambda(edge_output)
     skip_edgecloud = edge_failure_lambda(skip_edgecloud)
     
