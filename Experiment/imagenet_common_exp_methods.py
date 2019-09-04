@@ -17,7 +17,7 @@ def init_data(use_GCP, num_gpus, pc = 1):
         test_dir = "/home/ubuntu/imagenet/val"
         num_gpus = 1
     input_shape = (256,256)
-    batch_size = 8
+    batch_size = 64
     datagen = ImageDataGenerator(
         rescale = 1./255
     )
@@ -50,6 +50,6 @@ def init_common_experiment_params():
     ]
     num_classes = 1000
     epochs = 100
-    num_gpus = 2
+    num_gpus = 1
     strides = (2,2)
     return num_iterations, num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides
