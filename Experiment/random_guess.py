@@ -5,6 +5,7 @@ from keras.models import Model
 import keras.backend as K
 from sklearn.metrics import accuracy_score
 import numpy as np
+from sklearn.preprocessing import OneHotEncoder
 
 def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     """Returns a guess of the data based on training class distribution if there is no data connection in the network
@@ -28,6 +29,11 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     # there is no connection flow, make random guess 
     # variable that keeps track if the network has failed
     failure = 0
+
+    # check if there are 6 images in the first dimension (used for multiview)
+    if len(test_data == 6):
+        # reformat the images so the first dimension corresponds to each set of images
+        test_data = np.transpose(test_data,axes=[1,0,2,3,4])
     if no_connection_flow_f3:
         print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
@@ -57,6 +63,7 @@ def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
     # there is no connection flow, make random guess 
     # variable that keeps track if the network has failed
     failure = 0
+    # make into 1d vector
     train_labels = [item for sublist in train_labels for item in sublist]
     if no_connection_flow_f1:
         print("There is no data flow in the network")
@@ -90,8 +97,10 @@ def random_guess(train_labels,test_data):
     for index in range(1,len(cumulative_frequency)):
         cumulative_frequency[index] += cumulative_frequency[index-1]
     # make a guess for each test example
+    print(len(test_data))
+    # check if the test data are images
     guess_preds = [guess(cumulative_frequency) for example in test_data]
-    # TODO: if the input is one hot, so return one hot for guess
+    print(guess_preds)
     return guess_preds
 
 def guess(cumulative_frequency):    

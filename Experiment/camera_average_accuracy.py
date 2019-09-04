@@ -26,7 +26,7 @@ def define_and_train(iteration, model_name, load_model,train_data, train_labels,
         model = define_vanilla_model_MLP(input_shape,num_classes,hidden_units)
         model_file = "new_split_" + str(iteration) + '_vanilla.h5'
     
-    get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data,val_labels,epochs, batch_size, verbose)
+    #get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data,val_labels,epochs, batch_size, verbose)
     return model
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,train_labels, test_data, test_labels):

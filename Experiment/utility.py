@@ -25,6 +25,7 @@ def fail_node(model,node_array):
         return a boolean whether the model failed was a cnn or not
     """
     is_img_input = False
+    is_cifar_cnn = False
     # determines type of network by the first layer input shape
     first_layer = model.get_layer(index = 0)
     if len(first_layer.input_shape) == 4:
@@ -68,6 +69,8 @@ def fail_node(model,node_array):
                     new_weights = np.zeros(layer_weights[0].shape)
                     layer.set_weights([new_weights])
                     print(layer_name, "was failed")
+            is_cifar_cnn = True
+                    
     # input is from a normal array
     else:
         nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
@@ -84,7 +87,7 @@ def fail_node(model,node_array):
                 new_bias_weights = np.zeros(layer_weights[1].shape)
                 layer.set_weights([new_weights,new_bias_weights])
                 print(layer_name, "was failed")
-    return is_img_input
+    return is_cifar_cnn
 
 def average(list):
     """function to return average of a list 
