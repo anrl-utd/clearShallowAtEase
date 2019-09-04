@@ -31,7 +31,7 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     failure = 0
 
     # check if there are 6 images in the first dimension (used for multiview)
-    if len(test_data == 6):
+    if len(test_data) == 6:
         # reformat the images so the first dimension corresponds to each set of images
         test_data = np.transpose(test_data,axes=[1,0,2,3,4])
     if no_connection_flow_f3:
