@@ -25,7 +25,7 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    K.set_floatx('float16')
+
     use_GCP = False
     num_iterations,num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides = init_common_experiment_params()
     train_generator, test_generator = init_data(use_GCP, num_gpus) 
