@@ -96,7 +96,7 @@ def define_deepFogGuard_CNN(input_shape=None,
     edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, strides = strides)
 
     # fog node
-    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef)
+    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef, strides = strides)
 
     # cloud node
     cloud_output = define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling,multiply_hyperconnection_weight_layer_fc, multiply_hyperconnection_weight_layer_ec)
@@ -129,14 +129,20 @@ def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplie
     return edge_output, skip_edgecloud
    
 
-def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None):
+def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None, strides = (2,2)):
     if multiply_hyperconnection_weight_layer_IoTf == None or multiply_hyperconnection_weight_layer_ef == None:
         fog_input = layers.add([skip_iotfog, edge_output], name = "connection_fog")
     else:
         fog_input = layers.add([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)], name = "connection_fog")
     fog = define_cnn_architecture_fog(fog_input,alpha,depth_multiplier)
-    # pad from (7,7,256) to (8,8,256)
-    fog_output = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
+    # cnn for imagenet does not need padding
+    if strides == (2,2):
+        fog_output = fog
+    elif strides == (1,1):
+        # pad from (7,7,256) to (8,8,256)
+        fog_output = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
+    else:
+        raise ValueError("Incorrect stride value")
     
     return fog_output
 

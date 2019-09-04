@@ -88,7 +88,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     skip_edgecloud = edge_failure_lambda(skip_edgecloud)
     
     # fog node
-    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier)
+    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, strides = strides)
     fog_output = fog_failure_lambda(fog_output)
 
     # cloud node
