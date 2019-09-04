@@ -152,15 +152,28 @@ def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, tr
     else:
         print(model_name)
         verbose = 1
-        parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
-        parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        parallel_model.fit_generator(
-            generator = train_generator,
-            steps_per_epoch = num_train_examples / train_generator.batch_size,
-            epochs = epochs,
-            class_weight = None,
-            verbose = verbose
-            )
-        # load weights from epoch with the highest val acc
-        model.save_weights(model_file)
+        if num_gpus > 1:
+            parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
+            parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+            parallel_model.fit_generator(
+                generator = train_generator,
+                steps_per_epoch = num_train_examples / train_generator.batch_size,
+                epochs = epochs,
+                class_weight = None,
+                verbose = verbose
+                )
+            # load weights from epoch with the highest val acc
+            model.save_weights(model_file)
+            return parallel_model
+        else:
+            model.fit_generator(
+                generator = train_generator,
+                steps_per_epoch = num_train_examples / train_generator.batch_size,
+                epochs = epochs,
+                class_weight = None,
+                verbose = verbose
+                )
+            # load weights from epoch with the highest val acc
+            model.save_weights(model_file)
+            return model
     
