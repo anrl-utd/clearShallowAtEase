@@ -18,16 +18,23 @@ def init_data(use_GCP, num_gpus, pc = 1):
         num_gpus = 1
     input_shape = (256,256)
     batch_size = 64
-    datagen = ImageDataGenerator(
+    train_datagen = ImageDataGenerator(
+        rescale = 1./255,
+        rotation_range=30,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        horizontal_flip=True,
+    )
+    test_datagen = ImageDataGenerator(
         rescale = 1./255
     )
-    train_generator = datagen.flow_from_directory(
+    train_generator = train_datagen.flow_from_directory(
         directory = train_dir,
         target_size = input_shape,
         batch_size = batch_size * num_gpus,
         class_mode = "sparse"
     )
-    test_generator = datagen.flow_from_directory(
+    test_generator = test_datagen.flow_from_directory(
         directory = test_dir,
         target_size = input_shape,
         batch_size = batch_size * num_gpus,
