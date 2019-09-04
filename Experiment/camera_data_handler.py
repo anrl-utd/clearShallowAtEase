@@ -3,7 +3,7 @@ import os
 import glob
 from sklearn.utils import shuffle
 import numpy as np
-from imblearn.over_sampling import SMOTE
+
 
 
 def load_dataset(train_path, image_size, labels):
@@ -118,10 +118,6 @@ def read_dataset(dataset_path, image_size, labels = ['person_images', 'car_image
 
     images, img_labels, img_names, classes = load_dataset(dataset_path, image_size, labels)
     images, img_labels, img_names, classes = shuffle(images, img_labels, img_names, classes)
-
-    #sm = SMOTE(random_state=42)
-    #images = images.reshape(620, 18432)
-    #images, img_labels = sm.fit_resample(images, [np.where(r==1)[0][0] for r in img_labels])
 
     return images, img_labels, img_names, classes
 
