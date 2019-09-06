@@ -43,5 +43,5 @@ def init_common_experiment_params():
     num_classes = 3
     hidden_units = 32
     batch_size = 64
-    epochs = 240
+    epochs = 24
     return survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs
