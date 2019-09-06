@@ -2,6 +2,7 @@
 
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.utils import class_weight
 
 from keras.models import Model
 import keras.backend as K
@@ -117,8 +118,7 @@ def get_model_weights_MLP_camera(model, model_name, load_model, model_file, trai
     else:
         print(model_name)
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        #train_labels = np.array([np.where(r==1)[0][0] for r in train_labels])
-        # format the data into six individual arrays
+        class_weights = class_weight.compute_class_weight('balanced',np.unique(train_labels),train_labels)
         model.fit(
             x = train_data,
             y = train_labels,
@@ -126,7 +126,8 @@ def get_model_weights_MLP_camera(model, model_name, load_model, model_file, trai
             validation_data = (val_data,val_labels),
             callbacks = [modelCheckPoint],
             verbose = verbose,
-            epochs = num_train_epochs
+            epochs = num_train_epochs,
+            class_weight = class_weights
         )
         # load weights from epoch with the highest val acc
         model.load_weights(model_file)
