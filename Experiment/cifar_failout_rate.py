@@ -55,7 +55,7 @@ if __name__ == "__main__":
     dropout_like_failout = False
     output = make_output_dictionary_failout_rate(failout_survival_settings, survivability_settings, num_iterations)
     make_results_folder()
-    output_name = 'results/cifar_nodewise_dropout_results.txt'
+    output_name = 'results/cifar_failout_results.txt'
     for iteration in range(1,num_iterations+1):
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("iteration:",iteration)

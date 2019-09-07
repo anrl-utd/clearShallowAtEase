@@ -13,7 +13,7 @@ from keras_applications.imagenet_utils import _obtain_input_shape, get_submodule
 from keras_applications import imagenet_utils
 import keras 
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
-
+from Experiment.Failout import Failout
 # ResiliNet
 def define_deepFogGuardPlus_CNN(input_shape=None,
                                 alpha=1.0,
@@ -109,12 +109,14 @@ def cnn_nodewise_dropout_definitions(failout_survival_setting):
     edge_survivability_keras = K.variable(edge_survivability)
     fog_survivability_keras = K.variable(fog_survivability)
    # node-wise dropout occurs only during training
-    K.set_learning_phase(1)
-    if K.learning_phase():
-        # seeds so the random_number is different for each node 
-        edge_rand = K.random_uniform(shape=edge_rand.shape)
-        fog_rand = K.random_uniform(shape=fog_rand.shape)
-    # define lambda for failure, only fail during training
-    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'edge_failure_lambda')
-    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survivability_keras), x * 0, x),name = 'fog_failure_lambda')
+    # K.set_learning_phase(1)
+    # if K.learning_phase():
+    #     # seeds so the random_number is different for each node 
+    #     edge_rand = K.random_uniform(shape=edge_rand.shape)
+    #     fog_rand = K.random_uniform(shape=fog_rand.shape)
+    # # define lambda for failure, only fail during training
+    # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'edge_failure_lambda')
+    # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survivability_keras), x * 0, x),name = 'fog_failure_lambda')
+    edge_failure_lambda = Failout(edge_survivability)
+    fog_failure_lambda = Failout(fog_survivability)
     return edge_failure_lambda, fog_failure_lambda
