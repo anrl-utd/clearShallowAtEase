@@ -16,7 +16,7 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
         test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
         file_name (string): specifies the file name for output, not used anymore
     ### Returns
-        return a tuple of accuracy as a float and whether there was total network failure as an integer
+        return a tuple of accuracy as a float and whether there was no_information_flow as an integer
     """
     preds = model.predict(test_data)
     print(preds)
@@ -29,7 +29,7 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     no_connection_flow_f3 = np.array_equal(f3_output,f3_output * 0)
     # there is no connection flow, make random guess 
     # variable that keeps track if the network has failed
-    failure = 0
+    no_information_flow = 0
 
     # check if there are 6 images in the first dimension (used for multiview)
     if len(test_data) == 6:
@@ -38,9 +38,9 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     if no_connection_flow_f3:
         print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
-        failure = 1
+        no_information_flow = 1
     acc = accuracy_score(test_labels,preds)
-    return acc,failure
+    return acc,no_information_flow
 
 def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
     """Returns a guess of the data based on training class distribution if there is no data connection in the CNN network
@@ -51,7 +51,7 @@ def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
         test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
         file_name (string): specifies the file name for output, not used anymore
     ### Returns
-        return a tuple of accuracy as a float and whether there was total network failure as an integer
+        return a tuple of accuracy as a float and whether there no_information_flow as an integer
     """
     preds = model.predict(test_data)
     preds = np.argmax(preds,axis=1)
@@ -63,15 +63,15 @@ def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
     no_connection_flow_f1 = np.array_equal(f1_output,f1_output * 0)
     # there is no connection flow, make random guess 
     # variable that keeps track if the network has failed
-    failure = 0
+    no_information_flow = 0
     # make into 1d vector
     train_labels = [item for sublist in train_labels for item in sublist]
     if no_connection_flow_f1:
         print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
-        failure = 1
+        no_information_flow = 1
     acc = accuracy_score(test_labels,preds)
-    return acc,failure
+    return acc,no_information_flow
 
 def random_guess(train_labels,test_data):
     """function returns a array of predictions from random guessing based on training class distribution 
