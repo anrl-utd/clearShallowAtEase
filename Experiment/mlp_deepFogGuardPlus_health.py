@@ -4,7 +4,7 @@ import keras.backend as K
 import keras.layers as layers
 from Experiment.LambdaLayers import add_node_layers
 from Experiment.mlp_deepFogGuard_health import define_MLP_deepFogGuard_architecture_cloud, define_MLP_deepFogGuard_architecture_edge, define_MLP_deepFogGuard_architecture_fog1, define_MLP_deepFogGuard_architecture_fog2, define_MLP_deepFogGuard_architecture_IoT
-
+from Experiment.Failout import Failout
 from keras.models import Model
 from keras.backend import constant
 import random 
@@ -60,22 +60,25 @@ def MLP_nodewise_dropout_definitions(failout_survival_setting):
     fog1_survivability = failout_survival_setting[2]
 
     # variables for node-wise dropout
-    edge_rand = K.variable(0)
-    fog2_rand = K.variable(0)
-    fog1_rand = K.variable(0)
-    # variables for node-wise dropout
-    edge_survivability_keras = K.variable(edge_survivability)
-    fog2_survivability_keras = K.variable(fog2_survivability)
-    fog1_survivability_keras = K.variable(fog1_survivability)
+    # edge_rand = K.variable(0)
+    # fog2_rand = K.variable(0)
+    # fog1_rand = K.variable(0)
+    # # variables for node-wise dropout
+    # edge_survivability_keras = K.variable(edge_survivability)
+    # fog2_survivability_keras = K.variable(fog2_survivability)
+    # fog1_survivability_keras = K.variable(fog1_survivability)
     # node-wise dropout occurs only during training
-    K.set_learning_phase(1)
-    if K.learning_phase():
-        # seeds so the random_number is different for each node 
-        edge_rand = K.random_uniform(shape=edge_rand.shape)
-        fog2_rand = K.random_uniform(shape=fog2_rand.shape)
-        fog1_rand = K.random_uniform(shape=fog2_rand.shape)
+    # K.set_learning_phase(1)
+    # if K.learning_phase():
+    #     # seeds so the random_number is different for each node 
+    #     edge_rand = K.random_uniform(shape=edge_rand.shape)
+    #     fog2_rand = K.random_uniform(shape=fog2_rand.shape)
+    #     fog1_rand = K.random_uniform(shape=fog2_rand.shape)
     # define lambda for failure, only fail during training
-    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'e_failure_lambda')
-    fog2_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog2_rand,fog2_survivability_keras), x * 0, x),name = 'f2_failure_lambda')
-    fog1_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog1_rand,fog1_survivability_keras), x * 0, x),name = 'f1_failure_lambda')
+    # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'e_failure_lambda')
+    # fog2_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog2_rand,fog2_survivability_keras), x * 0, x),name = 'f2_failure_lambda')
+    # fog1_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog1_rand,fog1_survivability_keras), x * 0, x),name = 'f1_failure_lambda')
+    edge_failure_lambda = Failout(edge_survivability)
+    fog2_failure_lambda = Failout(fog2_survivability)
+    fog1_failure_lambda = Failout(fog1_survivability)
     return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda
