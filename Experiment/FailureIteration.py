@@ -23,7 +23,7 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
     ### Returns
         return how many survival configurations had total network failure
     """  
-    failure_count = 0
+    no_information_flow_count = 0
     maxNumComponentFailure = 2 ** numComponents
     for i in range(maxNumComponentFailure):
         numSurvived = numSurvivedComponents(i)
@@ -36,9 +36,9 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
             is_cnn = fail_node(model,failures)
             print(failures)
             output_list.append(str(failures))
-            accuracy,failure = calcModelAccuracy(model,output_list,training_labels,test_data,test_labels,is_cnn)
-            # add number of failures for a model
-            failure_count += failure
+            accuracy,no_information_flow = calcModelAccuracy(model,output_list,training_labels,test_data,test_labels,is_cnn)
+            # add number of no_information_flow for a model
+            no_information_flow_count += no_information_flow
             # change the changed weights to the original weights
             model.set_weights(old_weights)
             # calculate weight of the result based on survival rates 
@@ -47,7 +47,7 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
             weightList.append(weight)
             print("numSurvived:",numSurvived," weight:", weight, " acc:",accuracy)
             output_list.append("numSurvived: " + str(numSurvived) + " weight: " + str(weight) + " acc: " + str(accuracy) + '\n')
-    return failure_count
+    return no_information_flow_count
 
 def calcAverageAccuracy(accuracyList, weightList):
     """calculates weighted accuracy based on failure probabilities 
@@ -123,14 +123,14 @@ def calcModelAccuracy(model,output_list,training_labels,test_data,test_labels, i
         test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
         is_cnn (boolean): used to determine which guess function to use
     ### Returns
-        return model accuracy and whether a failure occured 
+        return model accuracy and whether a no_information_flow occured 
     """  
     # accuracy based on whether the model is fully connected or not 
     if is_cnn:
-         acc,failure = cnnmodel_guess(model,training_labels,test_data,test_labels)
+         acc,no_information_flow = cnnmodel_guess(model,training_labels,test_data,test_labels)
     else:
-        acc,failure = model_guess(model,training_labels,test_data,test_labels)
-    return acc,failure
+        acc,no_information_flow = model_guess(model,training_labels,test_data,test_labels)
+    return acc,no_information_flow
 
 
 def normalizeWeights(weights):
@@ -159,12 +159,12 @@ def calculateExpectedAccuracy(model,surv,output_list,training_labels,test_data,t
     numComponents = len(surv)
     accuracyList = []
     weightList = []
-    failure_count = iterateFailuresExperiment(surv,numComponents, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels)
+    no_information_flow_count = iterateFailuresExperiment(surv,numComponents, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels)
     weightList = normalizeWeights(weightList)
     avg_acc = calcAverageAccuracy(accuracyList, weightList)
-    output_list.append('Number of Failures: ' + str(failure_count) + '\n')
+    output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')
     output_list.append('Average Accuracy: ' + str(avg_acc) + '\n')
-    print('Number of Failures: ',str(failure_count))
+    print('Times we had no information flow: ',str(no_information_flow_count))
     print("Average Accuracy:", avg_acc)
     return avg_acc
 

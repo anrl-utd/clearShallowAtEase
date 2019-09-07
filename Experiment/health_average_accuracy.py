@@ -37,8 +37,8 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    use_GCP = True
-    training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data(use_GCP) 
+    use_GCP = False
+    training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP) 
     num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
 
     default_failout_survival_rate = [.95,.95,.95]
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     output_name = "results/health_normal_testfordfg.txt"
     num_iterations = 1
     verbose = 2
-
+    
     # keep track of output so that output is in order
     output_list = []
     
