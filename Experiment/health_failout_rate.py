@@ -12,6 +12,7 @@ import numpy as np
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     model = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,failout_survival_setting)
     model_file = str(iteration) + " " + str(failout_survival_setting) + 'health_failout_rate.h5'
+    model.summary()
     get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
@@ -33,11 +34,10 @@ def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_sett
             
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    use_GCP = True
-    training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data(use_GCP)
+    use_GCP = False
+    training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP)
 
     num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
-    
     load_model = False
     failout_survival_settings = [
         [.95,.95,.95],
@@ -78,7 +78,6 @@ if __name__ == "__main__":
                 output_list.append(str(survivability_setting)+ '\n')
                 print(survivability_setting)
                 output[str(failout_survival_setting)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_fixed,survivability_setting,output_list,training_labels,test_data,test_labels)
-                K.set_learning_phase(0)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
