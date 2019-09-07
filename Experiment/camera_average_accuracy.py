@@ -31,8 +31,6 @@ def define_and_train(iteration, model_name, load_model,train_data, train_labels,
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,train_labels, test_data, test_labels):
     output_list.append(model_name + "\n")
     print(model_name)
-    # set to test phase
-    K.set_learning_phase(0)
     output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model, survivability_setting, output_list, train_labels, test_data, test_labels)
 
 
