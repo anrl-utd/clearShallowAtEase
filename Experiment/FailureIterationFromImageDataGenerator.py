@@ -26,7 +26,6 @@ def iterateFailuresExperimentFromImageDataGenerator(surv,numComponents,model,acc
             fail_node(model,failures)
             output_list.append(str(failures))
             accuracy = calcModelAccuracy(model,output_list,test_generator, num_test_examples)
-            # add number of failures for a model
             # change the changed weights to the original weights
             model.set_weights(old_weights)
             # calculate weight of the result based on survival rates 

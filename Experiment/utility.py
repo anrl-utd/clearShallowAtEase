@@ -47,16 +47,17 @@ def fail_node(model,node_array):
                 "fog4_output_layer"
                 ]
             for index, node in enumerate(node_array):
-                layer_name = nodes[index]
-                layer = model.get_layer(name=layer_name)
-                layer_weights = layer.get_weights()
-                # make new weights for the connections
-                new_weights = np.zeros(layer_weights[0].shape)
-                #new_weights[:] = np.nan # set weights to nan
-                # make new weights for biases
-                new_bias_weights = np.zeros(layer_weights[1].shape)
-                layer.set_weights([new_weights,new_bias_weights])
-                print(layer_name, "was failed")
+                if node == 0:
+                    layer_name = nodes[index]
+                    layer = model.get_layer(name=layer_name)
+                    layer_weights = layer.get_weights()
+                    # make new weights for the connections
+                    new_weights = np.zeros(layer_weights[0].shape)
+                    #new_weights[:] = np.nan # set weights to nan
+                    # make new weights for biases
+                    new_bias_weights = np.zeros(layer_weights[1].shape)
+                    layer.set_weights([new_weights,new_bias_weights])
+                    print(layer_name, "was failed")
         # cnn 
         else:
             nodes = ["conv_pw_3","conv_pw_8"]
