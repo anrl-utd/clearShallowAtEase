@@ -11,7 +11,6 @@ import keras.backend as K
 import datetime
 import gc
 import os
-
 def define_and_train(iteration, model_name, load_model,train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
     # ResiliNet
     if model_name == "ResiliNet":
@@ -25,14 +24,15 @@ def define_and_train(iteration, model_name, load_model,train_data, train_labels,
     if model_name == "Vanilla":
         model = define_vanilla_model_MLP(input_shape,num_classes,hidden_units)
         model_file = "camera" + str(iteration) + '_vanilla.h5'
-    
+      
     get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data,val_labels,epochs, batch_size, verbose)
     return model
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,train_labels, test_data, test_labels):
     output_list.append(model_name + "\n")
     print(model_name)
-
+    # set to test phase
+    K.set_learning_phase(0)
     output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model, survivability_setting, output_list, train_labels, test_data, test_labels)
 
 
@@ -41,6 +41,8 @@ if __name__ == "__main__":
     use_GCP = False
     train_data,train_labels,val_data,val_labels,test_data,test_labels = init_data(use_GCP) 
     survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs = init_common_experiment_params()
+
+    epochs = 1
 
     default_failout_survival_rate = [.95,.95,.95,.95,.95,.95,.95,.95]
     allpresent_skip_hyperconnections_configuration = [1,1,1,1,1,1,1]

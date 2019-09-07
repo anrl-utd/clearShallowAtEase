@@ -9,6 +9,7 @@ from keras.models import Model
 from keras.backend import constant
 import random 
 
+from Experiment.Failout import Failout
 def define_deepFogGuardPlus_MLP(input_shape,
                             num_classes,
                             hidden_units,
@@ -100,16 +101,9 @@ def MLP_nodewise_dropout_definitions(failout_survival_setting):
         fog_rand[i] = K.variable(0)
         edge_survivability_keras[i] = K.variable(edge_survivability[i])
         fog_survivability_keras[i] = K.variable(fog_survivability[i])
-    K.set_learning_phase(1)
-    if K.learning_phase():
-        # seeds so the random_number is different for each node 
-        for i in range(1,5):
-            edge_rand[i] = K.random_uniform(shape=edge_rand[i].shape)
-            fog_rand[i] = K.random_uniform(shape=fog_rand[i].shape)
-    # define lambda for failure, only fail during training
     edge_failure_lambda = {}
     fog_failure_lambda = {}
     for i in range(1,5):
-        edge_failure_lambda[i] = layers.Lambda(lambda x : K.switch(K.greater(edge_rand[i],edge_survivability_keras[i]), x * 0, x),name = 'e'+str(i)+'_failure_lambda')
-        fog_failure_lambda[i] = layers.Lambda(lambda x : K.switch(K.greater(fog_rand[i],fog_survivability_keras[i]), x * 0, x),name = 'f'+str(i)+'_failure_lambda')
+        edge_failure_lambda[i] = Failout(edge_survivability[i])
+        fog_failure_lambda[i] = Failout(fog_survivability[i])
     return edge_failure_lambda, fog_failure_lambda

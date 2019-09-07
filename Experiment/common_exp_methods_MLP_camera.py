@@ -19,12 +19,10 @@ def init_data(use_GCP):
     val_data = np.array(val_data)
     test_data = np.array(test_data)
 
-    print(type(train_data))
     # convert one-hot to integer encoding
     train_labels = np.array([np.where(r==1)[0][0] for r in train_labels])
     val_labels = np.array([np.where(r==1)[0][0] for r in val_labels])
     test_labels = np.array([np.where(r==1)[0][0] for r in test_labels])
-
     # format images correctly to be used for MLP
     train_data = [train_data[:,0],train_data[:,1],train_data[:,2],train_data[:,3],train_data[:,4],train_data[:,5]]
     val_data = [val_data[:,0],val_data[:,1],val_data[:,2],val_data[:,3],val_data[:,4],val_data[:,5]]

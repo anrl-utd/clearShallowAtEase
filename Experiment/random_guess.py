@@ -21,9 +21,9 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     preds = model.predict(test_data)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
-    f3 = model.get_layer(name = "Cloud_Input").output
+    f3 = model.get_layer(name = "cloud_input_layer").output
     # get the output from the layer
-    output_model_f3 = Model(inputs = model.input,outputs=f3)
+    output_model_f3 = Model(inputs = model.inputs,outputs=f3)
     f3_output = output_model_f3.predict(test_data)
     no_connection_flow_f3 = np.array_equal(f3_output,f3_output * 0)
     # there is no connection flow, make random guess 
@@ -39,6 +39,7 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
         preds = random_guess(train_labels,test_data)
         failure = 1
     acc = accuracy_score(test_labels,preds)
+    print(preds)
     return acc,failure
 
 def cnnmodel_guess(model,train_labels,test_data,test_labels,file_name = None):
@@ -97,10 +98,8 @@ def random_guess(train_labels,test_data):
     for index in range(1,len(cumulative_frequency)):
         cumulative_frequency[index] += cumulative_frequency[index-1]
     # make a guess for each test example
-    print(len(test_data))
     # check if the test data are images
     guess_preds = [guess(cumulative_frequency) for example in test_data]
-    print(guess_preds)
     return guess_preds
 
 def guess(cumulative_frequency):    
