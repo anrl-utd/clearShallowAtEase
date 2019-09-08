@@ -15,7 +15,7 @@ import keras
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.Failout import Failout
 # ResiliNet
-def define_deepFogGuardPlus_CNN(input_shape=None,
+def define_ResiliNet_CNN(input_shape=None,
                                 alpha=1.0,
                                 depth_multiplier=1,
                                 include_top=True,

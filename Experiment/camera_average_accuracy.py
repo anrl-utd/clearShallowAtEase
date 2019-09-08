@@ -1,5 +1,5 @@
 
-from Experiment.mlp_deepFogGuardPlus_camera import define_deepFogGuardPlus_MLP
+from Experiment.mlp_ResiliNet_camera import define_ResiliNet_MLP
 from Experiment.mlp_deepFogGuard_camera import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_camera import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
@@ -14,8 +14,8 @@ import os
 def define_and_train(iteration, model_name, load_model,train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
     # ResiliNet
     if model_name == "ResiliNet":
-        model = define_deepFogGuardPlus_MLP(input_shape,num_classes,hidden_units,default_failout_survival_rate)
-        model_file = "camera_" + str(iteration) + '_deepFogGuardPlus.h5'
+        model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units,default_failout_survival_rate)
+        model_file = "camera_" + str(iteration) + '_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
         model = define_deepFogGuard_MLP(input_shape, num_classes, hidden_units, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
