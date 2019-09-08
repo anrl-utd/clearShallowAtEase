@@ -70,7 +70,6 @@ if __name__ == "__main__":
             del ResiliNet_failout_rate_variable
         # fixed failout rate
         for failout_survival_setting in failout_survival_settings:
-            # node-wise dropout
             ResiliNet_failout_rate_fixed = define_and_train(iteration, "Fixed Failout 1x", load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
             multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, ResiliNet_failout_rate_fixed)   
                 

@@ -34,7 +34,7 @@ def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_sett
             new_weights = layer_weights[0] * survival_rate
             layer.set_weights([new_weights])
 
-# ResiliNet variable dropout experiment
+# ResiliNet variable failout experiment
 if __name__ == "__main__":
     
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
@@ -63,7 +63,6 @@ if __name__ == "__main__":
         output_list.append('ResiliNet' + '\n') 
         # variable failout rate  
         for survivability_setting in survivability_settings:
-            # node-wise dropout
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, survivability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
             multiply_hyperconnection_weights(dropout_like_failout, survivability_setting, ResiliNet_failout_rate_variable)
             output_list.append(str(survivability_setting) + '\n')
@@ -75,7 +74,6 @@ if __name__ == "__main__":
             del ResiliNet_failout_rate_variable
         # fixed failout rate
         for failout_survival_setting in failout_survival_settings:
-            # node-wise dropout
             ResiliNet_failout_rate_fixed = define_and_train(iteration, "Fixed Failout 1x", load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
             multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, ResiliNet_failout_rate_fixed)   
                 
