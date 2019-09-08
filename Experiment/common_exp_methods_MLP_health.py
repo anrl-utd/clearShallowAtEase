@@ -2,6 +2,8 @@ import os
 from Experiment.data_handler_health import load_data
 from sklearn.model_selection import train_test_split
 import numpy as np
+from keras.callbacks import ModelCheckpoint
+
 def init_data(use_GCP):
     if use_GCP == True:
         os.system('gsutil -m cp -r gs://anrl-storage/data/mHealth_complete.log ./')
