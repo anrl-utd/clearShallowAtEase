@@ -103,20 +103,7 @@ def cnn_nodewise_dropout_definitions(failout_survival_setting):
     edge_survivability = failout_survival_setting[0]
     fog_survivability = failout_survival_setting[1]
     
-    # variables for node-wise dropout
-    edge_rand = K.variable(0)
-    fog_rand = K.variable(0)
-    edge_survivability_keras = K.variable(edge_survivability)
-    fog_survivability_keras = K.variable(fog_survivability)
-   # node-wise dropout occurs only during training
-    # K.set_learning_phase(1)
-    # if K.learning_phase():
-    #     # seeds so the random_number is different for each node 
-    #     edge_rand = K.random_uniform(shape=edge_rand.shape)
-    #     fog_rand = K.random_uniform(shape=fog_rand.shape)
-    # # define lambda for failure, only fail during training
-    # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survivability_keras), x * 0, x),name = 'edge_failure_lambda')
-    # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survivability_keras), x * 0, x),name = 'fog_failure_lambda')
+
     edge_failure_lambda = Failout(edge_survivability)
     fog_failure_lambda = Failout(fog_survivability)
     return edge_failure_lambda, fog_failure_lambda

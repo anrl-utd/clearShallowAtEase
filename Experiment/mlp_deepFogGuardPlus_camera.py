@@ -79,7 +79,7 @@ def define_deepFogGuardPlus_MLP(input_shape,
 
 def MLP_nodewise_dropout_definitions(failout_survival_setting):
     fog_survivability = [0] * 5
-    print(failout_survival_setting)
+
     fog_survivability[1] = failout_survival_setting[0]
     fog_survivability[2] = failout_survival_setting[1]
     fog_survivability[3] = failout_survival_setting[2]
@@ -91,16 +91,7 @@ def MLP_nodewise_dropout_definitions(failout_survival_setting):
     edge_survivability[3] = failout_survival_setting[6]
     edge_survivability[4] = failout_survival_setting[7]
     
-    # variables for node-wise dropout
-    edge_rand = [0] * 5
-    fog_rand = [0] * 5
-    edge_survivability_keras = [0] * 5
-    fog_survivability_keras = [0] * 5
-    for i in range(1,5):
-        edge_rand[i] = K.variable(0)
-        fog_rand[i] = K.variable(0)
-        edge_survivability_keras[i] = K.variable(edge_survivability[i])
-        fog_survivability_keras[i] = K.variable(fog_survivability[i])
+     # variables for node-wise dropout
     edge_failure_lambda = {}
     fog_failure_lambda = {}
     for i in range(1,5):
