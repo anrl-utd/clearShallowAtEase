@@ -51,6 +51,7 @@ if __name__ == "__main__":
         [.9,.9],
         [.7,.7],
         [.5,.5],
+        [.3,.3]
     ]
     dropout_like_failout = False
     output = make_output_dictionary_failout_rate(failout_survival_settings, survivability_settings, num_iterations)
