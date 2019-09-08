@@ -37,7 +37,7 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 if __name__ == "__main__":
     use_GCP = False
     train_data,train_labels,val_data,val_labels,test_data,test_labels = init_data(use_GCP) 
-    survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs = init_common_experiment_params()
+    survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations = init_common_experiment_params()
 
     epochs = 1
 
@@ -48,7 +48,6 @@ if __name__ == "__main__":
 
     # file name with the experiments accuracy output
     output_name = "results/camera_average_accuracy.txt"
-    num_iterations = 1
     verbose = 2
 
     # keep track of output so that output is in order
