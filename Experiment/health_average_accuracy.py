@@ -3,10 +3,8 @@ from Experiment.mlp_ResiliNet_health import define_ResiliNet_MLP
 from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.utility import average
-from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params
-from Experiment.utility import get_model_weights_MLP_health
-from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
+from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params, get_model_weights_MLP_health
+from Experiment.common_exp_methods import average, convert_to_string, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import keras.backend as K
 import datetime
 import gc
@@ -16,15 +14,15 @@ def define_and_train(iteration, model_name, load_model, training_data, training_
     # ResiliNet
     if model_name == "ResiliNet":
         model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
-        model_file = 'models/' + str(iteration) + 'health_average_accuracy_ResiliNet.h5'
+        model_file = 'models/' + "Health" + str(iteration) + 'average_accuracy_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
         model = define_deepFogGuard_MLP(num_vars, num_classes, hidden_units, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
-        model_file = 'models/' + str(iteration) + 'health_average_accuracy_deepFogGuard.h5'
+        model_file = 'models/' + "Health" + str(iteration) + 'average_accuracy_deepFogGuard.h5'
     # Vanilla model
     if model_name == "Vanilla":
         model = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
-        model_file = 'models/' + str(iteration) + 'health_average_accuracy_vanilla.h5'
+        model_file = 'models/' + "Health" + str(iteration) + 'average_accuracy_vanilla.h5'
     
     get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model

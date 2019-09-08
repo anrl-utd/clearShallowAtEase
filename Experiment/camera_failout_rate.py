@@ -1,8 +1,7 @@
 from Experiment.mlp_ResiliNet_health import define_ResiliNet_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.utility import average, get_model_weights_MLP_health
-from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params
-from Experiment.common_exp_methods import convert_to_string, write_n_upload,  make_results_folder, make_output_dictionary_failout_rate, make_output_dictionary_failout_rate
+from Experiment.common_exp_methods_MLP_camera import init_data, init_common_experiment_params, get_model_weights_MLP_camera
+from Experiment.common_exp_methods import average, convert_to_string, write_n_upload,  make_results_folder, make_output_dictionary_failout_rate, make_output_dictionary_failout_rate
 import keras.backend as K
 import gc
 import os
@@ -11,8 +10,8 @@ import numpy as np
 
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,failout_survival_setting)
-    model_file = "models/" + str(iteration) + " " + str(failout_survival_setting) + 'health_failout_rate.h5'
-    get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    model_file = "models/" + str(iteration) + " " + str(failout_survival_setting) + 'camera_failout_rate.h5'
+    get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, model):
@@ -46,7 +45,7 @@ if __name__ == "__main__":
         [.5,.5,.5],
     ]
     # file name with the experiments accuracy output
-    output_name = "results/health_failout_rate.txt"
+    output_name = "results/camera_failout_rate.txt"
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
@@ -70,7 +69,6 @@ if __name__ == "__main__":
             del ResiliNet_failout_rate_variable
         # fixed failout rate
         for failout_survival_setting in failout_survival_settings:
-            # node-wise dropout
             ResiliNet_failout_rate_fixed = define_and_train(iteration, "Fixed Failout 1x", load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
             multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, ResiliNet_failout_rate_fixed)   
                 

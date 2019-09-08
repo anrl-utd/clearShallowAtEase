@@ -4,7 +4,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import precision_score
 
 
-from Experiment.utility import fail_node
+from Experiment.common_exp_methods import fail_node
 from Experiment.random_guess import model_guess, cnnmodel_guess
 
 

@@ -31,8 +31,8 @@ def define_ResiliNet_MLP(num_vars,
     img_input = Input(shape = (num_vars,))
     iot_output = define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units)
 
-    # nodewise droput definitions
-    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda  = MLP_nodewise_dropout_definitions(failout_survival_setting)
+    # failout definitions
+    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda  = MLP_failout_definitions(failout_survival_setting)
   
     # edge node
     edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units)
@@ -54,7 +54,7 @@ def define_ResiliNet_MLP(num_vars,
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def MLP_nodewise_dropout_definitions(failout_survival_setting):
+def MLP_failout_definitions(failout_survival_setting):
     edge_survivability = failout_survival_setting[0]
     fog2_survivability = failout_survival_setting[1]
     fog1_survivability = failout_survival_setting[2]

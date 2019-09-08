@@ -76,8 +76,8 @@ def define_ResiliNet_CNN(input_shape=None,
     # Determine proper input shape and default size.
     img_input = layers.Input(shape=input_shape)  
 
-    # nodewise dropout definitions
-    edge_failure_lambda, fog_failure_lambda = cnn_nodewise_dropout_definitions(failout_survival_setting)
+    # failout definitions
+    edge_failure_lambda, fog_failure_lambda = cnn_failout_definitions(failout_survival_setting)
 
      # iot node
     iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input, strides = strides)
@@ -99,7 +99,7 @@ def define_ResiliNet_CNN(input_shape=None,
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-def cnn_nodewise_dropout_definitions(failout_survival_setting):
+def cnn_failout_definitions(failout_survival_setting):
     edge_survivability = failout_survival_setting[0]
     fog_survivability = failout_survival_setting[1]
     

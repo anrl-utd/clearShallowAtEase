@@ -6,14 +6,14 @@ def define_model(iteration, model_name, dataset_name, input_shape, classes, alph
     # ResiliNet
     if model_name == "ResiliNet":
         model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha, strides = strides, failout_survival_setting=default_failout_survival_rate)
-        model_file = "models/" + model_name + str(iteration) + '_ResiliNet.h5'
+        model_file = "models/" + dataset_name + str(iteration) + 'average_accuracy_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
         model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha, strides = strides)
-        model_file =  "models/"+ model_name  + str(iteration) + '_deepFogGuard.h5'
+        model_file =  "models/"+ dataset_name  + str(iteration) + 'average_accuracy_deepFogGuard.h5'
     # Vanilla model
     if model_name == "Vanilla":
         model = define_vanilla_model_CNN(classes=classes,input_shape = input_shape,alpha = alpha, strides = strides)
-        model_file = "models/" + model_name  + str(iteration) + '_vanilla.h5'
+        model_file = "models/" + dataset_name  + str(iteration) + 'average_accuracy_vanilla.h5'
     
     return model, model_file
