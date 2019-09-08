@@ -60,7 +60,7 @@ def make_output_dictionary(survivability_settings, num_iterations):
     return output
 
 def define_and_train(iteration, model_name, load_model, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
-    model_file = "cifar_skiphyperconnection_sensitivity_results_" + str(skip_hyperconnection_configuration) + str(iteration) + ".h5"
+    model_file = "models/" + "cifar_skiphyperconnection_sensitivity_results_" + str(skip_hyperconnection_configuration) + str(iteration) + ".h5"
     model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha,skip_hyperconnection_config = skip_hyperconnection_configuration, strides = strides)
     
     get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)

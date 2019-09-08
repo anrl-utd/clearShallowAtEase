@@ -11,8 +11,7 @@ import numpy as np
 
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,failout_survival_setting)
-    model_file = str(iteration) + " " + str(failout_survival_setting) + 'health_failout_rate.h5'
-    model.summary()
+    model_file = 'models/' + str(iteration) + " " + str(failout_survival_setting) + 'health_failout_rate.h5'
     get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 

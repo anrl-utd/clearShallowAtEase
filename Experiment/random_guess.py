@@ -20,7 +20,6 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     """
     print(train_labels)
     preds = model.predict(test_data)
-#    print(preds)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
     f3 = model.get_layer(name = "cloud_input_layer").output
@@ -120,7 +119,11 @@ def guess(cumulative_frequency):
     rand_num = random.random()
     for index in range(1,len(cumulative_frequency)):
         if rand_num <= cumulative_frequency[index] and rand_num >= cumulative_frequency[index-1]:
+<<<<<<< HEAD
             return index-1
+=======
+            return index - 1
+>>>>>>> 0c87a1bc1a4fec3bca93e8421781b2dde0c9e603
     return 0
 
 
