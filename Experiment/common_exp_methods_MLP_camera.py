@@ -14,23 +14,23 @@ def init_data(use_GCP):
     test_dir = "multiview-dataset/holdout_dir"
     img_size = (32,32,3)
     classes = ['person_images', 'car_images', 'bus_images']
-    train_data, train_labels,_,_ = load_dataset(train_dir,img_size,classes)
+    training_data, training_labels,_,_ = load_dataset(train_dir,img_size,classes)
     val_data, val_labels,_,_ = load_dataset(val_dir,img_size,classes)
     test_data, test_labels,_,_ = load_dataset(test_dir,img_size,classes)
 
-    train_data = np.array(train_data)
+    training_data = np.array(training_data)
     val_data = np.array(val_data)
     test_data = np.array(test_data)
 
     # convert one-hot to integer encoding
-    train_labels = np.array([np.where(r==1)[0][0] for r in train_labels])
+    training_labels = np.array([np.where(r==1)[0][0] for r in training_labels])
     val_labels = np.array([np.where(r==1)[0][0] for r in val_labels])
     test_labels = np.array([np.where(r==1)[0][0] for r in test_labels])
     # format images correctly to be used for MLP
-    train_data = [train_data[:,0],train_data[:,1],train_data[:,2],train_data[:,3],train_data[:,4],train_data[:,5]]
+    training_data = [training_data[:,0],training_data[:,1],training_data[:,2],training_data[:,3],training_data[:,4],training_data[:,5]]
     val_data = [val_data[:,0],val_data[:,1],val_data[:,2],val_data[:,3],val_data[:,4],val_data[:,5]]
     test_data = [test_data[:,0],test_data[:,1],test_data[:,2],test_data[:,3],test_data[:,4],test_data[:,5]]
-    return train_data,train_labels,val_data,val_labels,test_data,test_labels
+    return training_data,val_data, test_data, training_labels,val_labels,test_labels
 
 def init_common_experiment_params():
     input_shape = (32,32,3)
@@ -48,16 +48,16 @@ def init_common_experiment_params():
     num_iterations = 20
     return survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations
 
-def get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data, val_labels,num_train_epochs, batch_size, verbose):
+def get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels,num_train_epochs, batch_size, verbose):
     if load_model:
         model.load_weights(model_file)
     else:
         print(model_name)
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
-        class_weights = class_weight.compute_class_weight('balanced',np.unique(train_labels),train_labels)
+        class_weights = class_weight.compute_class_weight('balanced',np.unique(training_labels),training_labels)
         model.fit(
-            x = train_data,
-            y = train_labels,
+            x = training_data,
+            y = training_labels,
             batch_size = batch_size,
             validation_data = (val_data,val_labels),
             callbacks = [modelCheckPoint],

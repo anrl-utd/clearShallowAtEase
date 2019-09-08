@@ -36,7 +36,7 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
     use_GCP = False
-    train_data,train_labels,val_data,val_labels,test_data,test_labels = init_data(use_GCP) 
+    train_data,val_data, test_data, train_labels,val_labels,test_labels = init_data(use_GCP) 
     survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations = init_common_experiment_params()
 
     epochs = 1

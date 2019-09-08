@@ -37,6 +37,7 @@ def calc_accuracy(iteration, model_name, model, survivability_setting, output_li
 if __name__ == "__main__":
     use_GCP = False
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP) 
+    
     num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
 
     default_failout_survival_rate = [.95,.95,.95]
