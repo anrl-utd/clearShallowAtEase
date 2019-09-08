@@ -28,3 +28,23 @@ def init_common_experiment_params(train_data):
     batch_size = 1028
     num_iterations = 10
     return num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size
+
+def get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose):
+    if load_model:
+        model.load_weights(model_file)
+    else:
+        print(model_name)
+        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
+        model.fit(
+            x = training_data,
+            y = training_labels,
+            batch_size = batch_size,
+            validation_data = (val_data,val_labels),
+            callbacks = [modelCheckPoint],
+            verbose = verbose,
+            epochs = num_train_epochs,
+            shuffle = True
+        )
+        # load weights from epoch with the highest val acc
+        model.load_weights(model_file)
+

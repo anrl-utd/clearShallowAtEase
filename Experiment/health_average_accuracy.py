@@ -5,7 +5,7 @@ from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.utility import average
 from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params
-from Experiment.utility import get_model_weights_MLP_health
+from Experiment.common_exp_methods_MLP_health import get_model_weights_MLP_health
 from Experiment.common_exp_methods import convert_to_string, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import keras.backend as K
 import datetime

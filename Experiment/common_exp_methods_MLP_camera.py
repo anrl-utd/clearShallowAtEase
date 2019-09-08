@@ -43,3 +43,24 @@ def init_common_experiment_params():
     batch_size = 64
     epochs = 24
     return survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs
+
+def get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data, val_labels,num_train_epochs, batch_size, verbose):
+    if load_model:
+        model.load_weights(model_file)
+    else:
+        print(model_name)
+        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', period=1)
+        class_weights = class_weight.compute_class_weight('balanced',np.unique(train_labels),train_labels)
+        model.fit(
+            x = train_data,
+            y = train_labels,
+            batch_size = batch_size,
+            validation_data = (val_data,val_labels),
+            callbacks = [modelCheckPoint],
+            verbose = verbose,
+            epochs = num_train_epochs,
+            shuffle = True,
+            class_weight = class_weights
+        )
+        # load weights from epoch with the highest val acc
+        model.load_weights(model_file)

@@ -1,8 +1,8 @@
 
 from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.utility import average, get_model_weights_MLP_camera
-from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params
+from Experiment.utility import average
+from Experiment.common_exp_methods_MLP_camera import init_data, init_common_experiment_params, get_model_weights_MLP_camera
 from Experiment.common_exp_methods import convert_to_string, write_n_upload, make_results_folder, make_output_dictionary_hyperconnection_weight
 import keras.backend as K
 import gc
