@@ -16,15 +16,15 @@ def define_and_train(iteration, model_name, load_model, training_data, training_
     # ResiliNet
     if model_name == "ResiliNet":
         model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
-        model_file = "new_split_" + str(iteration) + '_ResiliNet.h5'
+        model_file = "Health" + str(iteration) + '_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
         model = define_deepFogGuard_MLP(num_vars, num_classes, hidden_units, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
-        model_file = "new_split_" + str(iteration) + '_deepFogGuard.h5'
+        model_file = "Health" + str(iteration) + '_deepFogGuard.h5'
     # Vanilla model
     if model_name == "Vanilla":
         model = define_vanilla_model_MLP(num_vars,num_classes,hidden_units)
-        model_file = "new_split_" + str(iteration) + '_vanilla.h5'
+        model_file = "Health" + str(iteration) + '_vanilla.h5'
     
     get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
