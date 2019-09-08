@@ -45,7 +45,7 @@ if __name__ == "__main__":
         [.5,.5,.5],
     ]
     # file name with the experiments accuracy output
-    output_name = "results/health_failout_rate.txt"
+    output_name = "results/camera_failout_rate.txt"
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
