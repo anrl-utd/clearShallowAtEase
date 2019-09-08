@@ -15,15 +15,15 @@ def define_and_train(iteration, model_name, load_model,train_data, train_labels,
     # ResiliNet
     if model_name == "ResiliNet":
         model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units,default_failout_survival_rate)
-        model_file = "camera_" + str(iteration) + '_ResiliNet.h5'
+        model_file = "Camera" + str(iteration) + '_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
         model = define_deepFogGuard_MLP(input_shape, num_classes, hidden_units, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
-        model_file = "camera" + str(iteration) + '_deepFogGuard.h5'
+        model_file = "Camera" + str(iteration) + '_deepFogGuard.h5'
     # Vanilla model
     if model_name == "Vanilla":
         model = define_vanilla_model_MLP(input_shape,num_classes,hidden_units)
-        model_file = "camera" + str(iteration) + '_vanilla.h5'
+        model_file = "Camera" + str(iteration) + '_vanilla.h5'
       
     get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data,val_labels,epochs, batch_size, verbose)
     return model
