@@ -18,8 +18,8 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     ### Returns
         return a tuple of accuracy as a float and whether there was no_information_flow as an integer
     """
-    print(train_labels)
     preds = model.predict(test_data)
+    #print(preds)
     preds = np.argmax(preds,axis=1)
     # check if the connection is 0 which means that there is no data flowing in the network
     f3 = model.get_layer(name = "cloud_input_layer").output
@@ -38,12 +38,7 @@ def model_guess(model,train_labels,test_data,test_labels,file_name = None):
     if no_connection_flow_f3:
         print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
-<<<<<<< HEAD
-        failure = 1
-    print(preds)
-=======
         no_information_flow = 1
->>>>>>> f724900ea12ee4e09847c51a4fcb9f6a64e3ef08
     acc = accuracy_score(test_labels,preds)
     return acc,no_information_flow
 
@@ -115,17 +110,13 @@ def guess(cumulative_frequency):
     ### Returns
         return an int output
     """
-    print('freq ', cumulative_frequency)
     rand_num = random.random()
     for index in range(1,len(cumulative_frequency)):
         if rand_num <= cumulative_frequency[index] and rand_num >= cumulative_frequency[index-1]:
-<<<<<<< HEAD
-            return index-1
-=======
             return index - 1
->>>>>>> 0c87a1bc1a4fec3bca93e8421781b2dde0c9e603
     return 0
 
 
 
         
+

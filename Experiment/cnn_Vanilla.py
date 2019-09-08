@@ -132,7 +132,7 @@ def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,inc
                           padding='same',
                           name='conv_preds')(cloud)
         cloud = layers.Reshape((classes,), name='reshape_2')(cloud)
-        cloud_output = layers.Activation('softmax', name='act_softmax')(cloud)
+        cloud_output = layers.Activation('softmax', name='output')(cloud)
     else:
         if pooling == 'avg':
             cloud_output = layers.GlobalAveragePooling2D()(cloud)
