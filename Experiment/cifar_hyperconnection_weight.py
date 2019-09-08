@@ -9,8 +9,7 @@ import os
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.common_exp_methods import make_results_folder, make_output_dictionary_hyperconnection_weight, write_n_upload
-from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params
-from Experiment.utility import get_model_weights_CNN
+from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params, get_model_weights_CNN_cifar
 import numpy as np
 from Experiment.utility import average
 import gc
@@ -19,7 +18,7 @@ import gc
 def define_and_train(iteration, model_name, load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
     model_file = 'models/' + str(iteration) + "_" + str(survivability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection.h5'
     model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,survivability_setting=survivability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides)
-    get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+    get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
     return model
            
 

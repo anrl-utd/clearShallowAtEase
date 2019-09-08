@@ -8,10 +8,10 @@ import math
 import os 
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params
+from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params, get_model_weights_CNN_cifar
 from Experiment.common_exp_methods import make_results_folder, convert_to_string, write_n_upload, make_results_folder
 import numpy as np
-from Experiment.utility import average, get_model_weights_CNN
+from Experiment.utility import average
 import gc
 
 
@@ -63,7 +63,7 @@ def define_and_train(iteration, model_name, load_model, skip_hyperconnection_con
     model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'cifar_skiphyperconnection_sensitivity.h5'
     model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape,alpha = alpha,skip_hyperconnection_config = skip_hyperconnection_configuration, strides = strides)
     
-    get_model_weights_CNN(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+    get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
     return model
 
 # deepFogGuard hyperconnection failure configuration ablation experiment

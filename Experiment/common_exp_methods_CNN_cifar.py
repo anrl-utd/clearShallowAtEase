@@ -43,3 +43,21 @@ def init_common_experiment_params():
     input_shape = (32,32,3)
     classes = 10
     return num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides
+
+def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
+    if load_model:
+        model.load_weights(model_file)
+    else:
+        # checkpoints to keep track of model with best validation accuracy 
+        print(model_name)
+        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
+        model.fit_generator(
+            train_datagen.flow(training_data,training_labels,batch_size = batch_size),
+            epochs = epochs,
+            validation_data = (val_data,val_labels), 
+            steps_per_epoch = train_steps_per_epoch, 
+            verbose = progress_verbose, 
+            validation_steps = val_steps_per_epoch,
+            callbacks = [modelCheckPoint])
+        # load weights with the highest val accuracy
+        model.load_weights(model_file)
