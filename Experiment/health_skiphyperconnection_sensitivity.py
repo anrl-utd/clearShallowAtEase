@@ -72,7 +72,7 @@ def make_output_dictionary(survivability_settings, num_iterations):
 
 def define_and_train(iteration, model_name, load_model, default_survivability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units, default_survivability_setting,skip_hyperconnection_configuration)
-    model_file = str(iteration) + " " + str(skip_hyperconnection_configuration) +  'health_skiphyperconnection_sensitivity_deepFogGuard.h5'
+    model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) +  'health_skiphyperconnection_sensitivity.h5'
     get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
