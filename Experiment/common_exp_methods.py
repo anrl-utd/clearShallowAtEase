@@ -129,56 +129,22 @@ def make_output_dictionary_hyperconnection_weight(survivability_settings, num_it
 def make_output_dictionary_failout_rate(failout_survival_rates, survivability_settings, num_iterations):
     no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
     
-    # convert dropout rates into strings
-    failout_rate_05 =  str(failout_survival_rates[0])
-    failout_rate_10 = str(failout_survival_rates[1])
-    failout_rate_30 = str(failout_survival_rates[2])
-    failout_rate_50 = str(failout_survival_rates[3])
     # dictionary to store all the results
-    output = {
-        failout_rate_05:
-        {
+    output = {}
+    for failout_survival_rate in failout_survival_rates:
+        output[str(failout_survival_rate)] =   {
             hazardous:[0] * num_iterations,
             poor:[0] * num_iterations,
             normal:[0] * num_iterations,
             no_failure:[0] * num_iterations,
-        },
-        failout_rate_10 :
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        },
-        failout_rate_30:
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        },
-        failout_rate_50:
-        {
-            hazardous:[0] * num_iterations,
-            poor:[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations,
-        },
-        "Variable Failout 1x": 
-        {
-            hazardous:[0] * num_iterations,
-            poor :[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations, # may not be meaningful
-        },
-        "Variable Failout 10x": 
-        {
-            hazardous:[0] * num_iterations,
-            poor :[0] * num_iterations,
-            normal:[0] * num_iterations,
-            no_failure:[0] * num_iterations, # may not be meaningful
         }
-    }
+    output["Variable Failout 1x"] = {
+            hazardous:[0] * num_iterations,
+            poor:[0] * num_iterations,
+            normal:[0] * num_iterations,
+            no_failure:[0] * num_iterations,
+        }
+
     return output
 
 def fail_node(model,node_array):
