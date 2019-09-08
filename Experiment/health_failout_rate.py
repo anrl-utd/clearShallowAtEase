@@ -1,8 +1,7 @@
 from Experiment.mlp_ResiliNet_health import define_ResiliNet_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
-from Experiment.utility import average
 from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params, get_model_weights_MLP_health
-from Experiment.common_exp_methods import convert_to_string, write_n_upload,  make_results_folder, make_output_dictionary_failout_rate, make_output_dictionary_failout_rate
+from Experiment.common_exp_methods import average, convert_to_string, write_n_upload,  make_results_folder, make_output_dictionary_failout_rate, make_output_dictionary_failout_rate
 import keras.backend as K
 import gc
 import os

@@ -1,5 +1,5 @@
 import os
-from Experiment.health_data_handler import load_data
+from Experiment.data_handler_health import load_data
 from sklearn.model_selection import train_test_split
 
 def init_data(use_GCP):

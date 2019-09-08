@@ -6,8 +6,7 @@ import os
 from Experiment.common_exp_methods_CNN import define_model
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params, get_model_weights_CNN_cifar 
-from Experiment.utility import average
-from Experiment.common_exp_methods import make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
+from Experiment.common_exp_methods import average, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import gc
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
