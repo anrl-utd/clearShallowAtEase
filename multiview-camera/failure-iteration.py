@@ -1,4 +1,4 @@
-from restore_deepFogGuardPlus import test
+from restore_ResiliNet import test
 import time
 
 def iterateFailures( numFailureCombinations, maxNumComponentFailure, surv, mn=1):   

@@ -9,12 +9,12 @@ from keras.models import Model
 from keras.backend import constant
 import random 
 
-def define_deepFogGuardPlus_MLP(num_vars,
+def define_ResiliNet_MLP(num_vars,
                             num_classes,
                             hidden_units,
                             failout_survival_setting = [1.0,1.0,1.0]
                             ):
-    """Define a deepFogGuardPlus model.
+    """Define a ResiliNet model.
     ### Naming Convention
         ex: f2f1 = connection between fog node 2 and fog node 1
     ### Arguments
