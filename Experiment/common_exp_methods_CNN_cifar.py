@@ -3,6 +3,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.datasets import cifar10
 import numpy as np
 from sklearn.model_selection import train_test_split
+from keras.callbacks import ModelCheckpoint
 
 def init_data():
     # get cifar10 data 
