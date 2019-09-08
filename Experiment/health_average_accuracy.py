@@ -1,5 +1,5 @@
 
-from Experiment.mlp_deepFogGuardPlus_health import define_deepFogGuardPlus_MLP
+from Experiment.mlp_ResiliNet_health import define_ResiliNet_MLP
 from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
 from Experiment.FailureIteration import calculateExpectedAccuracy
@@ -15,8 +15,8 @@ import os
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
     # ResiliNet
     if model_name == "ResiliNet":
-        model = define_deepFogGuardPlus_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
-        model_file = "new_split_" + str(iteration) + '_deepFogGuardPlus.h5'
+        model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
+        model_file = "new_split_" + str(iteration) + '_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
         model = define_deepFogGuard_MLP(num_vars, num_classes, hidden_units, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
