@@ -35,16 +35,17 @@ if __name__ == "__main__":
     use_GCP = False
     training_data,val_data, test_data, training_labels,val_labels,test_labels = init_data(use_GCP)
 
-    num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
+    survivability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations = init_common_experiment_params()
     load_model = False
     failout_survival_settings = [
-        [.95,.95,.95],
-        [.9,.9,.9],
-        [.7,.7,.7],
-        [.5,.5,.5],
+        [.95,.95,.95,.95,.95,.95,.95,.95],
+        [.9,.9,.9,.9,.9,.9,.9,.9],
+        [.7,.7,.7,.7,.7,.7,.7,.7],
+        [.5,.5,.5,.5,.5,.5,.5,.5],
+        [.3,.3,.3,.3,.3,.3,.3,.3],
     ]
     # file name with the experiments accuracy output
-    output_name = "results/health_failout_rate.txt"
+    output_name = "results/camera_failout_rate.txt"
     verbose = 2
     # keep track of output so that output is in order
     output_list = []

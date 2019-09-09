@@ -1,5 +1,5 @@
 
-from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
+from Experiment.mlp_deepFogGuard_camera import define_deepFogGuard_MLP
 from Experiment.common_exp_methods_MLP_camera import init_data, init_common_experiment_params, get_model_weights_MLP_camera
 from Experiment.FailureIteration import calculateExpectedAccuracy
 from Experiment.common_exp_methods import average, convert_to_string, write_n_upload, make_results_folder
@@ -69,8 +69,8 @@ def make_output_dictionary(survivability_settings, num_iterations):
     }
     return output
 
-def define_and_train(iteration, model_name, load_model, default_survivability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
-    model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units, default_survivability_setting,skip_hyperconnection_configuration)
+def define_and_train(iteration, model_name, load_model, default_survivability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
+    model = define_deepFogGuard_MLP(input_shape,num_classes,hidden_units, default_survivability_setting,skip_hyperconnection_configuration)
     model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'camera_skiphyperconnection_sensitivity.h5'
     get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
@@ -87,22 +87,22 @@ if __name__ == "__main__":
     use_GCP = True
     training_data,val_data, test_data, training_labels,val_labels,test_labels = init_data(use_GCP)
 
-    num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
-    num_iterations = 20
+    survivability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations = init_common_experiment_params()
     skip_hyperconnection_configurations = [
-        [0,0,0],
-        [1,0,0],
-        [0,1,0],
-        [0,0,1],
-        [1,1,0],
-        [1,0,1],
-        [0,1,1],
-        [1,1,1],
+        # [e1,e2,e3,e4,f3,f4,f2]
+        [1,1,1,1,0,0,0],
+        [1,0,0,0,0,0,1],
+        [1,0,0,0,1,0,0],
+        [0,0,0,0,1,0,1],
+        [0,0,0,0,0,0,1],
+        [0,0,0,0,0,1,1],
+        [1,1,1,1,0,0,1],
+        [1,1,1,1,1,1,1]
     ]
-    default_survivability_setting = [1.0,1.0,1.0]
+    default_survivability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
 
     load_model = False
-    output_name = 'results/health_skiphyperconnection_sensitivity.txt'
+    output_name = 'results/camera_skiphyperconnection_sensitivity.txt'
     
     verbose = 2
     # keep track of output so that output is in order
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         print("ITERATION ", iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
           
-            deepFogGuard_weight_sesitivity = define_and_train(iteration, model_name, load_model, default_survivability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
+            deepFogGuard_weight_sesitivity = define_and_train(iteration, model_name, load_model, default_survivability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
             # test models
             for survivability_setting in survivability_settings:
                 print(survivability_setting)

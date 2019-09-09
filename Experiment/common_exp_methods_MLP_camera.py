@@ -44,9 +44,9 @@ def init_common_experiment_params():
     num_classes = 3
     hidden_units = 32
     batch_size = 64
-    epochs = 20
+    num_train_epochs = 20
     num_iterations = 20
-    return survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations
+    return survivability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations
 
 def get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels,num_train_epochs, batch_size, verbose):
     if load_model:
