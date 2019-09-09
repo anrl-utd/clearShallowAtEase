@@ -38,7 +38,7 @@ if __name__ == "__main__":
     use_GCP = False
     train_data,val_data, test_data, train_labels,val_labels,test_labels = init_data(use_GCP) 
     survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations = init_common_experiment_params()
-
+    num_iterations = 10
     epochs = 1
 
     default_failout_survival_rate = [.95,.95,.95,.95,.95,.95,.95,.95]
@@ -62,34 +62,34 @@ if __name__ == "__main__":
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
         ResiliNet = define_and_train(iteration, "ResiliNet", load_model, train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
-        # deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, train_data, train_labels, val_data, val_labels,input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
-        # Vanilla = define_and_train(iteration, "Vanilla", load_model, train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
+        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, train_data, train_labels, val_data, val_labels,input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
+        Vanilla = define_and_train(iteration, "Vanilla", load_model, train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration)
  
         # test models
         for survivability_setting in survivability_settings:
             calc_accuracy(iteration, "ResiliNet", ResiliNet, survivability_setting, output_list,train_labels, test_data, test_labels)
-            # calc_accuracy(iteration, "deepFogGuard", deepFogGuard, survivability_setting, output_list,train_labels, test_data, test_labels)
-            # calc_accuracy(iteration, "Vanilla", Vanilla, survivability_setting, output_list,train_labels, test_data, test_labels)
+            calc_accuracy(iteration, "deepFogGuard", deepFogGuard, survivability_setting, output_list,train_labels, test_data, test_labels)
+            calc_accuracy(iteration, "Vanilla", Vanilla, survivability_setting, output_list,train_labels, test_data, test_labels)
             
         # clear session so that model will recycled back into memory
         K.clear_session()
         gc.collect()
-        # del deepFogGuard
+        del deepFogGuard
         del ResiliNet
-        # del Vanilla
+        del Vanilla
    # calculate average accuracies from all expected accuracies
     for survivability_setting in survivability_settings:
         ResiliNet_acc = average(output["ResiliNet"][str(survivability_setting)])
-        # deepFogGuard_acc = average(output["deepFogGuard"][str(survivability_setting)])
-        # Vanilla_acc = average(output["Vanilla"][str(survivability_setting)])
+        deepFogGuard_acc = average(output["deepFogGuard"][str(survivability_setting)])
+        Vanilla_acc = average(output["Vanilla"][str(survivability_setting)])
 
         output_list.append(str(survivability_setting) + " ResiliNet Accuracy: " + str(ResiliNet_acc) + '\n')
-        # output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
-        # output_list.append(str(survivability_setting) + " Vanilla Accuracy: " + str(Vanilla_acc) + '\n')
+        output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
+        output_list.append(str(survivability_setting) + " Vanilla Accuracy: " + str(Vanilla_acc) + '\n')
 
         print(str(survivability_setting),"ResiliNet Accuracy:",ResiliNet_acc)
-        # print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
-        # print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
+        print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
+        print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
 
     write_n_upload(output_name, output_list, use_GCP)
     print(output)
