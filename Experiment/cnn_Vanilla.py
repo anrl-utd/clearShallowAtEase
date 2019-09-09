@@ -88,7 +88,6 @@ def define_vanilla_model_CNN(input_shape=None,
 
     # Create model.
     model = keras.Model(img_input, cloud, name='ANRL_mobilenet')
-    keras.optimizers.SGD(lr=0.01, momentum=0.0, decay=0.01)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
@@ -129,7 +128,7 @@ def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,inc
 
         cloud = layers.GlobalAveragePooling2D()(cloud)
         cloud = layers.Reshape(shape, name='reshape_1')(cloud)
-        cloud = layers.Dropout(0.2, name='dropout')(cloud)
+        # cloud = layers.Dropout(0.2, name='dropout')(cloud)
         cloud = layers.Conv2D(classes, (1, 1),
                           padding='same',
                           name='conv_preds')(cloud)

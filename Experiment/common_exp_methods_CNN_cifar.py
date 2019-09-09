@@ -34,7 +34,7 @@ def init_common_experiment_params():
         [.80,.85],
     ]
     strides = (1,1)
-    num_iterations = 1
+    num_iterations = 10
     batch_size = 128
     epochs = 75
     progress_verbose = 2

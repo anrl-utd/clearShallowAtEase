@@ -32,36 +32,36 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         Vanilla = define_and_train(iteration, "Vanilla", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
-#        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
-#        ResiliNet = define_and_train(iteration, "ResiliNet", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+        ResiliNet = define_and_train(iteration, "ResiliNet", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
         
         for survivability_setting in survivability_settings:
             output_list.append(str(survivability_setting) + '\n')
             print(survivability_setting)
             output["Vanilla"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(Vanilla, survivability_setting,output_list, training_labels, test_data, test_labels)
-#            output["deepFogGuard"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard, survivability_setting,output_list, training_labels, test_data, test_labels)
-#            output["ResiliNet"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet, survivability_setting,output_list, training_labels, test_data, test_labels)
+            output["deepFogGuard"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard, survivability_setting,output_list, training_labels, test_data, test_labels)
+            output["ResiliNet"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet, survivability_setting,output_list, training_labels, test_data, test_labels)
         # clear session so that model will recycled back into memory
         K.clear_session()
         gc.collect()
         del Vanilla
-#        del deepFogGuard
-#        del ResiliNet
+       del deepFogGuard
+       del ResiliNet
    
     for survivability_setting in survivability_settings:
         output_list.append(str(survivability_setting) + '\n')
 
         Vanilla_acc = average(output["Vanilla"][str(survivability_setting)])
-#        deepFogGuard_acc = average(output["deepFogGuard"][str(survivability_setting)])
-#        ResiliNet_acc = average(output["ResiliNet"][str(survivability_setting)])
+        deepFogGuard_acc = average(output["deepFogGuard"][str(survivability_setting)])
+        ResiliNet_acc = average(output["ResiliNet"][str(survivability_setting)])
 
         output_list.append(str(survivability_setting) + " Vanilla Accuracy: " + str(Vanilla_acc) + '\n')
-#        output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
-#        output_list.append(str(survivability_setting) + " ResiliNet Accuracy: " + str(ResiliNet_acc) + '\n')
+        output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
+        output_list.append(str(survivability_setting) + " ResiliNet Accuracy: " + str(ResiliNet_acc) + '\n')
 
         print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
-#        print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
-#        print(str(survivability_setting),"ResiliNet Accuracy:",ResiliNet_acc)
+        print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
+        print(str(survivability_setting),"ResiliNet Accuracy:",ResiliNet_acc)
     
     write_n_upload(output_name, output_list, use_GCP)
     print(output)
