@@ -88,6 +88,7 @@ def define_vanilla_model_CNN(input_shape=None,
 
     # Create model.
     model = keras.Model(img_input, cloud, name='ANRL_mobilenet')
+    keras.optimizers.SGD(lr=0.01, momentum=0.0, decay=0.01)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 

@@ -11,3 +11,4 @@ Untitled-1.py
 *.h5
 results/
 restore
+*.pyc
