@@ -45,8 +45,8 @@ if __name__ == "__main__":
         K.clear_session()
         gc.collect()
         del Vanilla
-        del deepFogGuard
-        del ResiliNet
+       del deepFogGuard
+       del ResiliNet
    
     for survivability_setting in survivability_settings:
         output_list.append(str(survivability_setting) + '\n')
