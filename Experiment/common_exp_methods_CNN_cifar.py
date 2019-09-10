@@ -36,7 +36,7 @@ def init_common_experiment_params():
     ]
     strides = (1,1)
     num_iterations = 10
-    batch_size = 128
+    batch_size = 1024
     epochs = 75
     progress_verbose = 2
     checkpoint_verbose = 1
@@ -53,6 +53,7 @@ def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, train
     else:
         # checkpoints to keep track of model with best validation accuracy 
         print(model_name)
+        progress_verbose = 1
         modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
         if num_gpus > 1:
             parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
