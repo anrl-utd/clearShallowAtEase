@@ -10,15 +10,15 @@ from Experiment.common_exp_methods import average, make_output_dictionary_averag
 import gc
 import numpy as np
 
-def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
+def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     model, model_file = define_model(iteration, model_name, "cifar", input_shape, classes, alpha, default_failout_survival_rate, strides)
-    get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+    get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
 
 if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
-    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides = init_common_experiment_params()
+    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
     
     default_failout_survival_rate = [.95,.95]
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
@@ -32,9 +32,9 @@ if __name__ == "__main__":
     output_list = []
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
-        Vanilla = define_and_train(iteration, "Vanilla", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
-        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
-        ResiliNet = define_and_train(iteration, "ResiliNet", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+        Vanilla = define_and_train(iteration, "Vanilla", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+        ResiliNet = define_and_train(iteration, "ResiliNet", load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, default_failout_survival_rate, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
         
         for survivability_setting in survivability_settings:
             output_list.append(str(survivability_setting) + '\n')

@@ -14,10 +14,10 @@ import numpy as np
 import gc
 
 
-def define_and_train(iteration, model_name, load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch):
+def define_and_train(iteration, model_name, load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     model_file = 'models/' + str(iteration) + "_" + str(survivability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection.h5'
     model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,survivability_setting=survivability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides)
-    get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+    get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
            
 
@@ -25,7 +25,7 @@ def define_and_train(iteration, model_name, load_model, survivability_setting, w
 if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
-    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides = init_common_experiment_params()
+    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
 
     output, weight_schemes = make_output_dictionary_hyperconnection_weight(survivability_settings, num_iterations)
     
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         print("iteration:",iteration)
         for survivability_setting in survivability_settings:
             for weight_scheme in weight_schemes:
-                model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch)
+                model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
                 
                 output_list.append(str(survivability_setting) + str(weight_scheme) + '\n')
                 print(survivability_setting,weight_scheme)
