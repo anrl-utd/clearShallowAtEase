@@ -71,14 +71,14 @@ if __name__ == "__main__":
     
     num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides = init_common_experiment_params()
     output = make_output_dictionary(survivability_settings, num_iterations)
-    num_iterations = 20
+    
     skip_hyperconnection_configurations = [
         [0,0],
         [1,0],
         [0,1],
         [1,1],
     ]
-
+    num_iterations = 20
     load_model = False
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)

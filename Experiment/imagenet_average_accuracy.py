@@ -30,7 +30,7 @@ if __name__ == "__main__":
     
     default_failout_survival_rate = [.95,.95,.95]
     load_model = False
-    num_iterations = 1
+    num_iterations = 3
     make_results_folder()
     output_name = 'results' + '/imagenet_average_accuracy_results.txt'
     output_list = []

@@ -100,7 +100,7 @@ if __name__ == "__main__":
         [1,1,1,1,1,1,1]
     ]
     default_survivability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
-
+    num_iterations = 20
     load_model = False
     output_name = 'results/camera_skiphyperconnection_sensitivity.txt'
     

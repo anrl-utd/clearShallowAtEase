@@ -39,7 +39,6 @@ if __name__ == "__main__":
     use_GCP = False
     train_data,val_data, test_data, train_labels,val_labels,test_labels = init_data(use_GCP) 
     survivability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations = init_common_experiment_params()
-    num_iterations = 10
 
     default_failout_survival_rate = [.95,.95,.95,.95,.95,.95,.95,.95]
     allpresent_skip_hyperconnections_configuration = [1,1,1,1,1,1,1]

@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     # file name with the experiments accuracy output
     output_name = "results/health_normal_testfordfg.txt"
-    num_iterations = 1
+    
     verbose = 2
     
     # keep track of output so that output is in order
