@@ -54,5 +54,9 @@ if __name__ == "__main__":
             deepFogGuard_hyperconnection_weight_acc = average(output[model_name][weight_scheme][str(survivability_setting)])
             output_list.append(str(survivability_setting) + str(weight_scheme) + " "+ model_name +": " + str(deepFogGuard_hyperconnection_weight_acc) + '\n')
             print(str(survivability_setting),weight_scheme,model_name,":",deepFogGuard_hyperconnection_weight_acc)
+
+            deepFogGuard_hyperconnection_weight_std = np.std(output[model_name][weight_scheme][str(survivability_setting)],ddof=1)
+            output_list.append(str(survivability_setting) + str(weight_scheme) + " "+ model_name +" std: " + str(deepFogGuard_hyperconnection_weight_std) + '\n')
+            print(str(survivability_setting),weight_scheme,model_name,"std:",deepFogGuard_hyperconnection_weight_std)
     write_n_upload(output_name, output_list, use_GCP)
     print(output)

@@ -103,10 +103,10 @@ if __name__ == "__main__":
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
             output_list.append(str(survivability_settings) + '\n')
             deepFogGuard_acc = average(output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(survivability_settings)][str(skip_hyperconnection_configuration)])
-            acc_std = np.std(output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(survivability_settings)][str(skip_hyperconnection_configuration)],ddof=1)
+            deepFogGuard_std = np.std(output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(survivability_settings)][str(skip_hyperconnection_configuration)],ddof=1)
             output_list.append(str(survivability_settings) + str(skip_hyperconnection_configuration) + str(deepFogGuard_acc) + '\n')
-            output_list.append(str(survivability_settings) + str(skip_hyperconnection_configuration) + str(acc_std) + '\n')
+            output_list.append(str(survivability_settings) + str(skip_hyperconnection_configuration) + str(deepFogGuard_std) + '\n')
             print(str(survivability_settings),deepFogGuard_acc)
-            print(str(survivability_settings), acc_std)
+            print(str(survivability_settings), deepFogGuard_std)
     write_n_upload(output_name, output_list, use_GCP)
     print(output)

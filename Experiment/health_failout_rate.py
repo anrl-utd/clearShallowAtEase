@@ -42,6 +42,7 @@ if __name__ == "__main__":
         [.9,.9,.9],
         [.7,.7,.7],
         [.5,.5,.5],
+        [.7,.7,.7]
     ]
     # file name with the experiments accuracy output
     output_name = "results/health_failout_rate.txt"

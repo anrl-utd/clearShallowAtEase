@@ -89,5 +89,17 @@ if __name__ == "__main__":
         print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
         print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
 
+        ResiliNet_std = np.std(output["ResiliNet"][str(survivability_setting)],ddof=1)
+        deepFogGuard_std = np.std(output["deepFogGuard"][str(survivability_setting)],ddof=1)
+        Vanilla_std = np.std(output["Vanilla"][str(survivability_setting)],ddof=1)
+
+        output_list.append(str(survivability_setting) + " ResiliNet std: " + str(ResiliNet_std) + '\n')
+        output_list.append(str(survivability_setting) + " deepFogGuard std: " + str(deepFogGuard_std) + '\n')
+        output_list.append(str(survivability_setting) + " Vanilla std: " + str(Vanilla_std) + '\n')
+
+        print(str(survivability_setting),"ResiliNet std:",ResiliNet_std)
+        print(str(survivability_setting),"deepFogGuard std:",deepFogGuard_std)
+        print(str(survivability_setting),"Vanilla std:",Vanilla_std)
+
     write_n_upload(output_name, output_list, use_GCP)
     print(output)

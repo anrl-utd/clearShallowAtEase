@@ -113,9 +113,9 @@ if __name__ == "__main__":
         output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
         output_list.append(str(survivability_setting) + " Vanilla Accuracy: " + str(Vanilla_acc) + '\n')
 
-        output_list.append(str(survivability_setting) + " ResiliNet STD: " + str(ResiliNet_std) + '\n')
-        output_list.append(str(survivability_setting) + " deepFogGuard STD: " + str(deepFogGuard_std) + '\n')
-        output_list.append(str(survivability_setting) + " Vanilla STD: " + str(Vanilla_std) + '\n')
+        output_list.append(str(survivability_setting) + " ResiliNet std: " + str(ResiliNet_std) + '\n')
+        output_list.append(str(survivability_setting) + " deepFogGuard std: " + str(deepFogGuard_std) + '\n')
+        output_list.append(str(survivability_setting) + " Vanilla std: " + str(Vanilla_std) + '\n')
 
         print(str(survivability_setting),"ResiliNet Accuracy:",ResiliNet_acc)
         print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
