@@ -95,7 +95,6 @@ for filename in os.listdir(os.path.join(labels_dir, class_label + 'bounds/')):
         print(save_name)
         width, height, channels = cropped_frame.shape
         if height == 0 or width == 0:
-            print('here')
             continue
         print("size: " + str(width) + ", " + str(height) + ", " + str(channels))
         cropped_frame = cv2.resize(cropped_frame, (32,32), interpolation=cv2.INTER_CUBIC)

@@ -28,7 +28,6 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
     for i in range(maxNumComponentFailure):
         numSurvived = numSurvivedComponents(i)
         if ( numSurvived >= numComponents - maxNumComponentFailure ):
-            print('here',numSurvived, numComponents, maxNumComponentFailure)
             listOfZerosOnes = convertBinaryToList(i, numComponents)
             failures = [int(failure) for failure in listOfZerosOnes]
             # saves a copy of the original model so it does not change during failures 

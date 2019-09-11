@@ -79,7 +79,7 @@ def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, tr
                 verbose = verbose
                 )
             # load weights from epoch with the highest val acc
-            model.save_weights(model_file)
+            parallel_model.save_weights(model_file)
             return parallel_model
         else:
             model.fit_generator(

@@ -187,7 +187,7 @@ def fail_node(model,node_array):
                     # make new weights for biases
                     new_bias_weights = np.zeros(layer_weights[1].shape)
                     layer.set_weights([new_weights,new_bias_weights])
-                    print(layer_name, "was failed")
+                    # print(layer_name, "was failed")
         # cnn 
         else:
             nodes = ["conv_pw_3","conv_pw_8"]
@@ -200,7 +200,7 @@ def fail_node(model,node_array):
                     # make new weights for the connections
                     new_weights = np.zeros(layer_weights[0].shape)
                     layer.set_weights([new_weights])
-                    print(layer_name, "was failed")
+                    # print(layer_name, "was failed")
             is_cifar_cnn = True
                     
     # input is from a normal array
@@ -218,7 +218,7 @@ def fail_node(model,node_array):
                 # make new weights for biases
                 new_bias_weights = np.zeros(layer_weights[1].shape)
                 layer.set_weights([new_weights,new_bias_weights])
-                print(layer_name, "was failed")
+                # print(layer_name, "was failed")
     return is_cifar_cnn
 
 def average(list):
