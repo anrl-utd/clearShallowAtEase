@@ -67,7 +67,7 @@ def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, train
                 validation_steps = val_steps_per_epoch,
                 callbacks = [modelCheckPoint])
             # load weights with the highest val accuracy
-            model.load_weights(model_file)
+            parallel_model.load_weights(model_file)
             return parallel_model
         else:
             model.fit_generator(
