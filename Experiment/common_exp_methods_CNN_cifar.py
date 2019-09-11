@@ -3,8 +3,28 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.datasets import cifar10
 import numpy as np
 from sklearn.model_selection import train_test_split
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, Callback
 from keras.utils import multi_gpu_model
+
+class CustomModelCheckpoint(Callback):
+
+    def __init__(self, model, path):
+
+        super().__init__()
+
+        # This is the argument that will be modify by fit_generator
+        # self.model = model
+        self.path = path
+
+        # We set the model (non multi gpu) under an other name
+        self.model_for_saving = model
+
+    def on_epoch_end(self, epoch, logs=None):
+
+        loss = logs['val_loss']
+        # Here we save the original one
+        print("\nSaving model to : {}".format(self.path.format(epoch=epoch, val_loss=loss)))
+        self.model_for_saving.save_weights(self.path.format(epoch=epoch, val_loss=loss), overwrite=True)
 
 def init_data():
     # get cifar10 data 
@@ -54,8 +74,8 @@ def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, train
         # checkpoints to keep track of model with best validation accuracy 
         print(model_name)
         progress_verbose = 1
-        modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
         if num_gpus > 1:
+            modelCheckPoint = CustomModelCheckpoint(model, model_file)
             parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
             parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
             parallel_model.fit_generator(
@@ -70,6 +90,7 @@ def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, train
             parallel_model.load_weights(model_file)
             return parallel_model
         else:
+            modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
             model.fit_generator(
                 train_datagen.flow(training_data,training_labels,batch_size = batch_size),
                 epochs = epochs,
