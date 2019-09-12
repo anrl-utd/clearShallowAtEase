@@ -77,8 +77,8 @@ def define_and_train(iteration, model_name, load_model, default_survivability_se
 
 
 def calc_accuracy(iteration, model_name, model, survivability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels):
-    output_list.append(model_name + '\n')
-    print(model_name)
+    output_list.append(model_name + str(skip_hyperconnection_configuration)+ '\n')
+    print(model_name+ str(skip_hyperconnection_configuration))
     output[model_name][str(survivability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list,training_labels,test_data,test_labels)
 
 

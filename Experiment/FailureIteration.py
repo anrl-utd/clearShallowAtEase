@@ -8,14 +8,14 @@ from Experiment.common_exp_methods import fail_node
 from Experiment.random_guess import model_guess, cnnmodel_guess
 
 
-def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,output_list,training_labels,test_data,test_labels):
-    """runs through all failure configurations for one model
+def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes,model,accuracyList,weightList,output_list,training_labels,test_data,test_labels):
+    """runs through all node failure combinations and calculates the accuracy (and weight) of that particular node failure combination
     ### Arguments
-        surv (list): contains the survival rate of all nodes, ordered from edge to fog node
-        numComponents (int): number of nodes that can fail
+        survivability_setting (list): List of the survival rate of all nodes, ordered from edge to fog node
+        numNodes (int): number of physical nodes
         model (Model): Keras model
-        accuracyList (list): list of all the survival configuration accuracies 
-        weightList (list): list of all the survival configuration probabilites 
+        accuracyList (list): list of all the accuracies (one per node failure combination)
+        weightList (list): list of all the weights (one per node failure combination). Weight is the probability of that node failure combination
         output_list (list): list that contains string output of the experiment
         train_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distributio
         test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
@@ -24,28 +24,27 @@ def iterateFailuresExperiment(surv,numComponents,model,accuracyList,weightList,o
         return how many survival configurations had total network failure
     """  
     no_information_flow_count = 0
-    maxNumComponentFailure = 2 ** numComponents
-    for i in range(maxNumComponentFailure):
-        numSurvived = numSurvivedComponents(i)
-        if ( numSurvived >= numComponents - maxNumComponentFailure ):
-            listOfZerosOnes = convertBinaryToList(i, numComponents)
-            failures = [int(failure) for failure in listOfZerosOnes]
-            # saves a copy of the original model so it does not change during failures 
-            old_weights = model.get_weights()
-            is_cnn = fail_node(model,failures)
-            print(failures)
-            output_list.append(str(failures))
-            accuracy,no_information_flow = calcModelAccuracy(model,output_list,training_labels,test_data,test_labels,is_cnn)
-            # add number of no_information_flow for a model
-            no_information_flow_count += no_information_flow
-            # change the changed weights to the original weights
-            model.set_weights(old_weights)
-            # calculate weight of the result based on survival rates 
-            weight = calcWeight(surv, listOfZerosOnes)
-            accuracyList.append(accuracy)
-            weightList.append(weight)
-            print("numSurvived:",numSurvived," weight:", weight, " acc:",accuracy)
-            output_list.append("numSurvived: " + str(numSurvived) + " weight: " + str(weight) + " acc: " + str(accuracy) + '\n')
+    maxNumNodeFailure = 2 ** numNodes
+    for i in range(maxNumNodeFailure):
+        numSurvivedNodes = numSurvivedComponents(i)
+        node_failure_combination = convertBinaryToList(i, numNodes)
+        failures = [int(failure) for failure in node_failure_combination]
+        # saves a copy of the original model so it does not change during failures 
+        old_weights = model.get_weights()
+        is_cnn = fail_node(model,failures)
+        print(failures)
+        output_list.append(str(failures))
+        accuracy,no_information_flow = calcModelAccuracy(model,output_list,training_labels,test_data,test_labels,is_cnn)
+        # add number of no_information_flow for a model
+        no_information_flow_count += no_information_flow
+        # change the changed weights to the original weights
+        model.set_weights(old_weights)
+        # calculate weight of the result based on survival rates 
+        weight = calcWeight(survivability_setting, node_failure_combination)
+        accuracyList.append(accuracy)
+        weightList.append(weight)
+        print("numSurvivedNodes:",numSurvivedNodes," weight:", weight, " acc:",accuracy)
+        output_list.append("numSurvivedNodes: " + str(numSurvivedNodes) + " weight: " + str(weight) + " acc: " + str(accuracy) + '\n')
     return no_information_flow_count
 
 def calcAverageAccuracy(accuracyList, weightList):
@@ -61,26 +60,25 @@ def calcAverageAccuracy(accuracyList, weightList):
         averageAccuracy += accuracyList[i] * weightList[i]
     return averageAccuracy
         
-def calcWeight(survivability, listOfZerosOnes):
+def calcWeight(survivability_setting, node_failure_combination):
     """calculates the weight of each combination of component failures
     ### Arguments
-        survivability (list): list of probabilities
-        listOfZerosOnes (list): list of the node survival outcomes
+        survivability_setting (list): list of probabilities
+        node_failure_combination (list): list of the node survival outcomes
     ### Returns
         return probability of a particular survival outcome
     """  
     weight = 1
-    for i in range(len(listOfZerosOnes)):
-        if (listOfZerosOnes[i] == '1'): # if it survives
-            weight = weight * survivability[i]
+    for i in range(len(node_failure_combination)):
+        if (node_failure_combination[i] == '1'): # if it survives
+            weight = weight * survivability_setting[i]
         else: # if it fails
-            weight = weight * (1 - survivability[i])
+            weight = weight * (1 - survivability_setting[i])
     return weight
     
 
-# 
 def numSurvivedComponents(number):
-    """calculates the number of survived components by counting ones in a bit string
+    """calculates the number of survived components (physical nodes) by counting ones in a bit string
     ### Arguments
         number (int): number to be converted to binary
     ### Returns
@@ -132,22 +130,22 @@ def calcModelAccuracy(model,output_list,training_labels,test_data,test_labels, i
     return acc,no_information_flow
 
 
-def normalizeWeights(weights):
-    """Calculates model accuracy based on node failure  
+def normalize(weights):
+    """Normalizes the elements of a list, so that they sum to 1
     ### Arguments
        weights(list): list of all the probability weights
     ### Returns
         return normalized lost of probability weights
     """  
     sumWeights = sum(weights)
-    weightNormalized = [(x/sumWeights) for x in weights]
-    return weightNormalized
+    normalized = [(x/sumWeights) for x in weights]
+    return normalized
  
-def calculateExpectedAccuracy(model,surv,output_list,training_labels,test_data,test_labels):
-    """run full survival configuration failure
+def calculateExpectedAccuracy(model,survivability_setting,output_list,training_labels,test_data,test_labels):
+    """Calculates the expected accuracy of the model under certain survivability setting
     ### Arguments
         model (Model): Keras model
-        surv (list): contains the survival rate of all nodes, ordered from edge to fog node
+        survivability_setting (list): List of the survival rate of all nodes
         output_list (list): list that contains string output of the experiment
         training_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distributio
         test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
@@ -155,11 +153,11 @@ def calculateExpectedAccuracy(model,surv,output_list,training_labels,test_data,t
     ### Returns
         return weighted accuracy 
     """  
-    numComponents = len(surv)
+    numNodes = len(survivability_setting)
     accuracyList = []
     weightList = []
-    no_information_flow_count = iterateFailuresExperiment(surv,numComponents, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels)
-    weightList = normalizeWeights(weightList)
+    no_information_flow_count = iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels)
+    weightList = normalize(weightList)
     avg_acc = calcAverageAccuracy(accuracyList, weightList)
     output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')
     output_list.append('Average Accuracy: ' + str(avg_acc) + '\n')

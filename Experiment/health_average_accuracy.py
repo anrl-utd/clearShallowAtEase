@@ -9,6 +9,7 @@ import keras.backend as K
 import datetime
 import gc
 import os
+import numpy as np
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_survivability_setting, allpresent_skip_hyperconnections_configuration):
     # ResiliNet
