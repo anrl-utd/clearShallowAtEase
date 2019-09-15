@@ -8,10 +8,11 @@ from Experiment.common_exp_methods import fail_node
 from Experiment.random_guess import model_guess, cnnmodel_guess
 
 
-def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes,model,accuracyList,weightList,output_list,training_labels,test_data,test_labels):
+
+def iterateAllFailureCombinationsCalcAccuracy(survivability_settings,numNodes,model,accuracyList,weightList,output_list,training_labels,test_data,test_labels):
     """runs through all node failure combinations and calculates the accuracy (and weight) of that particular node failure combination
     ### Arguments
-        survivability_setting (list): List of the survival rate of all nodes, ordered from edge to fog node
+        survivability_settings (list): List of the survival rate of all nodes, ordered from edge to fog node
         numNodes (int): number of physical nodes
         model (Model): Keras model
         accuracyList (list): list of all the accuracies (one per node failure combination)
@@ -28,19 +29,20 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes,mod
     for i in range(maxNumNodeFailure):
         numSurvivedNodes = numSurvivedComponents(i)
         node_failure_combination = convertBinaryToList(i, numNodes)
-        failures = [int(failure) for failure in node_failure_combination]
+        
         # saves a copy of the original model so it does not change during failures 
         old_weights = model.get_weights()
-        is_cnn = fail_node(model,failures)
-        print(failures)
-        output_list.append(str(failures))
+        is_cnn = fail_node(model,node_failure_combination)
+        print(node_failure_combination)
+        output_list.append(str(node_failure_combination))
         accuracy,no_information_flow = calcModelAccuracy(model,output_list,training_labels,test_data,test_labels,is_cnn)
         # add number of no_information_flow for a model
         no_information_flow_count += no_information_flow
         # change the changed weights to the original weights
         model.set_weights(old_weights)
         # calculate weight of the result based on survival rates 
-        weight = calcWeight(survivability_setting, node_failure_combination)
+        for survivability_setting in survivability_settings:
+            weight = calcWeight(survivability_setting, node_failure_combination)
         accuracyList.append(accuracy)
         weightList.append(weight)
         print("numSurvivedNodes:",numSurvivedNodes," weight:", weight, " acc:",accuracy)
@@ -108,7 +110,8 @@ def convertBinaryToList(number, numBits):
     # pad '0's to the begging of the list, if its length is not 'numBits'
     for padding in range(max(0,numBits - len(lst))):
         lst.insert(0,'0')
-    return lst
+    lst_integer = [int(num) for num in lst] # converts ["0","1","0"] to [0,1,0]
+    return lst_integer
  
 def calcModelAccuracy(model,output_list,training_labels,test_data,test_labels, is_cnn):
     """Calculates model accuracy based on node failure  

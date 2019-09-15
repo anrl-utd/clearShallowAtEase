@@ -147,22 +147,41 @@ def make_output_dictionary_failout_rate(failout_survival_rates, survivability_se
 
     return output
 
-def fail_node(model,node_array):
-    """fails node by making the specified node/nodes output 0
+def fail_node(model,node_failure_combination):
+    """fails node(s) by making the specified node(s) output 0
     ### Arguments
         model (Model): Keras model to have nodes failed
-        node_array (list): bit list that corresponds to the node arrangement, 1 in the list represents to alive and 0 corresponds to failure 
+        node_failure_combination (list): bit list that corresponds to the node failure combination, 1 in the list represents to alive and 0 corresponds to dead 
     ### Returns
         return a boolean whether the model failed was a cnn or not
     """
+    def set_weights_zero_MLP(model, nodes, index):
+        layer_name = nodes[index]
+        layer = model.get_layer(name=layer_name)
+        layer_weights = layer.get_weights()
+        # make new weights for the connections
+        new_weights = np.zeros(layer_weights[0].shape)
+        #new_weights[:] = np.nan # set weights to nan
+        # make new weights for biases
+        new_bias_weights = np.zeros(layer_weights[1].shape)
+        layer.set_weights([new_weights,new_bias_weights])
+
+    def set_weights_zero_CNN(model, nodes, index):
+        layer_name = nodes[index]
+        layer = model.get_layer(name=layer_name)
+        layer_weights = layer.get_weights()
+        # make new weights for the connections
+        new_weights = np.zeros(layer_weights[0].shape)
+        layer.set_weights([new_weights])
+        
     is_img_input = False
-    is_cifar_cnn = False
+    is_cifar = False
     # determines type of network by the first layer input shape
     first_layer = model.get_layer(index = 0)
     if len(first_layer.input_shape) == 4:
-        # cnn input shape has 4 dimensions
+        # CIFAR and Camera input shapes are 4 dimensions
         is_img_input = True
-    # input is an img 
+    # input is image 
     if is_img_input:
         # camera MLP
         if model.get_layer("output").output_shape == (None,3):
@@ -176,50 +195,25 @@ def fail_node(model,node_array):
                 "fog3_output_layer",
                 "fog4_output_layer"
                 ]
-            for index, node in enumerate(node_array):
-                if node == 0:
-                    layer_name = nodes[index]
-                    layer = model.get_layer(name=layer_name)
-                    layer_weights = layer.get_weights()
-                    # make new weights for the connections
-                    new_weights = np.zeros(layer_weights[0].shape)
-                    #new_weights[:] = np.nan # set weights to nan
-                    # make new weights for biases
-                    new_bias_weights = np.zeros(layer_weights[1].shape)
-                    layer.set_weights([new_weights,new_bias_weights])
-                    # print(layer_name, "was failed")
+            for index, node in enumerate(node_failure_combination):
+                if node == 0: # if dead
+                    set_weights_zero_MLP(model, nodes, index)
         # cnn 
         else:
             nodes = ["conv_pw_3","conv_pw_8"]
-            for index,node in enumerate(node_array):
-                # node failed
-                if node == 0:
-                    layer_name = nodes[index]
-                    layer = model.get_layer(name=layer_name)
-                    layer_weights = layer.get_weights()
-                    # make new weights for the connections
-                    new_weights = np.zeros(layer_weights[0].shape)
-                    layer.set_weights([new_weights])
-                    # print(layer_name, "was failed")
-            is_cifar_cnn = True
+            for index,node in enumerate(node_failure_combination):
+                if node == 0: # dead
+                    set_weights_zero_CNN(model, nodes, index)
+            is_cifar = True
                     
-    # input is from a normal array
+    # input is non image
     else:
         nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
-        for index,node in enumerate(node_array):
+        for index,node in enumerate(node_failure_combination):
             # node failed
             if node == 0:
-                layer_name = nodes[index]
-                layer = model.get_layer(name=layer_name)
-                layer_weights = layer.get_weights()
-                # make new weights for the connections
-                new_weights = np.zeros(layer_weights[0].shape)
-                #new_weights[:] = np.nan # set weights to nan
-                # make new weights for biases
-                new_bias_weights = np.zeros(layer_weights[1].shape)
-                layer.set_weights([new_weights,new_bias_weights])
-                # print(layer_name, "was failed")
-    return is_cifar_cnn
+                set_weights_zero_MLP(model, nodes, index)
+    return is_cifar
 
 def average(list):
     """function to return average of a list 
