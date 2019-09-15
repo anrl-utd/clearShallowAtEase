@@ -1,7 +1,7 @@
 
 from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params, get_model_weights_MLP_health
-from Experiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.Accuracy import calculateExpectedAccuracy
 from Experiment.common_exp_methods import average, convert_to_string, write_n_upload, make_results_folder
 import keras.backend as K
 import os

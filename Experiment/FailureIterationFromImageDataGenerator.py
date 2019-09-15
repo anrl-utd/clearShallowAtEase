@@ -1,4 +1,4 @@
-from Experiment.FailureIteration import numSurvivedComponents, calcWeight, normalizeWeights, calcAverageAccuracy, convertBinaryToList
+from Experiment.Accuracy import numSurvivedComponents, calcWeight, normalizeWeights, calcAverageAccuracy, convertBinaryToList
 from Experiment.common_exp_methods import fail_node
 def iterateFailuresExperimentFromImageDataGenerator(surv,numComponents,model,accuracyList,weightList,output_list, test_generator, num_test_examples):
     """runs through all failure configurations for one model

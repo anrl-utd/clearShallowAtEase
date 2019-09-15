@@ -7,7 +7,7 @@ import keras.backend as K
 import math
 import os 
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
-from Experiment.FailureIteration import calculateExpectedAccuracy
+from Experiment.Accuracy import calculateExpectedAccuracy
 from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params, get_model_weights_CNN_cifar
 from Experiment.common_exp_methods import average, make_results_folder, convert_to_string, write_n_upload, make_results_folder
 import numpy as np

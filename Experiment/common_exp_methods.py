@@ -175,7 +175,7 @@ def fail_node(model,node_failure_combination):
         layer.set_weights([new_weights])
         
     is_img_input = False
-    is_cifar = False
+    is_cnn = False
     # determines type of network by the first layer input shape
     first_layer = model.get_layer(index = 0)
     if len(first_layer.input_shape) == 4:
@@ -204,7 +204,7 @@ def fail_node(model,node_failure_combination):
             for index,node in enumerate(node_failure_combination):
                 if node == 0: # dead
                     set_weights_zero_CNN(model, nodes, index)
-            is_cifar = True
+            is_cnn = True
                     
     # input is non image
     else:
@@ -213,7 +213,7 @@ def fail_node(model,node_failure_combination):
             # node failed
             if node == 0:
                 set_weights_zero_MLP(model, nodes, index)
-    return is_cifar
+    return is_cnn
 
 def average(list):
     """function to return average of a list 
