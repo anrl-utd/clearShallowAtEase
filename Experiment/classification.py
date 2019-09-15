@@ -59,6 +59,7 @@ def random_guess(train_labels,test_data):
         class_frequency = Counter(train_labels)
     else: # numpy array 
         class_frequency = Counter(train_labels.flatten())
+    print("class",class_frequency)
     # sort by keys and get the values
     # sorted_class_frequency = list(dict(sorted(class_frequency.items())).values())
     total_frequency = len(train_labels)
@@ -66,6 +67,7 @@ def random_guess(train_labels,test_data):
     relative_class_frequency = [freq / total_frequency for freq in class_frequency]
     # append a 0 to the beginning of a new list
     cumulative_frequency = [0] + relative_class_frequency
+    print("cumulative_frequency",cumulative_frequency)
     # calculate cumulative relative frequency 
     for index in range(1,len(cumulative_frequency)):
         cumulative_frequency[index] += cumulative_frequency[index-1]
