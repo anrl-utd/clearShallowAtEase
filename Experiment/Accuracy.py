@@ -7,7 +7,18 @@ from sklearn.metrics import precision_score
 from Experiment.common_exp_methods import fail_node
 from Experiment.classification import predict
 
-def iterateAllFailureCombinationsCalcAccuracy(survivability_settings,numNodes,model,accuracyList,weightList,output_list,training_labels,test_data,test_labels):
+def iterateAllFailureCombinationsCalcAccuracy(survivability_settings,
+                                            numNodes,
+                                            model,
+                                            accuracyList,
+                                            weightList,
+                                            output_list,
+                                            training_labels = None,
+                                            test_data = None,
+                                            test_labels = None,
+                                            test_generator = None, # for imageNet
+                                            num_test_examples = None # for imageNet
+                                            ):
     """runs through all node failure combinations and calculates the accuracy (and weight) of that particular node failure combination
     ### Arguments
         survivability_settings (list): List of the survival rate of all nodes, ordered from edge to fog node
@@ -33,7 +44,13 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_settings,numNodes,mo
         is_cnn = fail_node(model,node_failure_combination)
         print(node_failure_combination)
         output_list.append(str(node_failure_combination))
-        accuracy,no_information_flow = predict(model,training_labels,test_data,test_labels, is_cnn)
+        if training_labels is not None and test_data is not None and test_labels is not None:
+            accuracy,no_information_flow = predict(model,training_labels,test_data,test_labels, is_cnn)
+        else: # imagenet
+            accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]
+            no_information_flow = 0 # this is not used.
+            question for brian!! is this correct?
+
         # add number of no_information_flow for a model
         no_information_flow_count += no_information_flow
         # change the changed weights to the original weights
@@ -122,7 +139,15 @@ def normalize(weights):
     normalized = [(x/sumWeights) for x in weights]
     return normalized
  
-def calculateExpectedAccuracy(model,survivability_setting,output_list,training_labels,test_data,test_labels):
+def calculateExpectedAccuracy(model,
+                            survivability_setting,
+                            output_list,
+                            training_labels = None,
+                            test_data = None,
+                            test_labels = None,
+                            test_generator = None, # for imageNet
+                            num_test_examples = None # for imageNet
+                            ):
     """Calculates the expected accuracy of the model under certain survivability setting
     ### Arguments
         model (Model): Keras model
@@ -137,7 +162,7 @@ def calculateExpectedAccuracy(model,survivability_setting,output_list,training_l
     numNodes = len(survivability_setting)
     accuracyList = []
     weightList = []
-    no_information_flow_count = iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels)
+    no_information_flow_count = iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
     weightList = normalize(weightList)
     avg_acc = calcWeightedAverage(accuracyList, weightList)
     output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')

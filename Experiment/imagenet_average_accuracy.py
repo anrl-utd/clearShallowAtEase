@@ -1,6 +1,6 @@
 
 from Experiment.common_exp_methods_CNN import define_model
-from Experiment.AccuracyFromImageDataGenerator import calculateExpectedAccuracyFromImageGenerator
+from Experiment.Accuracy import calculateExpectedAccuracy
 from Experiment.common_exp_methods_CNN_imagenet import init_data, init_common_experiment_params, get_model_weights_CNN_imagenet
 from Experiment.common_exp_methods import average, convert_to_string, make_output_dictionary_average_accuracy, make_results_folder,write_n_upload
 import keras.backend as K
