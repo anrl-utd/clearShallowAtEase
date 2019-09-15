@@ -59,15 +59,13 @@ def random_guess(train_labels,test_data):
         class_frequency = Counter(train_labels)
     else: # numpy array 
         class_frequency = Counter(train_labels.flatten())
-    print("class",class_frequency)
-    # sort by keys and get the values
-    class_frequency = list(dict(sorted(class_frequency.items())).values())
+    # sort the class frequency by keys, so it can be used in toss coin function. (because the intervals in toss_coin are inherently sorted)
+    class_frequency_sorted_by_keys = list(dict(sorted(class_frequency.items())).values())
     total_frequency = len(train_labels)
     # find relative frequency = class_frequency / total_frequency
-    relative_class_frequency = [freq / total_frequency for freq in class_frequency]
+    relative_class_frequency = [freq / total_frequency for freq in class_frequency_sorted_by_keys]
     # append a 0 to the beginning of a new list
     cumulative_frequency = [0] + relative_class_frequency
-    print("cumulative_frequency",cumulative_frequency)
     # calculate cumulative relative frequency 
     for index in range(1,len(cumulative_frequency)):
         cumulative_frequency[index] += cumulative_frequency[index-1]
