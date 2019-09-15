@@ -61,7 +61,7 @@ def random_guess(train_labels,test_data):
         class_frequency = Counter(train_labels.flatten())
     print("class",class_frequency)
     # sort by keys and get the values
-    # sorted_class_frequency = list(dict(sorted(class_frequency.items())).values())
+    class_frequency = list(dict(sorted(class_frequency.items())).values())
     total_frequency = len(train_labels)
     # find relative frequency = class_frequency / total_frequency
     relative_class_frequency = [freq / total_frequency for freq in class_frequency]
