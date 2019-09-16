@@ -41,8 +41,8 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
     else:
         needToGetModelAccuracy = True
     
-    output_list.append('Calculating accuracy for ' + survivability_setting + '\n'))
-    print("Calculating accuracy for",survivability_setting)
+    output_list.append('Calculating accuracy for ' + str(survivability_setting) + '\n')
+    print("Calculating accuracy for "+ str(survivability_setting))
     maxNumNodeFailure = 2 ** numNodes
     for i in range(maxNumNodeFailure):
         node_failure_combination = convertBinaryToList(i, numNodes)
