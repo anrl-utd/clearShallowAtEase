@@ -35,7 +35,7 @@ def predict(model,train_labels,test_data,test_labels, is_cnn):
             if len(test_data) == 6:
                 # reformat by switching the 1st and 2nd dimension
                 test_data = np.transpose(test_data,axes=[1,0,2,3,4])
-        print("There is no data flow in the network")
+        # print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
         no_information_flow_count = 1
     else:
