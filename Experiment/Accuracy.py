@@ -7,7 +7,7 @@ from sklearn.metrics import precision_score
 from Experiment.common_exp_methods import fail_node
 from Experiment.classification import predict
 
-modelAccuracy = dict()
+modelAccuracyDict = dict()
 
 def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
                                             numNodes,
@@ -36,8 +36,8 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
         return how many survival configurations had total network failure
     """ 
     needToGetModelAccuracy = False
-    if modelAccuracy.has_key(model): # if the accuracy for this model is calculated
-        accuracyList = modelAccuracy[model]
+    if model in modelAccuracyDict: # if the accuracy for this model is calculated
+        accuracyList = modelAccuracyDict[model]
     else:
         needToGetModelAccuracy = True
 
@@ -64,7 +64,7 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
         # output_list.append("weight: " + str(weight) + " acc: " + str(accuracyList[i]) + '\n')
     
     if needToGetModelAccuracy:
-        modelAccuracy[model] = accuracyList # add the accuracyList to the dictionary
+        modelAccuracyDict[model] = accuracyList # add the accuracyList to the dictionary
 
 def calcWeightedAverage(valueList, weightList):
     """calculates weighted average 
