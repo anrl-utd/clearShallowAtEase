@@ -96,7 +96,7 @@ def calcWeightProbability(survivability_setting, node_failure_combination):
     """  
     weight = 1
     for i in range(len(node_failure_combination)):
-        if (node_failure_combination[i] == '1'): # if it survives
+        if (node_failure_combination[i] == 1): # if it survives
             weight = weight * survivability_setting[i]
         else: # if it fails
             weight = weight * (1 - survivability_setting[i])
