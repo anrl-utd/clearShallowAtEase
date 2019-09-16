@@ -14,9 +14,9 @@ import numpy as np
 import gc
 
 
-def define_and_train(iteration, model_name, load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
-    model_file = 'models/' + str(iteration) + "_" + str(survivability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection.h5'
-    model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,survivability_setting=survivability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides)
+def define_and_train(iteration, model_name, load_model, reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
+    model_file = 'models/' + str(iteration) + "_" + str(reliability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection.h5'
+    model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,reliability_setting=reliability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides)
     get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
            
@@ -25,9 +25,9 @@ def define_and_train(iteration, model_name, load_model, survivability_setting, w
 if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
-    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
+    num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
 
-    output, weight_schemes = make_output_dictionary_hyperconnection_weight(survivability_settings, num_iterations)
+    output, weight_schemes = make_output_dictionary_hyperconnection_weight(reliability_settings, num_iterations)
     
     weights = None
 
@@ -40,28 +40,28 @@ if __name__ == "__main__":
     output_list = []
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
-        for survivability_setting in survivability_settings:
+        for reliability_setting in reliability_settings:
             for weight_scheme in weight_schemes:
-                model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, survivability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+                model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
                 
-                output_list.append(str(survivability_setting) + str(weight_scheme) + '\n')
-                print(survivability_setting,weight_scheme)
-                output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+                output_list.append(str(reliability_setting) + str(weight_scheme) + '\n')
+                print(reliability_setting,weight_scheme)
+                output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
                 
                 # clear session so that model will recycled back into memory
                 K.clear_session()
                 gc.collect()
                 del model
     
-    for survivability_setting in survivability_settings:
+    for reliability_setting in reliability_settings:
         for weight_scheme in weight_schemes:
-            output_list.append(str(survivability_setting) + str(weight_scheme) + '\n')
-            deepFogGuard_acc = average(output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(survivability_setting)])
-            output_list.append(str(survivability_setting) + str(weight_scheme) +  str(deepFogGuard_acc) + '\n')
-            print(str(survivability_setting), weight_scheme, deepFogGuard_acc)
+            output_list.append(str(reliability_setting) + str(weight_scheme) + '\n')
+            deepFogGuard_acc = average(output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)])
+            output_list.append(str(reliability_setting) + str(weight_scheme) +  str(deepFogGuard_acc) + '\n')
+            print(str(reliability_setting), weight_scheme, deepFogGuard_acc)
 
-            deepFogGuard_std = np.std(output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(survivability_setting)],ddof=1)
-            output_list.append(str(survivability_setting) + str(weight_scheme) +  str(deepFogGuard_std) + '\n')
-            print(str(survivability_setting), weight_scheme, deepFogGuard_std)
+            deepFogGuard_std = np.std(output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)],ddof=1)
+            output_list.append(str(reliability_setting) + str(weight_scheme) +  str(deepFogGuard_std) + '\n')
+            print(str(reliability_setting), weight_scheme, deepFogGuard_std)
     write_n_upload(output_name, output_list, use_GCP)
     print(output)

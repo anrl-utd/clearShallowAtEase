@@ -62,7 +62,6 @@ def define_ResiliNet_CNN(input_shape=None,
         classes: optional number of classes to classify images
             into, only to be specified if `include_top` is True, and
             if no `weights` argument is specified.
-        survive_rates: survival rates of network nodes, default value is [1,1]
     # Returns
         A Keras model instance.
 
@@ -100,10 +99,10 @@ def define_ResiliNet_CNN(input_shape=None,
     return model
 
 def cnn_failout_definitions(failout_survival_setting):
-    edge_survivability = failout_survival_setting[0]
-    fog_survivability = failout_survival_setting[1]
+    edge_reliability = failout_survival_setting[0]
+    fog_reliability = failout_survival_setting[1]
     
 
-    edge_failure_lambda = Failout(edge_survivability)
-    fog_failure_lambda = Failout(fog_survivability)
+    edge_failure_lambda = Failout(edge_reliability)
+    fog_failure_lambda = Failout(fog_reliability)
     return edge_failure_lambda, fog_failure_lambda

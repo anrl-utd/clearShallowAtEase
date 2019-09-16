@@ -7,7 +7,7 @@ import random
 def define_deepFogGuard_MLP(num_vars,
                             num_classes,
                             hidden_units,
-                            survivability_setting = [1.0,1.0,1.0], # survivability of a node between 0 and 1, 
+                            reliability_setting = [1.0,1.0,1.0], # reliability of a node between 0 and 1, 
                             skip_hyperconnection_config = [1,1,1], # binary representating if a skip hyperconnection is alive
                             hyperconnection_weights_scheme = 1):
     """Define a deepFogGuard model.
@@ -17,17 +17,17 @@ def define_deepFogGuard_MLP(num_vars,
         num_vars (int): specifies number of variables from the data, used to determine input size.
         num_classes (int): specifies number of classes to be outputted by the model
         hidden_units (int): specifies number of hidden units per layer in network
-        survivability_setting (list): specifies the survival rate of each node in the network
+        reliability_setting (list): specifies the reliability of each node in the network
         skip_hyperconnection_config (list): specifies the alive skip hyperconnections in the network, default value is [1,1,1]
         hyperconnection_weights (list): specifies the probability, default value is [1,1,1]
-        hyperconnection_weights_scheme (int): determines if the hyperconnections should be based on surivive_rates, 1: weighted 1, 2: weighted by weighted survival of multiple nodes, 3: weighted by survival of single node only, 4: weights are randomly weighted from 0-1, 5: weights are randomly weighted from 0-10
+        hyperconnection_weights_scheme (int): determines if the hyperconnections should be based on surivive_rates
     ### Returns
         Keras Model object
     """
 
     hyperconnection_weight_IoTf2,hyperconnection_weight_ef2,hyperconnection_weight_ef1,hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c = set_hyperconnection_weights(
         hyperconnection_weights_scheme, 
-        survivability_setting, 
+        reliability_setting, 
         skip_hyperconnection_config)
     multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1, multiply_hyperconnection_weight_layer_f2c, multiply_hyperconnection_weight_layer_f1c = define_hyperconnection_weight_lambda_layers(
         hyperconnection_weight_IoTf2, 
@@ -58,7 +58,7 @@ def define_deepFogGuard_MLP(num_vars,
     return model
 
 
-def set_hyperconnection_weights(hyperconnection_weights_scheme, survivability_setting, skip_hyperconnection_config):
+def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_setting, skip_hyperconnection_config):
     # weighted by 1
     if hyperconnection_weights_scheme == 1: 
         hyperconnection_weight_IoTf2  = 1
@@ -67,22 +67,22 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, survivability_se
         hyperconnection_weight_f2f1 = 1
         hyperconnection_weight_f2c = 1
         hyperconnection_weight_f1c = 1
-    # normalized survivability
+    # normalized reliability
     elif hyperconnection_weights_scheme == 2:
-        hyperconnection_weight_IoTf2  = 1 / (1+survivability_setting[0])
-        hyperconnection_weight_ef2 = survivability_setting[0] / (1 + survivability_setting[0])
-        hyperconnection_weight_ef1 = survivability_setting[0] / (survivability_setting[0] + survivability_setting[1])
-        hyperconnection_weight_f2f1 = survivability_setting[1] / (survivability_setting[0] + survivability_setting[1])
-        hyperconnection_weight_f2c = survivability_setting[1] / (survivability_setting[1] + survivability_setting[2])
-        hyperconnection_weight_f1c = survivability_setting[2] / (survivability_setting[1] + survivability_setting[2])
-    # survivability
+        hyperconnection_weight_IoTf2  = 1 / (1+reliability_setting[0])
+        hyperconnection_weight_ef2 = reliability_setting[0] / (1 + reliability_setting[0])
+        hyperconnection_weight_ef1 = reliability_setting[0] / (reliability_setting[0] + reliability_setting[1])
+        hyperconnection_weight_f2f1 = reliability_setting[1] / (reliability_setting[0] + reliability_setting[1])
+        hyperconnection_weight_f2c = reliability_setting[1] / (reliability_setting[1] + reliability_setting[2])
+        hyperconnection_weight_f1c = reliability_setting[2] / (reliability_setting[1] + reliability_setting[2])
+    # reliability
     elif hyperconnection_weights_scheme == 3:
         hyperconnection_weight_IoTf2  = 1
-        hyperconnection_weight_ef2 = survivability_setting[0] 
-        hyperconnection_weight_ef1 = survivability_setting[0] 
-        hyperconnection_weight_f2f1 = survivability_setting[1]
-        hyperconnection_weight_f2c = survivability_setting[1] 
-        hyperconnection_weight_f1c = survivability_setting[2]
+        hyperconnection_weight_ef2 = reliability_setting[0] 
+        hyperconnection_weight_ef1 = reliability_setting[0] 
+        hyperconnection_weight_f2f1 = reliability_setting[1]
+        hyperconnection_weight_f2c = reliability_setting[1] 
+        hyperconnection_weight_f1c = reliability_setting[2]
     # randomly weighted between 0 and 1
     elif hyperconnection_weights_scheme == 4:
         hyperconnection_weight_IoTf2  = random.uniform(0,1)

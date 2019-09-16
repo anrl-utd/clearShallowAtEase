@@ -35,7 +35,7 @@ def init_data(use_GCP):
 def init_common_experiment_params():
     input_shape = (32,32,3)
     # need to change this to be accurate
-    survivability_settings = [
+    reliability_settings = [
         [1,1,1,1,1,1,1,1],
         [.98,.98,.98,.98,.99,.99,.99,.99],
         [.75,.75,.8,.8,.9,.9,.95,.95],
@@ -46,7 +46,7 @@ def init_common_experiment_params():
     batch_size = 64
     num_train_epochs = 20
     num_iterations = 10
-    return survivability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations
+    return reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations
 
 def get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels,num_train_epochs, batch_size, verbose):
     if load_model:

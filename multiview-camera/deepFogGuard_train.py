@@ -49,7 +49,7 @@ lr_ = 1e-1
 classes = ['person_images', 'car_images', 'bus_images']
 num_classes = len(classes)
 
-## This is our survivability vector, defining our weighted additions with our hueristic presented in the paper.
+## This is our reliability vector, defining our weighted additions with our hueristic presented in the paper.
 #survive = [0.8, 0.8, 0.75, 0.7, 0.65, 0.65, 0.6, 0.6]
 
 # -- low
@@ -313,7 +313,7 @@ def train(num_iteration):
         r_ = [random.random() for x in range(len(survive))]
         
         # calc prob of one component failing, which we take to be the average failure given a
-        # survivability mapping 'survive'
+        # reliability mapping 'survive'
         #fail = [1 - x for x in survive]
         #fail_prob = sum(fail) / len(fail)
         # something has failed, so we generate rand in range [0, sum(survive)]

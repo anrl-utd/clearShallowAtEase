@@ -24,13 +24,13 @@ def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_sett
     if dropout_like_failout == True:
         nodes = ["conv_pw_3","conv_pw_8"]
         for i, node in enumerate(nodes):
-            survival_rate = failout_survival_setting[i]
+            failout_survival_rate = failout_survival_setting[i]
             # node failed
             layer_name = node
             layer = model.get_layer(name=layer_name)
             layer_weights = layer.get_weights()
             # make new weights for the connections
-            new_weights = layer_weights[0] * survival_rate
+            new_weights = layer_weights[0] * failout_survival_rate
             layer.set_weights([new_weights])
 
 # ResiliNet variable failout experiment
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
-    num_iterations, classes, survivability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params() 
+    num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params() 
     output_list = []
 
     load_model = False
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         [.3,.3]
     ]
     dropout_like_failout = False
-    output = make_output_dictionary_failout_rate(failout_survival_settings, survivability_settings, num_iterations)
+    output = make_output_dictionary_failout_rate(failout_survival_settings, reliability_settings, num_iterations)
     make_results_folder()
     output_name = 'results/cifar_failout_results.txt'
     for iteration in range(1,num_iterations+1):
@@ -62,11 +62,11 @@ if __name__ == "__main__":
         print("iteration:",iteration)
         output_list.append('ResiliNet' + '\n') 
         # variable failout rate  
-        for survivability_setting in survivability_settings:
-            ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, survivability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
-            multiply_hyperconnection_weights(dropout_like_failout, survivability_setting, ResiliNet_failout_rate_variable)
-            output_list.append(str(survivability_setting) + '\n')
-            output["Variable Failout 1x"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, survivability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+        for reliability_setting in reliability_settings:
+            ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+            multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
+            output_list.append(str(reliability_setting) + '\n')
+            output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             
             # clear session so that model will recycled back into memory
             K.clear_session()
@@ -77,34 +77,34 @@ if __name__ == "__main__":
             ResiliNet_failout_rate_fixed = define_and_train(iteration, "Fixed Failout 1x", load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, ResiliNet_failout_rate_fixed)   
                 
-            for survivability_setting in survivability_settings:
-                output_list.append(str(survivability_setting)+ '\n')
-                print(survivability_setting)
-                output[str(failout_survival_setting)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_fixed,survivability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            for reliability_setting in reliability_settings:
+                output_list.append(str(reliability_setting)+ '\n')
+                print(reliability_setting)
+                output[str(failout_survival_setting)][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_fixed,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
             del ResiliNet_failout_rate_fixed
     
      # calculate average accuracies for variable failout rate
-    for survivability_setting in survivability_settings:
-        ResiliNet_failout_rate_acc = average(output["Variable Failout 1x"][str(survivability_setting)])
-        output_list.append(str(survivability_setting) + " Variable Failout 1x: " + str(ResiliNet_failout_rate_acc) + '\n')
-        print(survivability_setting,"Variable Failout 1x:",ResiliNet_failout_rate_acc)  
+    for reliability_setting in reliability_settings:
+        ResiliNet_failout_rate_acc = average(output["Variable Failout 1x"][str(reliability_setting)])
+        output_list.append(str(reliability_setting) + " Variable Failout 1x: " + str(ResiliNet_failout_rate_acc) + '\n')
+        print(reliability_setting,"Variable Failout 1x:",ResiliNet_failout_rate_acc)  
 
-        ResiliNet_failout_rate_std = np.std(output["Variable Failout 1x"][str(survivability_setting)],ddof=1)
-        output_list.append(str(survivability_setting) + " Variable Failout 1x std: " + str(ResiliNet_failout_rate_std) + '\n')
-        print(str(survivability_setting), " Variable Failout 1x std:",ResiliNet_failout_rate_std)
+        ResiliNet_failout_rate_std = np.std(output["Variable Failout 1x"][str(reliability_setting)],ddof=1)
+        output_list.append(str(reliability_setting) + " Variable Failout 1x std: " + str(ResiliNet_failout_rate_std) + '\n')
+        print(str(reliability_setting), " Variable Failout 1x std:",ResiliNet_failout_rate_std)
     # calculate average accuracies for fixed failout rate
     for failout_survival_setting in failout_survival_settings:
         print(failout_survival_setting)
-        for survivability_setting in survivability_settings:
-            ResiliNet_failout_rate_acc = average(output[str(failout_survival_setting)][str(survivability_setting)])
-            output_list.append(str(failout_survival_setting) + str(survivability_setting) + " Fixed Failout: " + str(ResiliNet_failout_rate_acc) + '\n')
-            print(failout_survival_setting,survivability_setting,"Fixed Failout:",ResiliNet_failout_rate_acc)  
+        for reliability_setting in reliability_settings:
+            ResiliNet_failout_rate_acc = average(output[str(failout_survival_setting)][str(reliability_setting)])
+            output_list.append(str(failout_survival_setting) + str(reliability_setting) + " Fixed Failout: " + str(ResiliNet_failout_rate_acc) + '\n')
+            print(failout_survival_setting,reliability_setting,"Fixed Failout:",ResiliNet_failout_rate_acc)  
 
-            ResiliNet_failout_rate_std = np.std(output[str(failout_survival_setting)][str(survivability_setting)],ddof=1)
-            output_list.append(str(survivability_setting) + " Fixed Failout std: " + str(ResiliNet_failout_rate_std) + '\n')
-            print(str(survivability_setting), "Fixed Failout std:",ResiliNet_failout_rate_std)
+            ResiliNet_failout_rate_std = np.std(output[str(failout_survival_setting)][str(reliability_setting)],ddof=1)
+            output_list.append(str(reliability_setting) + " Fixed Failout std: " + str(ResiliNet_failout_rate_std) + '\n')
+            print(str(reliability_setting), "Fixed Failout std:",ResiliNet_failout_rate_std)
     write_n_upload(output_name, output_list, use_GCP)
     print(output)

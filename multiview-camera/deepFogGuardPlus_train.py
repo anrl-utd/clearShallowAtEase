@@ -319,7 +319,7 @@ def train(num_iteration):
         r_ = [random.random() for x in range(len(survive))]
         
         # calc prob of one component failing, which we take to be the average failure given a
-        # survivability mapping 'survive'
+        # reliability mapping 'survive'
         #fail = [1 - x for x in survive]
         #fail_prob = sum(fail) / len(fail)
         # something has failed, so we generate rand in range [0, sum(survive)]

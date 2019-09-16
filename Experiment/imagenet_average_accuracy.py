@@ -15,17 +15,17 @@ def define_and_train(iteration, model_name, load_model, train_generator, val_gen
     model = get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs, num_gpus)
     return model
 
-def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,test_generator, num_test_examples):
+def calc_accuracy(iteration, model_name, model, reliability_setting, output_list,test_generator, num_test_examples):
     output_list.append(model_name + "\n")
     print(model_name)
-    output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list,test_generator= test_generator,num_test_examples = num_test_examples)
+    output[model_name][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,reliability_setting,output_list,test_generator= test_generator,num_test_examples = num_test_examples)
 
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
 
     use_GCP = False
-    num_iterations,num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides = init_common_experiment_params()
+    num_iterations,num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides = init_common_experiment_params()
     train_generator, test_generator = init_data(use_GCP, num_gpus) 
     
     default_failout_survival_rate = [.95,.95,.95]
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     output_name = 'results' + '/imagenet_average_accuracy_results.txt'
     output_list = []
     
-    output = make_output_dictionary_average_accuracy(survivability_settings, num_iterations)
+    output = make_output_dictionary_average_accuracy(reliability_settings, num_iterations)
 
     val_generator = None
     
@@ -88,10 +88,10 @@ if __name__ == "__main__":
             strides = strides,
             )
         # test models
-        for survivability_setting in survivability_settings:
-            calc_accuracy(iteration, "ResiliNet", ResiliNet, survivability_setting, output_list,test_generator, num_test_examples)
-            calc_accuracy(iteration, "deepFogGuard", deepFogGuard, survivability_setting, output_list,test_generator, num_test_examples)
-            calc_accuracy(iteration, "Vanilla", Vanilla, survivability_setting, output_list,test_generator, num_test_examples)
+        for reliability_setting in reliability_settings:
+            calc_accuracy(iteration, "ResiliNet", ResiliNet, reliability_setting, output_list,test_generator, num_test_examples)
+            calc_accuracy(iteration, "deepFogGuard", deepFogGuard, reliability_setting, output_list,test_generator, num_test_examples)
+            calc_accuracy(iteration, "Vanilla", Vanilla, reliability_setting, output_list,test_generator, num_test_examples)
             
         # clear session so that model will recycled back into memory
         K.clear_session()
@@ -100,28 +100,28 @@ if __name__ == "__main__":
         del ResiliNet
         del Vanilla
    # calculate average accuracies from all expected accuracies
-    for survivability_setting in survivability_settings:
-        ResiliNet_acc = average(output["ResiliNet"][str(survivability_setting)])
-        deepFogGuard_acc = average(output["deepFogGuard"][str(survivability_setting)])
-        Vanilla_acc = average(output["Vanilla"][str(survivability_setting)])
+    for reliability_setting in reliability_settings:
+        ResiliNet_acc = average(output["ResiliNet"][str(reliability_setting)])
+        deepFogGuard_acc = average(output["deepFogGuard"][str(reliability_setting)])
+        Vanilla_acc = average(output["Vanilla"][str(reliability_setting)])
 
-        ResiliNet_std = np.std(output["ResiliNet"][str(survivability_setting)],ddof=1)
-        deepFogGuard_std = np.std(output["deepFogGuard"][str(survivability_setting)],ddof = 1)
-        Vanilla_std = np.std(output["Vanilla"][str(survivability_setting)],ddof = 1)
+        ResiliNet_std = np.std(output["ResiliNet"][str(reliability_setting)],ddof=1)
+        deepFogGuard_std = np.std(output["deepFogGuard"][str(reliability_setting)],ddof = 1)
+        Vanilla_std = np.std(output["Vanilla"][str(reliability_setting)],ddof = 1)
 
-        output_list.append(str(survivability_setting) + " ResiliNet Accuracy: " + str(ResiliNet_acc) + '\n')
-        output_list.append(str(survivability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
-        output_list.append(str(survivability_setting) + " Vanilla Accuracy: " + str(Vanilla_acc) + '\n')
+        output_list.append(str(reliability_setting) + " ResiliNet Accuracy: " + str(ResiliNet_acc) + '\n')
+        output_list.append(str(reliability_setting) + " deepFogGuard Accuracy: " + str(deepFogGuard_acc) + '\n')
+        output_list.append(str(reliability_setting) + " Vanilla Accuracy: " + str(Vanilla_acc) + '\n')
 
-        output_list.append(str(survivability_setting) + " ResiliNet std: " + str(ResiliNet_std) + '\n')
-        output_list.append(str(survivability_setting) + " deepFogGuard std: " + str(deepFogGuard_std) + '\n')
-        output_list.append(str(survivability_setting) + " Vanilla std: " + str(Vanilla_std) + '\n')
+        output_list.append(str(reliability_setting) + " ResiliNet std: " + str(ResiliNet_std) + '\n')
+        output_list.append(str(reliability_setting) + " deepFogGuard std: " + str(deepFogGuard_std) + '\n')
+        output_list.append(str(reliability_setting) + " Vanilla std: " + str(Vanilla_std) + '\n')
 
-        print(str(survivability_setting),"ResiliNet Accuracy:",ResiliNet_acc)
-        print(str(survivability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
-        print(str(survivability_setting),"Vanilla Accuracy:",Vanilla_acc)
+        print(str(reliability_setting),"ResiliNet Accuracy:",ResiliNet_acc)
+        print(str(reliability_setting),"deepFogGuard Accuracy:",deepFogGuard_acc)
+        print(str(reliability_setting),"Vanilla Accuracy:",Vanilla_acc)
 
-        print(str(survivability_setting),"ResiliNet std:",ResiliNet_std)
-        print(str(survivability_setting),"deepFogGuard std:",deepFogGuard_std)
-        print(str(survivability_setting),"Vanilla std:",Vanilla_std)
+        print(str(reliability_setting),"ResiliNet std:",ResiliNet_std)
+        print(str(reliability_setting),"deepFogGuard std:",deepFogGuard_std)
+        print(str(reliability_setting),"Vanilla std:",Vanilla_std)
     write_n_upload(output_name, output_list, use_GCP)

@@ -78,22 +78,22 @@ def define_ResiliNet_MLP(input_shape,
     return model
 
 def MLP_failout_definitions(failout_survival_setting):
-    fog_survivability = [0] * 5
+    fog_reliability = [0] * 5
 
-    fog_survivability[1] = failout_survival_setting[0]
-    fog_survivability[2] = failout_survival_setting[1]
-    fog_survivability[3] = failout_survival_setting[2]
-    fog_survivability[4] = failout_survival_setting[3]
+    fog_reliability[1] = failout_survival_setting[0]
+    fog_reliability[2] = failout_survival_setting[1]
+    fog_reliability[3] = failout_survival_setting[2]
+    fog_reliability[4] = failout_survival_setting[3]
 
-    edge_survivability = [0] * 5
-    edge_survivability[1] = failout_survival_setting[4]
-    edge_survivability[2] = failout_survival_setting[5]
-    edge_survivability[3] = failout_survival_setting[6]
-    edge_survivability[4] = failout_survival_setting[7]
+    edge_reliability = [0] * 5
+    edge_reliability[1] = failout_survival_setting[4]
+    edge_reliability[2] = failout_survival_setting[5]
+    edge_reliability[3] = failout_survival_setting[6]
+    edge_reliability[4] = failout_survival_setting[7]
     
     edge_failure_lambda = {}
     fog_failure_lambda = {}
     for i in range(1,5):
-        edge_failure_lambda[i] = Failout(edge_survivability[i])
-        fog_failure_lambda[i] = Failout(fog_survivability[i])
+        edge_failure_lambda[i] = Failout(edge_reliability[i])
+        fog_failure_lambda[i] = Failout(fog_reliability[i])
     return edge_failure_lambda, fog_failure_lambda

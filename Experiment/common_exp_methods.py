@@ -19,16 +19,16 @@ def write_n_upload(output_name, output_list, use_GCP):
         os.system('gsutil -m -q cp -r {} gs://anrl-storage/results/'.format(output_name))
         os.system('gsutil -m -q cp -r *.h5 gs://anrl-storage/models')
 
-def convert_to_string(survivability_settings):
-    # convert survivability settings into strings so it can be used in the dictionary as keys
-    no_failure = str(survivability_settings[0])
-    normal = str(survivability_settings[1])
-    poor = str(survivability_settings[2])
-    hazardous = str(survivability_settings[3])
+def convert_to_string(reliability_settings):
+    # convert reliability settings into strings so it can be used in the dictionary as keys
+    no_failure = str(reliability_settings[0])
+    normal = str(reliability_settings[1])
+    poor = str(reliability_settings[2])
+    hazardous = str(reliability_settings[3])
     return no_failure, normal, poor, hazardous
 
-def make_output_dictionary_average_accuracy(survivability_settings, num_iterations):
-    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
+def make_output_dictionary_average_accuracy(reliability_settings, num_iterations):
+    no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
 
     # dictionary to store all the results
     output = {
@@ -56,21 +56,21 @@ def make_output_dictionary_average_accuracy(survivability_settings, num_iteratio
     }
     return output
 
-def make_output_dictionary_hyperconnection_weight(survivability_settings, num_iterations):
-    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
+def make_output_dictionary_hyperconnection_weight(reliability_settings, num_iterations):
+    no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
 
     # define weight schemes for hyperconnections
     one_weight_scheme = 1 # weighted by 1
-    normalized_survivability_weight_scheme = 2 # normalized survivability
-    survivability_weight_scheme = 3 # survivability
+    normalized_reliability_weight_scheme = 2 # normalized reliability
+    reliability_weight_scheme = 3 # reliability
     random_weight_scheme = 4 # randomly weighted between 0 and 1
     random_weight_scheme2 = 5 # randomly weighted between 0 and 10
     fifty_weight_scheme = 6  # randomly weighted by .5
 
     weight_schemes = [
         one_weight_scheme,
-        normalized_survivability_weight_scheme,
-        survivability_weight_scheme,
+        normalized_reliability_weight_scheme,
+        reliability_weight_scheme,
         random_weight_scheme,
         random_weight_scheme2,
         fifty_weight_scheme,
@@ -87,14 +87,14 @@ def make_output_dictionary_hyperconnection_weight(survivability_settings, num_it
                 poor:[0] * num_iterations,
                 normal:[0] * num_iterations,
             },
-            normalized_survivability_weight_scheme:
+            normalized_reliability_weight_scheme:
             {
                 no_failure: [0] * num_iterations,
                 hazardous:[0] * num_iterations,
                 poor:[0] * num_iterations,
                 normal:[0] * num_iterations,
             },
-            survivability_weight_scheme:
+            reliability_weight_scheme:
             {
                 no_failure: [0] * num_iterations,
                 hazardous:[0] * num_iterations,
@@ -126,8 +126,8 @@ def make_output_dictionary_hyperconnection_weight(survivability_settings, num_it
     }
     return output, weight_schemes
 
-def make_output_dictionary_failout_rate(failout_survival_rates, survivability_settings, num_iterations):
-    no_failure, normal, poor, hazardous = convert_to_string(survivability_settings)
+def make_output_dictionary_failout_rate(failout_survival_rates, reliability_settings, num_iterations):
+    no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
     
     # dictionary to store all the results
     output = {}

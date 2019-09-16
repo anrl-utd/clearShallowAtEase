@@ -23,7 +23,7 @@ def define_deepFogGuard_CNN(input_shape=None,
                             classes=1000,
                             strides = (2,2),
                             skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive
-                            survivability_setting=[1.0,1.0], # survivability of a node between 0 and 1
+                            reliability_setting=[1.0,1.0], # reliability of a node between 0 and 1
                             hyperconnection_weights_scheme = 1,
                             **kwargs):
     """Instantiates the MobileNet architecture.
@@ -78,7 +78,7 @@ def define_deepFogGuard_CNN(input_shape=None,
     """
     hyperconnection_weight_IoTf,hyperconnection_weight_ef,hyperconnection_weight_ec,hyperconnection_weight_fc = set_hyperconnection_weights(
         hyperconnection_weights_scheme, 
-        survivability_setting, 
+        reliability_setting, 
         skip_hyperconnection_config)
     multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef, multiply_hyperconnection_weight_layer_ec, multiply_hyperconnection_weight_layer_fc = define_hyperconnection_weight_lambda_layers(
         hyperconnection_weight_IoTf,
@@ -156,25 +156,25 @@ def define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha
     cloud_output = define_cnn_architecture_cloud(cloud_input,alpha,depth_multiplier,classes,include_top,pooling)
     return cloud_output
 
-def set_hyperconnection_weights(hyperconnection_weights_scheme,survivability_setting, skip_hyperconnection_config):
+def set_hyperconnection_weights(hyperconnection_weights_scheme,reliability_setting, skip_hyperconnection_config):
     # weighted by 1
     if hyperconnection_weights_scheme == 1: 
         hyperconnection_weight_IoTf = 1
         hyperconnection_weight_ef = 1
         hyperconnection_weight_ec = 1
         hyperconnection_weight_fc = 1
-    # normalized survivability
+    # normalized reliability
     elif hyperconnection_weights_scheme == 2:
-        hyperconnection_weight_IoTf = 1 / (1 + survivability_setting[0])
-        hyperconnection_weight_ef = survivability_setting[0] / (1 + survivability_setting[0])
-        hyperconnection_weight_ec = survivability_setting[0] / (survivability_setting[1] + survivability_setting[0])
-        hyperconnection_weight_fc = survivability_setting[1] / (survivability_setting[1] + survivability_setting[0])
-    # survivability
+        hyperconnection_weight_IoTf = 1 / (1 + reliability_setting[0])
+        hyperconnection_weight_ef = reliability_setting[0] / (1 + reliability_setting[0])
+        hyperconnection_weight_ec = reliability_setting[0] / (reliability_setting[1] + reliability_setting[0])
+        hyperconnection_weight_fc = reliability_setting[1] / (reliability_setting[1] + reliability_setting[0])
+    # reliability
     elif hyperconnection_weights_scheme == 3:
         hyperconnection_weight_IoTf = 1 
-        hyperconnection_weight_ef = survivability_setting[0]
-        hyperconnection_weight_ec = survivability_setting[0]
-        hyperconnection_weight_fc = survivability_setting[1] 
+        hyperconnection_weight_ef = reliability_setting[0]
+        hyperconnection_weight_ec = reliability_setting[0]
+        hyperconnection_weight_fc = reliability_setting[1] 
     # randomly weighted between 0 and 1
     elif hyperconnection_weights_scheme == 4:
         hyperconnection_weight_IoTf = random.uniform(0,1)

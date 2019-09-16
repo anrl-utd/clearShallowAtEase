@@ -13,11 +13,8 @@ def load_dataset(train_path, image_size, labels):
     cls = [[] for x in range(243)]
     person = 0
     car = 0
-    print('Going to read training images')
     for label in labels:   
         index = labels.index(label)
-        print(index)
-        print('Now going to read {} files (Index: {})'.format(label, index))
         path = os.path.join(train_path, label, '*g')
         files = glob.glob(path)
         for fl in files:
@@ -49,8 +46,6 @@ def load_dataset(train_path, image_size, labels):
             img_names[frame].append(flbase)
             cls[frame].append(label)
     true_labels = img_labels
-    print('Person files read in: ', person)
-    print('Car files read in: ', car)
     # make every index of images have 6 images only (unroll)
     for i in range(len(images)):
         length = len(images[i])
@@ -60,7 +55,6 @@ def load_dataset(train_path, image_size, labels):
             images.append(split_images)
             
             split_labels = img_labels[i][-6:]
-            #print(split_labels)
             img_labels.append(split_labels)
             img_labels[i] = img_labels[i][:-6]
             
@@ -71,7 +65,6 @@ def load_dataset(train_path, image_size, labels):
             cls.append(cls[i][-6])
             del cls[i][-6:]
             length = len(images[i])
-            #print(len(images[i]), ' :', i)
     # now, combine images at each index of 'images' into a single image. we will split it in tf
     i = 0
     while i < len(images):
@@ -83,18 +76,15 @@ def load_dataset(train_path, image_size, labels):
             del img_labels[i]
             del cls[i]
             len_imgs = len(images[i])
-        #print(len(images[i]), ' :', i)
         #images[i] = np.concatenate((images[i][0],images[i][1],images[i][2],images[i][3],images[i][4],images[i][5]), axis = 1)
         i += 1
     non_one_hot = img_labels
     # make every element of img_labels a vec
     for l in range(len(img_labels)):
         if isinstance(img_labels[l], list):
-            #print(img_labels[l])
             img_labels[l] = img_labels[l][0]
     car = 0
     person = 0
-    #print(img_labels)
     
     for l in img_labels:
         if l[0] == 1:
@@ -102,10 +92,6 @@ def load_dataset(train_path, image_size, labels):
         if l[1] == 1:
             car += 1
     bus = len(img_labels) - car - person
-    print('Car: ' , car)
-    print ('Person: ', person)
-    print('Bus: ', bus)
-    #print(img_labels)
     
     images = np.array(images)
     img_labels = np.array(img_labels)

@@ -19,7 +19,7 @@ def init_data(use_GCP):
 def init_common_experiment_params(train_data):
     num_vars = len(train_data[0])
     num_classes = 13
-    survivability_settings = [
+    reliability_settings = [
         [1,1,1],
         [.92,.96,.99],
         [.87,.91,.95],
@@ -29,7 +29,7 @@ def init_common_experiment_params(train_data):
     hidden_units = 250
     batch_size = 1028
     num_iterations = 10
-    return num_iterations, num_vars, num_classes, survivability_settings, num_train_epochs, hidden_units, batch_size
+    return num_iterations, num_vars, num_classes, reliability_settings, num_train_epochs, hidden_units, batch_size
 
 def get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose):
     if load_model:

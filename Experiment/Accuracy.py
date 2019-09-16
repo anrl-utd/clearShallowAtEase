@@ -9,7 +9,7 @@ from Experiment.classification import predict
 
 modelAccuracyDict = dict()
 
-def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
+def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
                                             numNodes,
                                             model,
                                             output_list,
@@ -21,7 +21,7 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
                                             ):
     """runs through all node failure combinations and calculates the accuracy (and weight) of that particular node failure combination
     ### Arguments
-        survivability_setting (list): List of the survival rate of all nodes, ordered from edge to fog node
+        reliability_setting (list): List of the reliability of all nodes, ordered from edge to fog node
         numNodes (int): number of physical nodes
         model (Model): Keras model
         output_list (list): list that contains string output of the experiment
@@ -29,7 +29,7 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
         test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
         test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
     ### Returns
-        return how many survival configurations had total network failure
+        return accuracy and weight of each node failure combination
     """ 
     weightList = []
     needToGetModelAccuracy = False
@@ -44,8 +44,8 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
     else:
         isImageNet = False
     
-    output_list.append('Calculating accuracy for survivability setting ' + str(survivability_setting) + '\n')
-    print("Calculating accuracy for survivability setting "+ str(survivability_setting))
+    output_list.append('Calculating accuracy for reliability setting ' + str(reliability_setting) + '\n')
+    print("Calculating accuracy for reliability setting "+ str(reliability_setting))
     maxNumNodeFailure = 2 ** numNodes
     for i in range(maxNumNodeFailure):
         node_failure_combination = convertBinaryToList(i, numNodes)
@@ -62,8 +62,7 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
             accuracyList.append(accuracy)
             # change the changed weights to the original weights
             model.set_weights(old_weights)
-        # calculate weight of the result based on survival rates 
-        weight = calcWeightProbability(survivability_setting, node_failure_combination)
+        weight = calcWeightProbability(reliability_setting, node_failure_combination)
         weightList.append(weight)
     print("Acc List: " + str(accuracyList))
     output_list.append("Acc List: " + str(accuracyList) + '\n')
@@ -85,20 +84,19 @@ def calcWeightedAverage(valueList, weightList):
         average += valueList[i] * weightList[i]
     return average
         
-def calcWeightProbability(survivability_setting, node_failure_combination):
+def calcWeightProbability(reliability_setting, node_failure_combination):
     """calculates the weight (probability) of each combination of component failures
     ### Arguments
-        survivability_setting (list): list of probabilities
-        node_failure_combination (list): list of the node survival outcomes
+        reliability_setting (list): list of probabilities
     ### Returns
-        return probability of a particular survival outcome
+        return probability of a particular node failure combination
     """  
     weight = 1
     for i in range(len(node_failure_combination)):
         if (node_failure_combination[i] == 1): # if it survives
-            weight = weight * survivability_setting[i]
+            weight = weight * reliability_setting[i]
         else: # if it fails
-            weight = weight * (1 - survivability_setting[i])
+            weight = weight * (1 - reliability_setting[i])
     return weight
     
 
@@ -148,7 +146,7 @@ def normalize(weights):
     return normalized
  
 def calculateExpectedAccuracy(model,
-                            survivability_setting,
+                            reliability_setting,
                             output_list,
                             training_labels = None,
                             test_data = None,
@@ -156,10 +154,10 @@ def calculateExpectedAccuracy(model,
                             test_generator = None, # for imageNet
                             num_test_examples = None # for imageNet
                             ):
-    """Calculates the expected accuracy of the model under certain survivability setting
+    """Calculates the expected accuracy of the model under certain reliability setting
     ### Arguments
         model (Model): Keras model
-        survivability_setting (list): List of the survival rate of all nodes
+        reliability_setting (list): List of the reliability rate of all nodes
         output_list (list): list that contains string output of the experiment
         training_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distributio
         test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
@@ -167,8 +165,8 @@ def calculateExpectedAccuracy(model,
     ### Returns
         return weighted accuracy 
     """  
-    numNodes = len(survivability_setting)
-    accuracyList, weightList = iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
+    numNodes = len(reliability_setting)
+    accuracyList, weightList = iterateAllFailureCombinationsCalcAccuracy(reliability_setting,numNodes, model,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
     weightList = normalize(weightList)
     avg_acc = calcWeightedAverage(accuracyList, weightList)
     # output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')

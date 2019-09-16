@@ -28,13 +28,13 @@ def calcAverageStats(statList, weightList):
     return averageStat
         
 # calculates the weight of each combination of component failures
-def calcWeight(survivability, listOfZerosOnes):
+def calcWeight(reliability, listOfZerosOnes):
     weight = 1
     for i in range(len(listOfZerosOnes)):
         if (listOfZerosOnes[i] == '1'): # if it survives
-            weight = weight * survivability[i]
+            weight = weight * reliability[i]
         else: # if it fails
-            weight = weight * (1 - survivability[i])
+            weight = weight * (1 - reliability[i])
     print(weight)
     return weight
     

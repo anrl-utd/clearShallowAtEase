@@ -149,17 +149,17 @@ def parseNodeFailureCifar(file_name):
     print(avg_dict)
 
 def calculate_cifar_report_stats(file_name):
-    survivability_settings = [
+    reliability_settings = [
         [.96,.98],
         [.90,.95],
         [.80,.85],
         [1,1],
     ]
-    # convert survivability settings into strings so it can be used in the dictionary as keys
-    no_failure = str(survivability_settings[0])
-    normal = str(survivability_settings[1])
-    poor = str(survivability_settings[2])
-    hazardous = str(survivability_settings[3])
+    # convert reliability settings into strings so it can be used in the dictionary as keys
+    no_failure = str(reliability_settings[0])
+    normal = str(reliability_settings[1])
+    poor = str(reliability_settings[2])
+    hazardous = str(reliability_settings[3])
     report = {
         hazardous:[0] * 10,
         poor:[0] * 10,
@@ -176,7 +176,7 @@ def calculate_cifar_report_stats(file_name):
             if index != -1:
                 split_line = line.split()
                 acc = float(split_line[-1])
-                report[str(survivability_settings[counter - 1 % iteration_counter])][num_iterations-1] = acc
+                report[str(reliability_settings[counter - 1 % iteration_counter])][num_iterations-1] = acc
                 counter+=1 
                 if(counter % iteration_counter == 0):
                     num_iterations+=1

@@ -50,7 +50,7 @@ def init_common_experiment_params():
     alpha = .5
     num_iterations = 10
     # need to change this to be accurate
-    survivability_settings = [
+    reliability_settings = [
         [1,1],
         [.96,.98],
         [.90,.95],
@@ -60,7 +60,7 @@ def init_common_experiment_params():
     epochs = 100
     num_gpus = 1
     strides = (2,2)
-    return num_iterations, num_train_examples,num_test_examples, survivability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides
+    return num_iterations, num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides
 
 def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus):
     if load_model:
