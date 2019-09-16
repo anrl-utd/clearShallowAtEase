@@ -18,7 +18,7 @@ def define_and_train(iteration, model_name, load_model, train_generator, val_gen
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,test_generator, num_test_examples):
     output_list.append(model_name + "\n")
     print(model_name)
-    output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracyFromImageGenerator(model,survivability_setting,output_list,test_generator,num_test_examples = num_test_examples)
+    output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list,test_generator= test_generator,num_test_examples = num_test_examples)
 
 
 # runs all 3 failure configurations for all 3 models

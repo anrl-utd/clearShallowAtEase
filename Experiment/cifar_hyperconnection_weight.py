@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 
                 output_list.append(str(survivability_setting) + str(weight_scheme) + '\n')
                 print(survivability_setting,weight_scheme)
-                output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list, training_labels, test_data, test_labels)
+                output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model,survivability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
                 
                 # clear session so that model will recycled back into memory
                 K.clear_session()

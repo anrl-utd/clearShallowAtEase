@@ -93,7 +93,7 @@ if __name__ == "__main__":
             for survivability_settings in survivability_settings:
                 output_list.append(str(survivability_settings) + '\n')
                 print(survivability_settings)
-                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(survivability_settings)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, survivability_settings,output_list, training_labels, test_data, test_labels)
+                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(survivability_settings)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, survivability_settings,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()

@@ -39,9 +39,9 @@ if __name__ == "__main__":
         for survivability_setting in survivability_settings:
             output_list.append(str(survivability_setting) + '\n')
             print(survivability_setting)
-            output["Vanilla"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(Vanilla, survivability_setting,output_list, training_labels, test_data, test_labels)
-            output["deepFogGuard"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard, survivability_setting,output_list, training_labels, test_data, test_labels)
-            output["ResiliNet"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet, survivability_setting,output_list, training_labels, test_data, test_labels)
+            output["Vanilla"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(Vanilla, survivability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            output["deepFogGuard"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard, survivability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            output["ResiliNet"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet, survivability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
         # clear session so that model will recycled back into memory
         K.clear_session()
         gc.collect()

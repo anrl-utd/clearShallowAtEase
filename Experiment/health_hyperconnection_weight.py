@@ -44,7 +44,7 @@ if __name__ == "__main__":
             for weight_scheme in weight_schemes:
                 # deepFogGuard hyperconnection weight 
                 deepFogGuard_hyperconnection_weight = define_and_train(iteration, model_name, load_model, weight_scheme, survivability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
-                output[model_name][weight_scheme][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard_hyperconnection_weight,survivability_setting,output_list,training_labels,test_data,test_labels)
+                output[model_name][weight_scheme][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard_hyperconnection_weight,survivability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
                 # clear session so that model will recycled back into memory
                 K.clear_session()
                 gc.collect()

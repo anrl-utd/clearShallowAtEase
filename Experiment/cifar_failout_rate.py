@@ -66,7 +66,7 @@ if __name__ == "__main__":
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, survivability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             multiply_hyperconnection_weights(dropout_like_failout, survivability_setting, ResiliNet_failout_rate_variable)
             output_list.append(str(survivability_setting) + '\n')
-            output["Variable Failout 1x"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, survivability_setting,output_list, training_labels, test_data, test_labels)
+            output["Variable Failout 1x"][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, survivability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             
             # clear session so that model will recycled back into memory
             K.clear_session()
@@ -80,7 +80,7 @@ if __name__ == "__main__":
             for survivability_setting in survivability_settings:
                 output_list.append(str(survivability_setting)+ '\n')
                 print(survivability_setting)
-                output[str(failout_survival_setting)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_fixed,survivability_setting,output_list,training_labels,test_data,test_labels)
+                output[str(failout_survival_setting)][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_fixed,survivability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()

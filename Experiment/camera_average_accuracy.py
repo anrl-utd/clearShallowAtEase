@@ -31,7 +31,7 @@ def define_and_train(iteration, model_name, load_model,train_data, train_labels,
 def calc_accuracy(iteration, model_name, model, survivability_setting, output_list,train_labels, test_data, test_labels):
     output_list.append(model_name + "\n")
     print(model_name)
-    output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model, survivability_setting, output_list, train_labels, test_data, test_labels)
+    output[model_name][str(survivability_setting)][iteration-1] = calculateExpectedAccuracy(model, survivability_setting, output_list, training_labels= train_labels, test_data= test_data, test_labels= test_labels)
 
 
 # runs all 3 failure configurations for all 3 models
