@@ -44,7 +44,7 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
     maxNumNodeFailure = 2 ** numNodes
     for i in range(maxNumNodeFailure):
         node_failure_combination = convertBinaryToList(i, numNodes)
-        print(node_failure_combination)
+        # print(node_failure_combination)
         if needToGetModelAccuracy:
             # saves a copy of the original model so it does not change during failures 
             old_weights = model.get_weights()
@@ -60,8 +60,8 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
         # calculate weight of the result based on survival rates 
         weight = calcWeightProbability(survivability_setting, node_failure_combination)
         weightList.append(weight)
-        print("weight:", weight, " acc:",accuracyList[i])
-        output_list.append("weight: " + str(weight) + " acc: " + str(accuracyList[i]) + '\n')
+        # print("weight:", weight, " acc:",accuracyList[i])
+        # output_list.append("weight: " + str(weight) + " acc: " + str(accuracyList[i]) + '\n')
     
     if needToGetModelAccuracy:
         modelAccuracy[model] = accuracyList # add the accuracyList to the dictionary
