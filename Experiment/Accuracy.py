@@ -40,6 +40,11 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
         accuracyList = modelAccuracyDict[model]
     else:
         needToGetModelAccuracy = True
+
+    if training_labels is None or test_data is None or test_labels is None:
+        isImageNet = True
+    else:
+        isImageNet = False
     
     output_list.append('Calculating accuracy for ' + str(survivability_setting) + '\n')
     print("Calculating accuracy for "+ str(survivability_setting))
@@ -52,10 +57,10 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
             old_weights = model.get_weights()
             is_cnn = fail_node(model,node_failure_combination)
             output_list.append(str(node_failure_combination))
-            if training_labels is not None and test_data is not None and test_labels is not None:
+            if isImageNet:
+                accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]  
+            else: 
                 accuracy,_ = predict(model,training_labels,test_data,test_labels, is_cnn)
-            else: # imagenet
-                accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]
             accuracyList.append(accuracy)
             # change the changed weights to the original weights
             model.set_weights(old_weights)
