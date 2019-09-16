@@ -7,7 +7,9 @@ from sklearn.metrics import precision_score
 from Experiment.common_exp_methods import fail_node
 from Experiment.classification import predict
 
-def iterateAllFailureCombinationsCalcAccuracy(survivability_settings,
+modelAccuracy = dict()
+
+def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
                                             numNodes,
                                             model,
                                             accuracyList,
@@ -21,7 +23,7 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_settings,
                                             ):
     """runs through all node failure combinations and calculates the accuracy (and weight) of that particular node failure combination
     ### Arguments
-        survivability_settings (list): List of the survival rate of all nodes, ordered from edge to fog node
+        survivability_setting (list): List of the survival rate of all nodes, ordered from edge to fog node
         numNodes (int): number of physical nodes
         model (Model): Keras model
         accuracyList (list): list of all the accuracies (one per node failure combination)
@@ -32,37 +34,37 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_settings,
         test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
     ### Returns
         return how many survival configurations had total network failure
-    """  
-    no_information_flow_count = 0
+    """ 
+    needToGetModelAccuracy = False
+    if modelAccuracy.has_key(model): # if the accuracy for this model is calculated
+        accuracyList = modelAccuracy[model]
+    else:
+        needToGetModelAccuracy = True
+
     maxNumNodeFailure = 2 ** numNodes
     for i in range(maxNumNodeFailure):
-        numSurvivedNodes = calcNumSurvivedNodes(i)
         node_failure_combination = convertBinaryToList(i, numNodes)
-        
-        # saves a copy of the original model so it does not change during failures 
-        old_weights = model.get_weights()
-        is_cnn = fail_node(model,node_failure_combination)
         print(node_failure_combination)
-        output_list.append(str(node_failure_combination))
-        if training_labels is not None and test_data is not None and test_labels is not None:
-            accuracy,no_information_flow = predict(model,training_labels,test_data,test_labels, is_cnn)
-        else: # imagenet
-            accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]
-            no_information_flow = 0 # this is not used.
-            question for brian!! is this correct?
-
-        # add number of no_information_flow for a model
-        no_information_flow_count += no_information_flow
-        # change the changed weights to the original weights
-        model.set_weights(old_weights)
+        if needToGetModelAccuracy:
+            # saves a copy of the original model so it does not change during failures 
+            old_weights = model.get_weights()
+            is_cnn = fail_node(model,node_failure_combination)
+            output_list.append(str(node_failure_combination))
+            if training_labels is not None and test_data is not None and test_labels is not None:
+                accuracy,_ = predict(model,training_labels,test_data,test_labels, is_cnn)
+            else: # imagenet
+                accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]
+            accuracyList.append(accuracy)
+            # change the changed weights to the original weights
+            model.set_weights(old_weights)
         # calculate weight of the result based on survival rates 
-        for survivability_setting in survivability_settings:
-            weight = calcWeightProbability(survivability_setting, node_failure_combination)
-        accuracyList.append(accuracy)
+        weight = calcWeightProbability(survivability_setting, node_failure_combination)
         weightList.append(weight)
-        print("numSurvivedNodes:",numSurvivedNodes," weight:", weight, " acc:",accuracy)
-        output_list.append("numSurvivedNodes: " + str(numSurvivedNodes) + " weight: " + str(weight) + " acc: " + str(accuracy) + '\n')
-    return no_information_flow_count
+        print("weight:", weight, " acc:",accuracyList[i])
+        output_list.append("weight: " + str(weight) + " acc: " + str(accuracyList[i]) + '\n')
+    
+    if needToGetModelAccuracy:
+        modelAccuracy[model] = accuracyList # add the accuracyList to the dictionary
 
 def calcWeightedAverage(valueList, weightList):
     """calculates weighted average 
@@ -162,11 +164,11 @@ def calculateExpectedAccuracy(model,
     numNodes = len(survivability_setting)
     accuracyList = []
     weightList = []
-    no_information_flow_count = iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
+    iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
     weightList = normalize(weightList)
     avg_acc = calcWeightedAverage(accuracyList, weightList)
-    output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')
+    # output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')
     output_list.append('Average Accuracy: ' + str(avg_acc) + '\n')
-    print('Times we had no information flow: ',str(no_information_flow_count))
+    # print('Times we had no information flow: ',str(no_information_flow_count))
     print("Average Accuracy:", avg_acc)
     return avg_acc
