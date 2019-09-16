@@ -12,8 +12,6 @@ modelAccuracyDict = dict()
 def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
                                             numNodes,
                                             model,
-                                            accuracyList,
-                                            weightList,
                                             output_list,
                                             training_labels = None,
                                             test_data = None,
@@ -26,8 +24,6 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
         survivability_setting (list): List of the survival rate of all nodes, ordered from edge to fog node
         numNodes (int): number of physical nodes
         model (Model): Keras model
-        accuracyList (list): list of all the accuracies (one per node failure combination)
-        weightList (list): list of all the weights (one per node failure combination). Weight is the probability of that node failure combination
         output_list (list): list that contains string output of the experiment
         train_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distributio
         test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
@@ -35,10 +31,12 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
     ### Returns
         return how many survival configurations had total network failure
     """ 
+    weightList = []
     needToGetModelAccuracy = False
     if model in modelAccuracyDict: # if the accuracy for this model is calculated
         accuracyList = modelAccuracyDict[model]
     else:
+        accuracyList = []
         needToGetModelAccuracy = True
 
     if training_labels is None or test_data is None or test_labels is None:
@@ -46,8 +44,8 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
     else:
         isImageNet = False
     
-    output_list.append('Calculating accuracy for ' + str(survivability_setting) + '\n')
-    print("Calculating accuracy for "+ str(survivability_setting))
+    output_list.append('Calculating accuracy for survivability setting ' + str(survivability_setting) + '\n')
+    print("Calculating accuracy for survivability setting "+ str(survivability_setting))
     maxNumNodeFailure = 2 ** numNodes
     for i in range(maxNumNodeFailure):
         node_failure_combination = convertBinaryToList(i, numNodes)
@@ -72,6 +70,7 @@ def iterateAllFailureCombinationsCalcAccuracy(survivability_setting,
     
     if needToGetModelAccuracy:
         modelAccuracyDict[model] = accuracyList # add the accuracyList to the dictionary
+    return accuracyList, weightList
 
 def calcWeightedAverage(valueList, weightList):
     """calculates weighted average 
@@ -169,9 +168,7 @@ def calculateExpectedAccuracy(model,
         return weighted accuracy 
     """  
     numNodes = len(survivability_setting)
-    accuracyList = []
-    weightList = []
-    iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,accuracyList,weightList,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
+    accuracyList, weightList = iterateAllFailureCombinationsCalcAccuracy(survivability_setting,numNodes, model,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
     weightList = normalize(weightList)
     avg_acc = calcWeightedAverage(accuracyList, weightList)
     # output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')
