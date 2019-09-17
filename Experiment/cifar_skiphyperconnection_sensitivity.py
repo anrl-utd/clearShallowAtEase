@@ -73,6 +73,7 @@ if __name__ == "__main__":
     output = make_output_dictionary(reliability_settings, num_iterations)
     
     skip_hyperconnection_configurations = [
+        # [IoT,e1]
         [0,0],
         [1,0],
         [0,1],

@@ -47,7 +47,7 @@ if __name__ == "__main__":
     load_model = False
 
     # file name with the experiments accuracy output
-    output_name = "results/health_normal_testfordfg.txt"
+    output_name = "results/health_average_accuracy.txt"
     
     verbose = 2
     

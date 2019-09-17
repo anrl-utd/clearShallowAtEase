@@ -90,6 +90,7 @@ if __name__ == "__main__":
     num_iterations, num_vars, num_classes, reliability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
     num_iterations = 20
     skip_hyperconnection_configurations = [
+        # [g1,e1,f2]
         [0,0,0],
         [1,0,0],
         [0,1,0],

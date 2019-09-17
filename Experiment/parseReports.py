@@ -150,9 +150,9 @@ def parseNodeFailureCifar(file_name):
 
 def calculate_cifar_report_stats(file_name):
     reliability_settings = [
-        [.96,.98],
-        [.90,.95],
-        [.80,.85],
+        [.98,.96],
+        [.95,.90],
+        [.85,.80],
         [1,1],
     ]
     # convert reliability settings into strings so it can be used in the dictionary as keys

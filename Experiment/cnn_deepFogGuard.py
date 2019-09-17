@@ -22,8 +22,8 @@ def define_deepFogGuard_CNN(input_shape=None,
                             pooling=None,
                             classes=1000,
                             strides = (2,2),
-                            skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive
-                            reliability_setting=[1.0,1.0], # reliability of a node between 0 and 1
+                            skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive [IoT,e1]
+                            reliability_setting=[1.0,1.0], # reliability of a node between 0 and 1 [f1,e1]
                             hyperconnection_weights_scheme = 1,
                             **kwargs):
     """Instantiates the MobileNet architecture.
@@ -165,16 +165,16 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme,reliability_setti
         hyperconnection_weight_fc = 1
     # normalized reliability
     elif hyperconnection_weights_scheme == 2:
-        hyperconnection_weight_IoTf = 1 / (1 + reliability_setting[0])
-        hyperconnection_weight_ef = reliability_setting[0] / (1 + reliability_setting[0])
-        hyperconnection_weight_ec = reliability_setting[0] / (reliability_setting[1] + reliability_setting[0])
-        hyperconnection_weight_fc = reliability_setting[1] / (reliability_setting[1] + reliability_setting[0])
+        hyperconnection_weight_IoTf = 1 / (1 + reliability_setting[1])
+        hyperconnection_weight_ef = reliability_setting[1] / (1 + reliability_setting[1])
+        hyperconnection_weight_ec = reliability_setting[1] / (reliability_setting[0] + reliability_setting[1])
+        hyperconnection_weight_fc = reliability_setting[0] / (reliability_setting[0] + reliability_setting[1])
     # reliability
     elif hyperconnection_weights_scheme == 3:
         hyperconnection_weight_IoTf = 1 
-        hyperconnection_weight_ef = reliability_setting[0]
-        hyperconnection_weight_ec = reliability_setting[0]
-        hyperconnection_weight_fc = reliability_setting[1] 
+        hyperconnection_weight_ef = reliability_setting[1]
+        hyperconnection_weight_ec = reliability_setting[1]
+        hyperconnection_weight_fc = reliability_setting[0] 
     # randomly weighted between 0 and 1
     elif hyperconnection_weights_scheme == 4:
         hyperconnection_weight_IoTf = random.uniform(0,1)

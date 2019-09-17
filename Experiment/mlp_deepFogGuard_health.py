@@ -7,8 +7,8 @@ import random
 def define_deepFogGuard_MLP(num_vars,
                             num_classes,
                             hidden_units,
-                            reliability_setting = [1.0,1.0,1.0], # reliability of a node between 0 and 1, 
-                            skip_hyperconnection_config = [1,1,1], # binary representating if a skip hyperconnection is alive
+                            reliability_setting = [1.0,1.0,1.0], # reliability of a node between 0 and 1, [f1,f2,e1]
+                            skip_hyperconnection_config = [1,1,1], # binary representating if a skip hyperconnection is alive [g1,e1,f2]
                             hyperconnection_weights_scheme = 1):
     """Define a deepFogGuard model.
     ### Naming Convention
@@ -68,21 +68,21 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
         hyperconnection_weight_f2c = 1
         hyperconnection_weight_f1c = 1
     # normalized reliability
-    elif hyperconnection_weights_scheme == 2:
-        hyperconnection_weight_IoTf2  = 1 / (1+reliability_setting[0])
-        hyperconnection_weight_ef2 = reliability_setting[0] / (1 + reliability_setting[0])
-        hyperconnection_weight_ef1 = reliability_setting[0] / (reliability_setting[0] + reliability_setting[1])
-        hyperconnection_weight_f2f1 = reliability_setting[1] / (reliability_setting[0] + reliability_setting[1])
-        hyperconnection_weight_f2c = reliability_setting[1] / (reliability_setting[1] + reliability_setting[2])
-        hyperconnection_weight_f1c = reliability_setting[2] / (reliability_setting[1] + reliability_setting[2])
+    elif hyperconnection_weights_scheme == 2:   
+        hyperconnection_weight_IoTf2  = 1 / (1+reliability_setting[2])
+        hyperconnection_weight_ef2 = reliability_setting[2] / (1 + reliability_setting[2])
+        hyperconnection_weight_ef1 = reliability_setting[2] / (reliability_setting[2] + reliability_setting[1])
+        hyperconnection_weight_f2f1 = reliability_setting[1] / (reliability_setting[2] + reliability_setting[1])
+        hyperconnection_weight_f2c = reliability_setting[1] / (reliability_setting[1] + reliability_setting[0])
+        hyperconnection_weight_f1c = reliability_setting[0] / (reliability_setting[1] + reliability_setting[0])
     # reliability
     elif hyperconnection_weights_scheme == 3:
         hyperconnection_weight_IoTf2  = 1
-        hyperconnection_weight_ef2 = reliability_setting[0] 
-        hyperconnection_weight_ef1 = reliability_setting[0] 
+        hyperconnection_weight_ef2 = reliability_setting[2] 
+        hyperconnection_weight_ef1 = reliability_setting[2] 
         hyperconnection_weight_f2f1 = reliability_setting[1]
         hyperconnection_weight_f2c = reliability_setting[1] 
-        hyperconnection_weight_f1c = reliability_setting[2]
+        hyperconnection_weight_f1c = reliability_setting[0]
     # randomly weighted between 0 and 1
     elif hyperconnection_weights_scheme == 4:
         hyperconnection_weight_IoTf2  = random.uniform(0,1)

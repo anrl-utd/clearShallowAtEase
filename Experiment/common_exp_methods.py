@@ -151,7 +151,7 @@ def fail_node(model,node_failure_combination):
     """fails node(s) by making the specified node(s) output 0
     ### Arguments
         model (Model): Keras model to have nodes failed
-        node_failure_combination (list): bit list that corresponds to the node failure combination, 1 in the list represents to alive and 0 corresponds to dead 
+        node_failure_combination (list): bit list that corresponds to the node failure combination, 1 in the list represents to alive and 0 corresponds to dead. they are ordered from top to down, left to right (like from f1,f2,...,e1,e2,...)
     ### Returns
         return a boolean whether the model failed was a cnn or not
     """
@@ -186,21 +186,21 @@ def fail_node(model,node_failure_combination):
         # camera MLP
         if model.get_layer("output").output_shape == (None,3):
             nodes = [
-                "edge1_output_layer",
-                "edge2_output_layer",
-                "edge3_output_layer",
-                "edge4_output_layer",
                 "fog1_output_layer",
                 "fog2_output_layer",
                 "fog3_output_layer",
-                "fog4_output_layer"
+                "fog4_output_layer",
+                "edge1_output_layer",
+                "edge2_output_layer",
+                "edge3_output_layer",
+                "edge4_output_layer"
                 ]
             for index, node in enumerate(node_failure_combination):
                 if node == 0: # if dead
                     set_weights_zero_MLP(model, nodes, index)
         # cnn 
         else:
-            nodes = ["conv_pw_3","conv_pw_8"]
+            nodes = ["conv_pw_8","conv_pw_3"]
             for index,node in enumerate(node_failure_combination):
                 if node == 0: # dead
                     set_weights_zero_CNN(model, nodes, index)
@@ -208,7 +208,7 @@ def fail_node(model,node_failure_combination):
                     
     # input is non image
     else:
-        nodes = ["edge_output_layer","fog2_output_layer","fog1_output_layer"]
+        nodes = ["fog1_output_layer","fog2_output_layer","edge_output_layer"]
         for index,node in enumerate(node_failure_combination):
             # node failed
             if node == 0:

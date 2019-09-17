@@ -21,9 +21,9 @@ def init_common_experiment_params(train_data):
     num_classes = 13
     reliability_settings = [
         [1,1,1],
-        [.92,.96,.99],
-        [.87,.91,.95],
-        [.78,.8,.85],
+        [.99,.96,.92],
+        [.95,.91,.87],
+        [.85,.8,.78],
     ]
     num_train_epochs = 25 
     hidden_units = 250

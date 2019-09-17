@@ -85,7 +85,7 @@ def calcWeightedAverage(valueList, weightList):
     return average
         
 def calcWeightProbability(reliability_setting, node_failure_combination):
-    """calculates the weight (probability) of each combination of component failures
+    """calculates the weight (probability) of each combination of node failures
     ### Arguments
         reliability_setting (list): list of probabilities
     ### Returns
@@ -117,7 +117,7 @@ def calcNumSurvivedNodes(number):
     return len(setBits)
 
 def convertBinaryToList(number, numBits):
-    """converts a number (e.g. 128) to its binary representation in a list. It converts number 128 to ['1', '0', '0', '0', '0', '0', '0', '0']    
+    """converts a number (e.g. 128) to its binary representation in a list. It converts number 128 to [1,0,0,0,0,0,0,0]    
     ### Arguments
         number (int): number to be converted to binary
         numBits (int): number of maximum bits 
