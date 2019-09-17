@@ -8,7 +8,7 @@ def define_deepFogGuard_MLP(num_vars,
                             num_classes,
                             hidden_units,
                             reliability_setting = [1.0,1.0,1.0], # reliability of a node between 0 and 1, [f1,f2,e1]
-                            skip_hyperconnection_config = [1,1,1], # binary representating if a skip hyperconnection is alive [g1,e1,f2]
+                            skip_hyperconnection_config = [1,1,1], # binary representating if a skip hyperconnection is alive [f2,e1,g1]
                             hyperconnection_weights_scheme = 1):
     """Define a deepFogGuard model.
     ### Naming Convention
@@ -118,15 +118,15 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
 
 def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_config, hyperconnection_weight_IoTf2, hyperconnection_weight_ef1, hyperconnection_weight_f2c):
     # take away the skip hyperconnection if the value in hyperconnections array is 0
-    # from IoT node to fog node 2
+    # from fog node 2 to cloud node
     if skip_hyperconnection_config[0] == 0:
-        hyperconnection_weight_IoTf2 = 0
+        hyperconnection_weight_f2c = 0
     # from edge node to fog node 1
     if skip_hyperconnection_config[1] == 0:
         hyperconnection_weight_ef1 = 0
-    # from fog node 2 to cloud node
+    # from IoT node to fog node 2
     if skip_hyperconnection_config[2] == 0:
-        hyperconnection_weight_f2c = 0
+        hyperconnection_weight_IoTf2 = 0
     return hyperconnection_weight_IoTf2, hyperconnection_weight_ef1, hyperconnection_weight_f2c
  
 def define_hyperconnection_weight_lambda_layers(hyperconnection_weight_IoTf2, hyperconnection_weight_ef2, hyperconnection_weight_ef1, hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c):

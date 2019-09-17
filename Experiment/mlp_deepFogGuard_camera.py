@@ -8,7 +8,7 @@ def define_deepFogGuard_MLP(input_shape,
                             num_classes,
                             hidden_units,
                             reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0], # reliability of a node between 0 and 1, [f1,f2,f3,f4,e1,e2,e3,e4]
-                            skip_hyperconnection_config = [1,1,1,1,1,1,1], # binary representating if a skip hyperconnection is alive. source of skip hyperconnections: [e1,e2,e3,e4,f3,f4,f2]
+                            skip_hyperconnection_config = [1,1,1,1,1,1,1], # binary representating if a skip hyperconnection is alive. source of skip hyperconnections: [f2,f3,f4,e1,e2,e3,e4]
                             hyperconnection_weights_scheme = 1):
     """Define a deepFogGuard model.
     ### Naming Convention
@@ -133,28 +133,28 @@ def set_hyperconnection_weights(hyperconnection_weight, hyperconnection_weights_
 
 def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_config, hyperconnection_weight):
     # take away the skip hyperconnection if the value in hyperconnections array is 0
-    # skip_hyperconnection_config = [e1,e2,e3,e4,f3,f4,f2]
-    # from edge node 1 to fog node 2
+    # skip_hyperconnection_config = [f2,f3,f4,e1,e2,e3,e4]
+    # from fog node 2 to cloud
     if skip_hyperconnection_config[0] == 0:
-        hyperconnection_weight["e1f2"] = 0
-    #from edge node 2 to fog node 2
+        hyperconnection_weight["f2c"] = 0
+    #from fog node 3 to fog node 1
     if skip_hyperconnection_config[1] == 0:
-        hyperconnection_weight["e2f2"] = 0
-    # from edge node 3 to fog node 2
-    if skip_hyperconnection_config[2] == 0:
-        hyperconnection_weight["e3f2"] = 0
-    # from edge node 4 to fog node 2
-    if skip_hyperconnection_config[4] == 0:
-        hyperconnection_weight["e4f2"] = 0
-    # from fog node 3 to fog node 1
-    if skip_hyperconnection_config[5] == 0:
         hyperconnection_weight["f3f1"] = 0
     # from fog node 4 to fog node 1
-    if skip_hyperconnection_config[6] == 0:
+    if skip_hyperconnection_config[2] == 0:
         hyperconnection_weight["f4f1"] = 0
-    # from fog node 2 to cloud node
+    # from edge node 1 to fog node 2
+    if skip_hyperconnection_config[4] == 0:
+        hyperconnection_weight["e1f2"] = 0
+    # from edge node 2 to fog node 2
+    if skip_hyperconnection_config[5] == 0:
+        hyperconnection_weight["e2f2"] = 0
+    # from edge node 3 to fog node 2
     if skip_hyperconnection_config[6] == 0:
-        hyperconnection_weight["f2c"] = 0
+        hyperconnection_weight["e3f2"] = 0
+    # from edge node 4 to fog node 2
+    if skip_hyperconnection_config[6] == 0:
+        hyperconnection_weight["e4f2"] = 0
     return hyperconnection_weight
  
 def define_hyperconnection_weight_lambda_layers(hyperconnection_weight, connection_ends):

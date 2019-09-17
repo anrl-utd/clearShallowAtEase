@@ -22,7 +22,7 @@ def define_and_train(iteration, model_name, load_model, failout_survival_setting
 
 def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, model):
     if dropout_like_failout == True:
-        nodes = ["conv_pw_3","conv_pw_8"]
+        nodes = ["conv_pw_8","conv_pw_3"]
         for i, node in enumerate(nodes):
             failout_survival_rate = failout_survival_setting[i]
             # node failed

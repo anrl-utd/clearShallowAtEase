@@ -58,13 +58,13 @@ def init_common_experiment_params():
     num_iterations = 10
     batch_size = 128
     epochs = 75
-    progress_verbose = 2
+    progress_verbose = 1
     checkpoint_verbose = 1
     use_GCP = True
     alpha = .5
     input_shape = (32,32,3)
     classes = 10
-    num_gpus = 2
+    num_gpus = 1
     return num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus
 
 def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):

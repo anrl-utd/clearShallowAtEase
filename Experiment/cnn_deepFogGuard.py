@@ -22,7 +22,7 @@ def define_deepFogGuard_CNN(input_shape=None,
                             pooling=None,
                             classes=1000,
                             strides = (2,2),
-                            skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive [IoT,e1]
+                            skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive [e1,IoT]
                             reliability_setting=[1.0,1.0], # reliability of a node between 0 and 1 [f1,e1]
                             hyperconnection_weights_scheme = 1,
                             **kwargs):
@@ -203,12 +203,12 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme,reliability_setti
   
 def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnections_config, connection_weight_IoTf, connection_weight_ec):
     # take away the skip hyperconnection if the value in hyperconnections array is 0
-    # from iot to fog
-    if skip_hyperconnections_config[0] == 0:
-        connection_weight_IoTf = 0
     # from edge to cloud
-    if skip_hyperconnections_config[1] == 0:
+    if skip_hyperconnections_config[0] == 0:
         connection_weight_ec = 0
+    # from iot to fog
+    if skip_hyperconnections_config[1] == 0:
+        connection_weight_IoTf = 0
     return connection_weight_IoTf, connection_weight_ec
     
 def define_hyperconnection_weight_lambda_layers(hyperconnection_weight_IoTf,hyperconnection_weight_ef,hyperconnection_weight_ec,hyperconnection_weight_fc):
