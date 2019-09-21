@@ -27,7 +27,7 @@ def init_common_experiment_params(train_data):
     ]
     num_train_epochs = 25 
     hidden_units = 250
-    batch_size = 1028
+    batch_size = 1024
     num_iterations = 10
     return num_iterations, num_vars, num_classes, reliability_settings, num_train_epochs, hidden_units, batch_size
 

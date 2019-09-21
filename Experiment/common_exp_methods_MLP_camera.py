@@ -44,7 +44,7 @@ def init_common_experiment_params():
     num_classes = 3
     hidden_units = 32
     batch_size = 64
-    num_train_epochs = 20
+    num_train_epochs = 50
     num_iterations = 10
     return reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations
 
