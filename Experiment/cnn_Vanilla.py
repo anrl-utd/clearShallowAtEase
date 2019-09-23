@@ -128,7 +128,7 @@ def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,inc
 
         cloud = layers.GlobalAveragePooling2D()(cloud)
         cloud = layers.Reshape(shape, name='reshape_1')(cloud)
-        # cloud = layers.Dropout(0.2, name='dropout')(cloud)
+        cloud = layers.Dropout(1e-3, name='dropout')(cloud)
         cloud = layers.Conv2D(classes, (1, 1),
                           padding='same',
                           name='conv_preds')(cloud)

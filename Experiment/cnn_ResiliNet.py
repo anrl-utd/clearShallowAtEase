@@ -71,9 +71,79 @@ def define_ResiliNet_CNN(input_shape=None,
         RuntimeError: If attempting to run this model with a
             backend that does not support separable convolutions.
     """
-   
+    input_tensor=None,
+    weights=None
+    global backend, layers, models, keras_utils
+    backend,layers,models, keras_utils = get_submodules_from_kwargs(kwargs)
+    if not (weights in {'imagenet', None} or os.path.exists(weights)):
+        raise ValueError('The `weights` argument should be either '
+                         '`None` (random initialization), `imagenet` '
+                         '(pre-training on ImageNet), '
+                         'or the path to the weights file to be loaded.')
+
+    if weights == 'imagenet' and include_top and classes != 1000:
+        raise ValueError('If using `weights` as `"imagenet"` with `include_top` '
+                         'as true, `classes` should be 1000')
+    backend = keras.backend
+    layers = keras.layers
     # Determine proper input shape and default size.
-    img_input = layers.Input(shape=input_shape)  
+    if input_shape is None:
+        default_size = 224
+    else:
+        if backend.image_data_format() == 'channels_first':
+            rows = input_shape[1]
+            cols = input_shape[2]
+        else:
+            rows = input_shape[0]
+            cols = input_shape[1]
+
+        if rows == cols and rows in [128, 160, 192, 224]:
+            default_size = rows
+        else:
+            default_size = 224
+
+    input_shape = _obtain_input_shape(input_shape,
+                                      default_size=default_size,
+                                      min_size=32,
+                                      data_format=backend.image_data_format(),
+                                      require_flatten=include_top,
+                                      weights=weights)
+
+    if backend.image_data_format() == 'channels_last':
+        row_axis, col_axis = (0, 1)
+    else:
+        row_axis, col_axis = (1, 2)
+    rows = input_shape[row_axis]
+    cols = input_shape[col_axis]
+
+    if weights == 'imagenet':
+        if depth_multiplier != 1:
+            raise ValueError('If imagenet weights are being loaded, '
+                             'depth multiplier must be 1')
+
+        if alpha not in [0.25, 0.50, 0.75, 1.0]:
+            raise ValueError('If imagenet weights are being loaded, '
+                             'alpha can be one of'
+                             '`0.25`, `0.50`, `0.75` or `1.0` only.')
+
+        if rows != cols or rows not in [128, 160, 192, 224]:
+            rows = 224
+            warnings.warn('`input_shape` is undefined or non-square, '
+                          'or `rows` is not in [128, 160, 192, 224]. '
+                          'Weights for input shape (224, 224) will be'
+                          ' loaded as the default.')
+
+    if input_tensor is None:
+        img_input = layers.Input(shape=input_shape)
+    else:
+        if not backend.is_keras_tensor(input_tensor):
+            img_input = layers.Input(tensor=input_tensor, shape=input_shape)
+        else:
+            img_input = input_tensor
+
+
+    # Determine proper input shape and default size.
+    # img_input = layers.Input(shape=input_shape)  
 
     # failout definitions
     edge_failure_lambda, fog_failure_lambda = cnn_failout_definitions(failout_survival_setting)
