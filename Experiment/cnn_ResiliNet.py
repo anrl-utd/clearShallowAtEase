@@ -249,8 +249,8 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
     # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
 
-    edge_reliability = failout_survival_setting[0]
-    fog_reliability = failout_survival_setting[1]
+    edge_reliability = survive_rates[0]
+    fog_reliability = survive_rates[1]
     
 
     edge_failure_lambda = Failout(edge_reliability)
