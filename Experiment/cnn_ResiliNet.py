@@ -107,8 +107,8 @@ def cnn_failout_definitions(failout_survival_setting):
     # variables for node dropout
     edge_rand = K.variable(0)
     fog_rand = K.variable(0)
-    edge_survive_rate = K.variable(survive_rates[0])
-    fog_survive_rate = K.variable(survive_rates[1])
+    edge_survive_rate = K.variable(failout_survival_setting[0])
+    fog_survive_rate = K.variable(failout_survival_setting[1])
     # set training phase to true 
     K.set_learning_phase(1)
     if K.learning_phase():
