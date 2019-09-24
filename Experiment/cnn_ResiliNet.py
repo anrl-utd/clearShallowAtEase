@@ -234,20 +234,27 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     """
 
     img_input = layers.Input(shape=input_shape)
-    # variables for node dropout
-    edge_rand = K.variable(0)
-    fog_rand = K.variable(0)
-    edge_survive_rate = K.variable(survive_rates[0])
-    fog_survive_rate = K.variable(survive_rates[1])
-    # set training phase to true 
-    K.set_learning_phase(1)
-    if K.learning_phase():
-        # seeds so the random_number is different for each fog node 
-        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
-        fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
-     # define lambda for failure, only fail during training
-    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
-    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
+    # # variables for node dropout
+    # edge_rand = K.variable(0)
+    # fog_rand = K.variable(0)
+    # edge_survive_rate = K.variable(survive_rates[0])
+    # fog_survive_rate = K.variable(survive_rates[1])
+    # # set training phase to true 
+    # K.set_learning_phase(1)
+    # if K.learning_phase():
+    #     # seeds so the random_number is different for each fog node 
+    #     edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
+    #     fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
+    #  # define lambda for failure, only fail during training
+    # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
+    # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
+
+    edge_reliability = failout_survival_setting[0]
+    fog_reliability = failout_survival_setting[1]
+    
+
+    edge_failure_lambda = Failout(edge_reliability)
+    fog_failure_lambda = Failout(fog_reliability)
    
     # changed the strides from 2 to 1 since cifar-10 images are smaller
     # IoT node
@@ -290,7 +297,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     cloud = _depthwise_conv_block(cloud, 1024, alpha, depth_multiplier, block_id=13)
 
     if include_top:
-        if backend.image_data_format() == 'channels_first':
+        if K.image_data_format() == 'channels_first':
             shape = (int(1024 * alpha), 1, 1)
         else:
             shape = (1, 1, int(1024 * alpha))
