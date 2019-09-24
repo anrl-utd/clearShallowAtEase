@@ -289,6 +289,26 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
                               strides=(2, 2), block_id=12)
     cloud = _depthwise_conv_block(cloud, 1024, alpha, depth_multiplier, block_id=13)
 
+    if include_top:
+        if backend.image_data_format() == 'channels_first':
+            shape = (int(1024 * alpha), 1, 1)
+        else:
+            shape = (1, 1, int(1024 * alpha))
+
+        cloud = layers.GlobalAveragePooling2D()(cloud)
+        cloud = layers.Reshape(shape, name='reshape_1')(cloud)
+        # dropout is only in the cloud node, we can potentially use it
+        cloud = layers.Dropout(dropout, name='dropout')(cloud)
+        cloud = layers.Conv2D(classes, (1, 1),
+                          padding='same',
+                          name='conv_preds')(cloud)
+        cloud = layers.Reshape((classes,), name='reshape_2')(cloud)
+        cloud = layers.Activation('softmax', name='output')(cloud)
+    else:
+        if pooling == 'avg':
+            cloud = layers.GlobalAveragePooling2D()(cloud)
+        elif pooling == 'max':
+            cloud = layers.GlobalMaxPooling2D()(cloud)
     # Create model.
     model = keras.Model(img_input, cloud, name="ANRL_mobilenet")
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
