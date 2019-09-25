@@ -236,15 +236,20 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     img_input = layers.Input(shape=input_shape)
     # # variables for node dropout
     rand = K.variable(0)
+    rand = K.print_tensor(rand, "rand is ")
+
     edge_survive_rate = K.variable(survive_rates[0])
     fog_survive_rate = K.variable(survive_rates[1])
+
+    edge_survive_rate = K.print_tensor(edge_survive_rate, "edge_survive_rate is ")
+    fog_survive_rate = K.print_tensor(fog_survive_rate, "edge_survive_rate is ")
     # set training phase to true 
     # seeds so the random_number is different for each fog node 
     edge_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
     fog_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
 
-    edge_rand = K.print_tensor(edge_rand, "edge_rand")
-    fog_rand = K.print_tensor(fog_rand, "fog_rand")
+    edge_rand = K.print_tensor(edge_rand, "edge_rand is ")
+    fog_rand = K.print_tensor(fog_rand, "fog_rand is ")
      # define lambda for failure, only fail during training
     edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
     fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')

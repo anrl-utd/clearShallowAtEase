@@ -48,7 +48,7 @@ if __name__ == "__main__":
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
     
     failout_survival_settings = [
-        # [.95,.95],
+         [.95,.95],
         # [.9,.9],
         # [.7,.7],
         # [.5,.5],
