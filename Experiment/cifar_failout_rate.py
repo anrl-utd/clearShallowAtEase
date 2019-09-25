@@ -48,7 +48,7 @@ if __name__ == "__main__":
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
     
     failout_survival_settings = [
-        [.95,.95],
+        # [.95,.95],
         # [.9,.9],
         # [.7,.7],
         # [.5,.5],
@@ -64,8 +64,7 @@ if __name__ == "__main__":
         output_list.append('ResiliNet' + '\n') 
         # variable failout rate  
         for reliability_setting in reliability_settings:
-            if reliability_setting != [.85,.80]:
-                continue
+            continue
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
             output_list.append(str(reliability_setting) + '\n')
