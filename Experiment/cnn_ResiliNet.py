@@ -171,7 +171,7 @@ def define_ResiliNet_CNN(input_shape=None,
 def define_deepFogGuardPlus_CNN(input_shape=None,
               alpha=1.0,
               depth_multiplier=1,
-              dropout=1e-3,
+              dropout=0,
               include_top=True,
               weights='imagenet',
               input_tensor=None,
@@ -235,22 +235,19 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
 
     img_input = layers.Input(shape=input_shape)
     # # variables for node dropout
-    # edge_rand = K.variable(0)
-    # fog_rand = K.variable(0)
-    # edge_survive_rate = K.variable(survive_rates[0])
-    # fog_survive_rate = K.variable(survive_rates[1])
-    # # set training phase to true 
-    # K.set_learning_phase(1)
-    # if K.learning_phase():
-    #     # seeds so the random_number is different for each fog node 
-    #     edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
-    #     fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
-    #  # define lambda for failure, only fail during training
-    # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
-    # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
+    rand = K.variable(0)
+    edge_survive_rate = K.variable(survive_rates[0])
+    fog_survive_rate = K.variable(survive_rates[1])
+    # set training phase to true 
+    # seeds so the random_number is different for each fog node 
+    edge_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
+    fog_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
+     # define lambda for failure, only fail during training
+    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
+    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
 
-    edge_reliability = survive_rates[0]
-    fog_reliability = survive_rates[1]
+    # edge_reliability = survive_rates[0]
+    # fog_reliability = survive_rates[1]
     
 
    
@@ -265,7 +262,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     edge = _depthwise_conv_block(edge, 128, alpha, depth_multiplier,
                               strides=(1, 1), block_id=2)
     connection_edgefog = _depthwise_conv_block(edge, 128, alpha, depth_multiplier, block_id=3) # size:  (None, 31, 31, 64) 
-    connection_edgefog = Failout(edge_reliability)(connection_edgefog)
+    connection_edgefog = edge_failure_lambda(connection_edgefog)
     # skip hyperconnection, used 1x1 convolution to project shape of node output into (7,7,256)\
     # check it back to normal skip_hyperconnection
     connection_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(connection_edgefog)
@@ -282,7 +279,7 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     fog = _depthwise_conv_block(fog, 512, alpha, depth_multiplier, block_id=8) #size : (None, 7, 7, 256) 
     # pad from (7,7,256) to (8,8,256)
     connection_fogcloud = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
-    connection_fogcloud = Failout(fog_reliability)(connection_fogcloud)
+    connection_fogcloud = fog_failure_lambda(connection_fogcloud)
     connection_cloud = layers.add([connection_fogcloud,connection_edgecloud], name = "Cloud_Input")
 
     # cloud node
