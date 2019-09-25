@@ -73,7 +73,6 @@ def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, train
     else:
         # checkpoints to keep track of model with best validation accuracy 
         print(model_name)
-        progress_verbose = 1
         if num_gpus > 1:
             modelCheckPoint = CustomModelCheckpoint(model, model_file)
             parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)

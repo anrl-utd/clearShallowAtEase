@@ -238,26 +238,40 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     rand = K.variable(0)
     rand = K.print_tensor(rand, "rand is ")
 
+    # edge_survive_rate = K.variable(survive_rates[0])
+    # fog_survive_rate = K.variable(survive_rates[1])
+
+    # edge_survive_rate = K.print_tensor(edge_survive_rate, "edge_survive_rate is ")
+    # fog_survive_rate = K.print_tensor(fog_survive_rate, "fog_survive_rate is ")
+    # # set training phase to true 
+    # # seeds so the random_number is different for each fog node 
+    # edge_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
+    # fog_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
+
+    # edge_rand = K.print_tensor(edge_rand, "edge_rand is ")
+    # fog_rand = K.print_tensor(fog_rand, "fog_rand is ")
+    #  # define lambda for failure, only fail during training
+    # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
+    # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
+
+    # variables for node dropout
+    edge_rand = K.variable(0)
+    fog_rand = K.variable(0)
     edge_survive_rate = K.variable(survive_rates[0])
     fog_survive_rate = K.variable(survive_rates[1])
-
     edge_survive_rate = K.print_tensor(edge_survive_rate, "edge_survive_rate is ")
-    fog_survive_rate = K.print_tensor(fog_survive_rate, "edge_survive_rate is ")
+    fog_survive_rate = K.print_tensor(fog_survive_rate, "fog_survive_rate is ")
     # set training phase to true 
-    # seeds so the random_number is different for each fog node 
-    edge_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
-    fog_rand = K.in_train_phase(K.random_uniform(shape=rand.shape),rand)
-
-    edge_rand = K.print_tensor(edge_rand, "edge_rand is ")
-    fog_rand = K.print_tensor(fog_rand, "fog_rand is ")
-     # define lambda for failure, only fail during training
+    K.set_learning_phase(1)
+    if K.learning_phase():
+        # seeds so the random_number is different for each fog node 
+        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
+        fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
+        edge_rand = K.print_tensor(edge_rand, "edge_rand is ")
+        fog_rand = K.print_tensor(fog_rand, "fog_rand is ")
+    # define lambda for failure, only fail during training
     edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
     fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
-
-    # edge_reliability = survive_rates[0]
-    # fog_reliability = survive_rates[1]
-    
-
    
     # changed the strides from 2 to 1 since cifar-10 images are smaller
     # IoT node
