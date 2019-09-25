@@ -6,7 +6,7 @@ from keras.callbacks import ModelCheckpoint
 import keras.backend as K
 import math
 import os 
-from Experiment.cnn_ResiliNet import define_ResiliNet_CNN
+from Experiment.cnn_ResiliNet import define_ResiliNet_CNN, define_deepFogGuardPlus_CNN
 from Experiment.Accuracy import calculateExpectedAccuracy
 from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params, get_model_weights_CNN_cifar
 from Experiment.common_exp_methods import average, make_results_folder, make_output_dictionary_failout_rate, write_n_upload
@@ -16,8 +16,8 @@ import gc
 
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     model_file = 'models/' + str(iteration) + " " + str(failout_survival_setting) + 'cifar_failout_rate.h5'
-    model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_setting, strides = strides)
-    # model = define_deepFogGuardPlus_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,survive_rates=[.95,.95])
+    # model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_setting, strides = strides)
+    model = define_deepFogGuardPlus_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,survive_rates=[.95,.95])
     get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
 
