@@ -20,6 +20,7 @@ class Failout(Layer):
         fail = Lambda(lambda x: x * 0)
         condition = K.switch(K.greater(rand, self.reliability),fail(inputs),inputs)
         # return the input if in train phase 
+        print(fail(inputs))
         failout = K.in_train_phase(condition, inputs, training)
         return failout
 

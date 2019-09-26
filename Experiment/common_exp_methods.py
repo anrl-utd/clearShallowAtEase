@@ -182,12 +182,9 @@ def fail_node(model,node_failure_combination):
         # CIFAR and Camera input shapes are 4 dimensions
         is_img_input = True
     # input is image 
-    print("aaaa")
     if is_img_input:
-        print("bbbb")
         # camera MLP
         if model.get_layer("output").output_shape == (None,3):
-            print("cccc")
             nodes = [
                 "fog1_output_layer",
                 "fog2_output_layer",
@@ -203,11 +200,9 @@ def fail_node(model,node_failure_combination):
                     set_weights_zero_MLP(model, nodes, index)
         # cnn 
         else:
-            print("dddd")
             nodes = ["conv_pw_8","conv_pw_3"]
             for index,node in enumerate(node_failure_combination):
                 if node == 0: # dead
-                    print(nodes, 'iinnn', index)
                     set_weights_zero_CNN(model, nodes, index)
             is_cnn = True
                     
