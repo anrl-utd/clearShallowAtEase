@@ -3,6 +3,7 @@ from keras.datasets import cifar10
 from keras.applications.mobilenet import MobileNet
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
+#from tensorflow import keras
 import keras.backend as K
 import math
 import os 
@@ -16,8 +17,8 @@ import gc
 
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     model_file = 'models/' + str(iteration) + " " + str(failout_survival_setting) + 'cifar_failout_rate.h5'
-    # model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_setting, strides = strides)
-    model = define_deepFogGuardPlus_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,survive_rates=[.95,.95])
+    model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_setting, strides = strides)
+    #model = define_deepFogGuardPlus_CNN(weights = None,classes=10,input_shape = (32,32,3),dropout = 0, alpha = .5,survive_rates=[.95,.95])
     get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
 
@@ -36,7 +37,7 @@ def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_sett
 
 # ResiliNet variable failout experiment
 if __name__ == "__main__":
-    
+ #   K = keras.backend   
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
     num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params() 
@@ -49,11 +50,12 @@ if __name__ == "__main__":
     
     failout_survival_settings = [
          [.95,.95],
-        # [.9,.9],
-        # [.7,.7],
-        # [.5,.5],
-        # [.3,.3]
+         [.9,.9],
+         [.7,.7],
+         [.5,.5],
+         [.3,.3]
     ]
+    K.set_learning_phase(1)
     dropout_like_failout = False
     output = make_output_dictionary_failout_rate(failout_survival_settings, reliability_settings, num_iterations)
     make_results_folder()
@@ -64,7 +66,6 @@ if __name__ == "__main__":
         output_list.append('ResiliNet' + '\n') 
         # variable failout rate  
         for reliability_setting in reliability_settings:
-            continue
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
             output_list.append(str(reliability_setting) + '\n')
@@ -89,6 +90,7 @@ if __name__ == "__main__":
             del ResiliNet_failout_rate_fixed
     
      # calculate average accuracies for variable failout rate
+    K.set_learning_phase(0)
     for reliability_setting in reliability_settings:
         ResiliNet_failout_rate_acc = average(output["Variable Failout 1x"][str(reliability_setting)])
         output_list.append(str(reliability_setting) + " Variable Failout 1x: " + str(ResiliNet_failout_rate_acc) + '\n')

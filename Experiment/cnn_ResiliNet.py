@@ -6,13 +6,14 @@ from __future__ import division
 from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
 import os
 import warnings
-
+#from tensorflow import keras
+import keras
 import keras.backend as K
 import keras.layers as layers
 from keras.backend import zeros
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
 from keras_applications import imagenet_utils
-import keras 
+ 
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.Failout import Failout
 # ResiliNet
@@ -72,77 +73,7 @@ def define_ResiliNet_CNN(input_shape=None,
         RuntimeError: If attempting to run this model with a
             backend that does not support separable convolutions.
     """
-    input_tensor=None,
-    weights=None
-    global backend, layers, models, keras_utils
-    backend,layers,models, keras_utils = get_submodules_from_kwargs(kwargs)
-    if not (weights in {'imagenet', None} or os.path.exists(weights)):
-        raise ValueError('The `weights` argument should be either '
-                         '`None` (random initialization), `imagenet` '
-                         '(pre-training on ImageNet), '
-                         'or the path to the weights file to be loaded.')
-
-    if weights == 'imagenet' and include_top and classes != 1000:
-        raise ValueError('If using `weights` as `"imagenet"` with `include_top` '
-                         'as true, `classes` should be 1000')
-    backend = keras.backend
-    layers = keras.layers
-    # Determine proper input shape and default size.
-    if input_shape is None:
-        default_size = 224
-    else:
-        if backend.image_data_format() == 'channels_first':
-            rows = input_shape[1]
-            cols = input_shape[2]
-        else:
-            rows = input_shape[0]
-            cols = input_shape[1]
-
-        if rows == cols and rows in [128, 160, 192, 224]:
-            default_size = rows
-        else:
-            default_size = 224
-
-    input_shape = _obtain_input_shape(input_shape,
-                                      default_size=default_size,
-                                      min_size=32,
-                                      data_format=backend.image_data_format(),
-                                      require_flatten=include_top,
-                                      weights=weights)
-
-    if backend.image_data_format() == 'channels_last':
-        row_axis, col_axis = (0, 1)
-    else:
-        row_axis, col_axis = (1, 2)
-    rows = input_shape[row_axis]
-    cols = input_shape[col_axis]
-
-    if weights == 'imagenet':
-        if depth_multiplier != 1:
-            raise ValueError('If imagenet weights are being loaded, '
-                             'depth multiplier must be 1')
-
-        if alpha not in [0.25, 0.50, 0.75, 1.0]:
-            raise ValueError('If imagenet weights are being loaded, '
-                             'alpha can be one of'
-                             '`0.25`, `0.50`, `0.75` or `1.0` only.')
-
-        if rows != cols or rows not in [128, 160, 192, 224]:
-            rows = 224
-            warnings.warn('`input_shape` is undefined or non-square, '
-                          'or `rows` is not in [128, 160, 192, 224]. '
-                          'Weights for input shape (224, 224) will be'
-                          ' loaded as the default.')
-
-    # if input_tensor is None:
-    #     img_input = layers.Input(shape=input_shape)
-    # else:
-    #     if not backend.is_keras_tensor(input_tensor):
-    #         img_input = layers.Input(tensor=input_tensor, shape=input_shape)
-    #     else:
-    #         img_input = input_tensor
-
-
+    
     # Determine proper input shape and default size.
     img_input = layers.Input(shape=input_shape)  
 
@@ -167,7 +98,6 @@ def define_ResiliNet_CNN(input_shape=None,
     model = keras.Model(img_input, cloud_output, name='ANRL_mobilenet')
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
-
 def define_deepFogGuardPlus_CNN(input_shape=None,
               alpha=1.0,
               depth_multiplier=1,
@@ -235,8 +165,6 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
 
     img_input = layers.Input(shape=input_shape)
     # # variables for node dropout
-    rand = K.variable(0)
-    rand = K.print_tensor(rand, "rand is ")
 
     # edge_survive_rate = K.variable(survive_rates[0])
     # fog_survive_rate = K.variable(survive_rates[1])
@@ -255,24 +183,27 @@ def define_deepFogGuardPlus_CNN(input_shape=None,
     # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
 
     # variables for node dropout
-    edge_rand = K.variable(0)
-    fog_rand = K.variable(0)
-    edge_survive_rate = K.variable(survive_rates[0])
-    fog_survive_rate = K.variable(survive_rates[1])
-    edge_survive_rate = K.print_tensor(edge_survive_rate, "edge_survive_rate is ")
-    fog_survive_rate = K.print_tensor(fog_survive_rate, "fog_survive_rate is ")
+#    edge_rand = K.variable(0)
+#    fog_rand = K.variable(0)
+#    edge_survive_rate = K.variable(survive_rates[0])
+#    fog_survive_rate = K.variable(survive_rates[1])
+#    edge_survive_rate = K.print_tensor(edge_survive_rate, "edge_survive_rate is ")
+#    fog_survive_rate = K.print_tensor(fog_survive_rate, "fog_survive_rate is ")
     # set training phase to true 
-    K.set_learning_phase(1)
-    if K.learning_phase():
+#    K.set_learning_phase(1)
+    print('ssssssssssssssssssssss',K.learning_phase())
+#    if K.learning_phase():
         # seeds so the random_number is different for each fog node 
-        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
-        fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
-        edge_rand = K.print_tensor(edge_rand, "edge_rand is ")
-        fog_rand = K.print_tensor(fog_rand, "fog_rand is ")
+#        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
+#        fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
+#    edge_rand = K.print_tensor(edge_rand, "edge_rand is ")
+#        fog_rand = K.print_tensor(fog_rand, "fog_rand is ")
     # define lambda for failure, only fail during training
-    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
-    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
-   
+#    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
+#    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
+ 
+    edge_failure_lambda, fog_failure_lambda = cnn_failout_definitions(survive_rates)
+  
     # changed the strides from 2 to 1 since cifar-10 images are smaller
     # IoT node
     iot = _conv_block(img_input, 32, alpha, strides=(1, 1)) # size: (31,31,16)
@@ -343,22 +274,22 @@ def cnn_failout_definitions(failout_survival_setting):
     fog_reliability = failout_survival_setting[1]
     
 
-    # edge_failure_lambda = Failout(edge_reliability)
-    # fog_failure_lambda = Failout(fog_reliability)
-    # return edge_failure_lambda, fog_failure_lambda
+    edge_failure_lambda = Failout(edge_reliability)
+    fog_failure_lambda = Failout(fog_reliability)
+    return edge_failure_lambda, fog_failure_lambda
 
     # variables for node dropout
-    edge_rand = K.variable(0)
-    fog_rand = K.variable(0)
-    edge_survive_rate = K.variable(failout_survival_setting[0])
-    fog_survive_rate = K.variable(failout_survival_setting[1])
+#    edge_rand = K.variable(0)
+#    fog_rand = K.variable(0)
+#    edge_survive_rate = K.variable(failout_survival_setting[0])
+#    fog_survive_rate = K.variable(failout_survival_setting[1])
     # set training phase to true 
-    K.set_learning_phase(1)
-    if K.learning_phase():
+#    K.set_learning_phase(1)
+#    if K.learning_phase():
         # seeds so the random_number is different for each fog node 
-        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
-        fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
+#        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
+#        fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
      # define lambda for failure, only fail during training
-    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
-    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
-    return edge_failure_lambda, fog_failure_lambda
+#    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
+#    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
+#    return edge_failure_lambda, fog_failure_lambda

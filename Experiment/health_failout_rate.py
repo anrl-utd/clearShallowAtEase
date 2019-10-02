@@ -39,10 +39,10 @@ if __name__ == "__main__":
     load_model = False
     failout_survival_settings = [
         [.95,.95,.95],
-        [.9,.9,.9],
-        [.7,.7,.7],
-        [.5,.5,.5],
-        [.7,.7,.7]
+#        [.9,.9,.9],
+#        [.7,.7,.7],
+#        [.5,.5,.5],
+#        [.7,.7,.7]
     ]
     # file name with the experiments accuracy output
     output_name = "results/health_failout_rate.txt"
@@ -59,6 +59,7 @@ if __name__ == "__main__":
         output_list.append('ResiliNet' + '\n')  
         # variable failout rate                
         for reliability_setting in reliability_settings:
+            continue
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose)
             multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
             output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)

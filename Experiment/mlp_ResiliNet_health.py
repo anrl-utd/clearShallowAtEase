@@ -33,7 +33,28 @@ def define_ResiliNet_MLP(num_vars,
 
     # failout definitions
     edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda  = MLP_failout_definitions(failout_survival_setting)
-  
+ 
+     # variables for active guard 
+#    e_rand = K.variable(0)
+#    f2_rand = K.variable(0)
+#    f1_rand = K.variable(0)
+#    e_survive_rate = K.variable(failout_survival_setting[0])
+#    f2_survive_rate = K.variable(failout_survival_setting[1])
+#    f1_survive_rate = K.variable(failout_survival_setting[2])
+
+    # set training phase to true to enable dropout
+#    K.set_learning_phase(1)
+#    if K.learning_phase():
+        # seeds so the random_number is different for each fog node 
+#        e_rand = K.random_uniform(shape=e_rand.shape,seed=7)
+#        f2_rand = K.random_uniform(shape=f2_rand.shape,seed=11)
+#        f1_rand = K.random_uniform(shape=f1_rand.shape,seed=42)
+
+    # define lambda for fog failure, failures are only during training
+#    edge_failure_lambda = Lambda(lambda x : K.switch(K.greater(e_rand,e_survive_rate), x * 0, x),name = 'e_failure_lambda')
+#    fog2_failure_lambda = Lambda(lambda x : K.switch(K.greater(f2_rand,f2_survive_rate), x * 0, x),name = 'f2_failure_lambda')
+#    fog1_failure_lambda = Lambda(lambda x : K.switch(K.greater(f1_rand,f1_survive_rate), x * 0, x),name = 'f1_failure_lambda')
+ 
     # edge node
     edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units)
     edge_output = edge_failure_lambda(edge_output)
