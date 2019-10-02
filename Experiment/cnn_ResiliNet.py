@@ -278,18 +278,18 @@ def cnn_failout_definitions(failout_survival_setting):
     fog_failure_lambda = Failout(fog_reliability)
     return edge_failure_lambda, fog_failure_lambda
 
-    # variables for node dropout
-#    edge_rand = K.variable(0)
-#    fog_rand = K.variable(0)
-#    edge_survive_rate = K.variable(failout_survival_setting[0])
-#    fog_survive_rate = K.variable(failout_survival_setting[1])
-    # set training phase to true 
-#    K.set_learning_phase(1)
-#    if K.learning_phase():
-        # seeds so the random_number is different for each fog node 
-#        edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
-#        fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
-     # define lambda for failure, only fail during training
-#    edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
-#    fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
+    # # variables for node dropout
+    # edge_rand = K.variable(0)
+    # fog_rand = K.variable(0)
+    # edge_survive_rate = K.variable(failout_survival_setting[0])
+    # fog_survive_rate = K.variable(failout_survival_setting[1])
+    # # set training phase to true 
+    # K.set_learning_phase(1)
+    # if K.learning_phase():
+    #     # seeds so the random_number is different for each fog node 
+    #     edge_rand = K.random_uniform(shape=edge_rand.shape,seed=7)
+    #     fog_rand = K.random_uniform(shape=fog_rand.shape,seed=11)
+    #  # define lambda for failure, only fail during training
+    # edge_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(edge_rand,edge_survive_rate), x * 0, x),name = 'edge_failure_lambda')
+    # fog_failure_lambda = layers.Lambda(lambda x : K.switch(K.greater(fog_rand,fog_survive_rate), x * 0, x),name = 'fog_failure_lambda')
 #    return edge_failure_lambda, fog_failure_lambda
