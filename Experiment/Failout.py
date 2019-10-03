@@ -19,11 +19,6 @@ class Failout(Layer):
         # assumes that there is only one input in inputs
         fail = Lambda(lambda x: x * 0)
         condition = K.switch(K.greater(rand, self.reliability),fail(inputs),inputs)
-        # return the input if in train phase
-#        if training:
-#            return condition
-#        else:
-#            return inputs
         failout = K.in_train_phase(condition, inputs, training)
         return failout
 

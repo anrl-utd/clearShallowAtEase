@@ -12,6 +12,7 @@ import os
 import numpy as np
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose, default_failout_survival_rate, default_reliability_setting, allpresent_skip_hyperconnections_configuration):
+    K.set_learning_phase(1)
     # ResiliNet
     if model_name == "ResiliNet":
         model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)

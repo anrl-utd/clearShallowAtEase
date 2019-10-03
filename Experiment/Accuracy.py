@@ -6,6 +6,7 @@ from sklearn.metrics import precision_score
 
 from Experiment.common_exp_methods import fail_node
 from Experiment.classification import predict
+import keras.backend as K
 
 modelAccuracyDict = dict()
 
@@ -165,6 +166,7 @@ def calculateExpectedAccuracy(model,
     ### Returns
         return weighted accuracy 
     """  
+    K.set_learning_phase(0)
     numNodes = len(reliability_setting)
     accuracyList, weightList = iterateAllFailureCombinationsCalcAccuracy(reliability_setting,numNodes, model,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
     weightList = normalize(weightList)

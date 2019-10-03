@@ -70,6 +70,7 @@ def make_output_dictionary(reliability_settings, num_iterations):
     return output
 
 def define_and_train(iteration, model_name, load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
+    K.set_learning_phase(1)
     model = define_deepFogGuard_MLP(input_shape,num_classes,hidden_units, default_reliability_setting,skip_hyperconnection_configuration)
     model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'camera_skiphyperconnection_sensitivity.h5'
     get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
