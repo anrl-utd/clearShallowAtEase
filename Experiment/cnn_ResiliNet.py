@@ -96,7 +96,7 @@ def define_ResiliNet_CNN(input_shape=None,
     
     # Create model.
     model = keras.Model(img_input, cloud_output, name='ANRL_mobilenet')
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    # model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 def cnn_failout_definitions(failout_survival_setting):
