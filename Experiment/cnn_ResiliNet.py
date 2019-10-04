@@ -13,8 +13,10 @@ import keras.layers as layers
 from keras.backend import zeros
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
 from keras_applications import imagenet_utils
-from keras.utils import multi_gpu_model
- 
+from keras.utils.training_utils import multi_gpu_model
+import tensorflow as tf
+import numpy as np
+
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.Failout import Failout
 # ResiliNet
@@ -96,11 +98,16 @@ def define_ResiliNet_CNN(input_shape=None,
     cloud_output = define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling)
     
     # Create model.
-    model = keras.Model(img_input, cloud_output, name='ANRL_mobilenet')
-    model = multi_gpu_model(model, cpu_relocation=True, gpus = 2)
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    with tf.device('/cpu:0'):
+        model = keras.Model(img_input, cloud_output, name='ANRL_mobilenet')
+    
+
+    parallel_model = multi_gpu_model(model, gpus = 2)
+    parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
     # model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    return model
+#    print('sssssssss------------------------------')
+#    model.summary()
+    return model, parallel_model
 
 def cnn_failout_definitions(failout_survival_setting):
     edge_reliability = failout_survival_setting[0]

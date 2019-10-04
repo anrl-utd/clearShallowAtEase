@@ -55,7 +55,7 @@ def init_common_experiment_params():
         [.85,.80],
     ]
     strides = (1,1)
-    num_iterations = 2
+    num_iterations = 1
     batch_size = 128
     epochs = 75
     progress_verbose = 1
@@ -64,10 +64,10 @@ def init_common_experiment_params():
     alpha = .5
     input_shape = (32,32,3)
     classes = 10
-    num_gpus = 1
+    num_gpus = 2
     return num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus
 
-def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
+def get_model_weights_CNN_cifar(model, parallel_model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     if load_model:
         model.load_weights(model_file)
     else:
@@ -77,8 +77,10 @@ def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, train
             modelCheckPoint = CustomModelCheckpoint(model, model_file)
             # model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
             # model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-            model.fit_generator(
-                train_datagen.flow(training_data,training_labels,batch_size = batch_size * num_gpus),
+            # modelCheckPoint = ModelCheckpoint(model_file, monitor='val_acc', verbose=checkpoint_verbose, save_best_only=True, save_weights_only=True, mode='auto', period=1)
+            model.summary()
+            parallel_model.fit_generator(
+                train_datagen.flow(training_data,training_labels,batch_size = batch_size),
                 epochs = epochs,
                 validation_data = (val_data,val_labels), 
                 steps_per_epoch = train_steps_per_epoch, 
