@@ -13,6 +13,7 @@ import keras.layers as layers
 from keras.backend import zeros
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
 from keras_applications import imagenet_utils
+from keras.utils import multi_gpu_model
  
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.Failout import Failout
@@ -96,6 +97,8 @@ def define_ResiliNet_CNN(input_shape=None,
     
     # Create model.
     model = keras.Model(img_input, cloud_output, name='ANRL_mobilenet')
+    model = multi_gpu_model(model, cpu_relocation=True, gpus = 2)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     # model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 

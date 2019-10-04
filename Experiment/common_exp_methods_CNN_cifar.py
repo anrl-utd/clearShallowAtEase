@@ -75,8 +75,8 @@ def get_model_weights_CNN_cifar(model, model_name, load_model, model_file, train
         print(model_name)
         if num_gpus > 1:
             modelCheckPoint = CustomModelCheckpoint(model, model_file)
-            parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
-            parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+            # parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
+            # parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
             parallel_model.fit_generator(
                 train_datagen.flow(training_data,training_labels,batch_size = batch_size * num_gpus),
                 epochs = epochs,
