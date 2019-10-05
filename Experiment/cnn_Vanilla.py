@@ -6,9 +6,9 @@ import os
 import warnings
 
 import keras.backend as K
-import keras
 import keras.layers as layers
 from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
+from Experiment.common_exp_methods_CNN import compile_keras_parallel_model
 
 BASE_WEIGHT_PATH = ('https://github.com/fchollet/deep-learning-models/'
                     'releases/download/v0.6/')
@@ -20,6 +20,7 @@ def define_vanilla_model_CNN(input_shape=None,
                             pooling=None,
                             classes=1000,
                             strides = (2,2),
+                            num_gpus = 1,
                             **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -86,10 +87,8 @@ def define_vanilla_model_CNN(input_shape=None,
     # cloud node
     cloud = define_cnn_architecture_cloud(fog,alpha,depth_multiplier,classes,include_top,pooling)
 
-    # Create model.
-    model = keras.Model(img_input, cloud, name='ANRL_mobilenet')
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    return model
+    model, parallel_model = compile_keras_parallel_model(img_input, cloud, num_gpus)
+    return model, parallel_model
 
 def define_cnn_architecture_IoT(img_input,alpha, strides = (2,2)):
     return  _conv_block(img_input, 32, alpha, strides=strides)

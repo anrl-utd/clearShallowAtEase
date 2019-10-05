@@ -7,12 +7,10 @@ import warnings
 
 import keras.backend as K
 import keras.layers as layers
-from keras.backend import zeros
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
-from keras_applications import imagenet_utils
-import keras 
 import random 
 from Experiment.cnn_Vanilla import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog
+from Experiment.common_exp_methods_CNN import compile_keras_parallel_model
 
 def define_deepFogGuard_CNN(input_shape=None,
                             alpha=1.0,
@@ -25,6 +23,7 @@ def define_deepFogGuard_CNN(input_shape=None,
                             skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive [e1,IoT]
                             reliability_setting=[1.0,1.0], # reliability of a node between 0 and 1 [f1,e1]
                             hyperconnection_weights_scheme = 1,
+                            num_gpus = 1,
                             **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -101,10 +100,8 @@ def define_deepFogGuard_CNN(input_shape=None,
     # cloud node
     cloud_output = define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling,multiply_hyperconnection_weight_layer_fc, multiply_hyperconnection_weight_layer_ec)
 
-    # Create model.
-    model = keras.Model(img_input, cloud_output, name='ANRL_mobilenet')
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    return model
+    model, parallel_model = compile_keras_parallel_model(img_input, cloud_output, num_gpus)
+    return model, parallel_model
 
 def define_cnn_deepFogGuard_architecture_IoT(input_shape, alpha, img_input, strides = (2,2)):
     # changed the strides from 2 to 1 since cifar-10 images are smaller

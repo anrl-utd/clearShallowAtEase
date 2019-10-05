@@ -62,15 +62,13 @@ def init_common_experiment_params():
     strides = (2,2)
     return num_iterations, num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides
 
-def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus):
+def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus):
     if load_model:
         model.load_weights(model_file)
     else:
         print(model_name)
         verbose = 1
         if num_gpus > 1:
-            parallel_model = multi_gpu_model(model, cpu_relocation=True, gpus = num_gpus)
-            parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
             parallel_model.fit_generator(
                 generator = train_generator,
                 steps_per_epoch = num_train_examples / train_generator.batch_size,
@@ -78,9 +76,9 @@ def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, tr
                 class_weight = None,
                 verbose = verbose
                 )
-            # load weights from epoch with the highest val acc
-            parallel_model.save_weights(model_file)
-            return parallel_model
+            # save the weights
+            model.save_weights(model_file)
+            return model
         else:
             model.fit_generator(
                 generator = train_generator,
@@ -89,6 +87,6 @@ def get_model_weights_CNN_imagenet(model, model_name, load_model, model_file, tr
                 class_weight = None,
                 verbose = verbose
                 )
-            # load weights from epoch with the highest val acc
+             # save the weights
             model.save_weights(model_file)
             return model

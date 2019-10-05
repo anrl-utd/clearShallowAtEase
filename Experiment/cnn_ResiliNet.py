@@ -6,19 +6,12 @@ from __future__ import division
 from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
 import os
 import warnings
-#from tensorflow import keras
-import keras
 import keras.backend as K
 import keras.layers as layers
-from keras.backend import zeros
-from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
-from keras_applications import imagenet_utils
-from keras.utils.training_utils import multi_gpu_model
-import tensorflow as tf
-import numpy as np
 
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.Failout import Failout
+from Experiment.common_exp_methods_CNN import compile_keras_parallel_model
 # ResiliNet
 def define_ResiliNet_CNN(input_shape=None,
                                 alpha=1.0,
@@ -28,6 +21,7 @@ def define_ResiliNet_CNN(input_shape=None,
                                 classes=1000, 
                                 strides = (2,2),
                                 failout_survival_setting = [1.0,1.0],
+                                num_gpus = 1,
                                 **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -97,16 +91,7 @@ def define_ResiliNet_CNN(input_shape=None,
     # cloud node
     cloud_output = define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling)
     
-    # Create model.
-    with tf.device('/cpu:0'):
-        model = keras.Model(img_input, cloud_output, name='ANRL_mobilenet')
-    
-
-    parallel_model = multi_gpu_model(model, gpus = 2)
-    parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-    # model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-#    print('sssssssss------------------------------')
-#    model.summary()
+    model, parallel_model = compile_keras_parallel_model(img_input, cloud_output, num_gpus)
     return model, parallel_model
 
 def cnn_failout_definitions(failout_survival_setting):

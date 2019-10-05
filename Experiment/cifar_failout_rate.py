@@ -18,7 +18,7 @@ import gc
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     K.set_learning_phase(1)
     model_file = 'models/' + str(iteration) + " " + str(failout_survival_setting) + 'cifar_failout_rate.h5'
-    model,parallel_model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_setting, strides = strides)
+    model, parallel_model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha,failout_survival_setting=failout_survival_setting, strides = strides, num_gpus=num_gpus)
     get_model_weights_CNN_cifar(model, parallel_model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
 
@@ -49,11 +49,11 @@ if __name__ == "__main__":
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
     
     failout_survival_settings = [
-         [.95,.95],
-#         [.9,.9],
-#         [.7,.7],
-#         [.5,.5],
-#         [.3,.3]
+        [.95,.95],
+        [.9,.9],
+        [.7,.7],
+        [.5,.5],
+        [.3,.3]
     ]
     dropout_like_failout = False
     output = make_output_dictionary_failout_rate(failout_survival_settings, reliability_settings, num_iterations)
@@ -65,7 +65,6 @@ if __name__ == "__main__":
         output_list.append('ResiliNet' + '\n') 
         # variable failout rate  
         for reliability_setting in reliability_settings:
-            continue
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
             output_list.append(str(reliability_setting) + '\n')
