@@ -234,8 +234,12 @@ def average(list):
 def compile_keras_parallel_model(input, cloud_output, num_gpus, name='ANRL_mobilenet'):
     # Create model.
     with tf.device('/cpu:0'):
-        model = keras.Model(input, cloud_output, name)
-
-    parallel_model = multi_gpu_model(model, gpus = num_gpus)
-    parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        model = keras.Model(input, cloud_output, name=name)
+        
+    parallel_model = ''
+    if num_gpus > 1:
+        parallel_model = multi_gpu_model(model, gpus = num_gpus)
+        parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    else:
+        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model, parallel_model
