@@ -10,7 +10,7 @@ import keras.layers as layers
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
 import random 
 from Experiment.cnn_Vanilla import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog
-from Experiment.common_exp_methods_CNN import compile_keras_parallel_model
+from Experiment.common_exp_methods import compile_keras_parallel_model
 
 def define_deepFogGuard_CNN(input_shape=None,
                             alpha=1.0,

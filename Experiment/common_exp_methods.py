@@ -1,6 +1,10 @@
 import os
 import numpy as np
 
+from keras.utils import multi_gpu_model
+import keras
+import tensorflow as tf
+
 def make_results_folder():
     # makes folder for results and models (if they don't exist)
     if not os.path.exists('results/' ):
@@ -226,3 +230,12 @@ def average(list):
         return 0
     else:
         return sum(list) / len(list)
+
+def compile_keras_parallel_model(input, cloud_output, num_gpus, name='ANRL_mobilenet'):
+    # Create model.
+    with tf.device('/cpu:0'):
+        model = keras.Model(input, cloud_output, name)
+
+    parallel_model = multi_gpu_model(model, gpus = num_gpus)
+    parallel_model.compile(loss='sparse_categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    return model, parallel_model

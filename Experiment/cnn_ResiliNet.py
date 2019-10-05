@@ -11,7 +11,7 @@ import keras.layers as layers
 
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.Failout import Failout
-from Experiment.common_exp_methods_CNN import compile_keras_parallel_model
+from Experiment.common_exp_methods import compile_keras_parallel_model
 # ResiliNet
 def define_ResiliNet_CNN(input_shape=None,
                                 alpha=1.0,

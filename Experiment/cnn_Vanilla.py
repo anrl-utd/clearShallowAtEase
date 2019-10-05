@@ -8,7 +8,7 @@ import warnings
 import keras.backend as K
 import keras.layers as layers
 from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
-from Experiment.common_exp_methods_CNN import compile_keras_parallel_model
+from Experiment.common_exp_methods import compile_keras_parallel_model
 
 BASE_WEIGHT_PATH = ('https://github.com/fchollet/deep-learning-models/'
                     'releases/download/v0.6/')
