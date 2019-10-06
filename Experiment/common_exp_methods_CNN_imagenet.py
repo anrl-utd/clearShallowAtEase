@@ -51,10 +51,10 @@ def init_common_experiment_params():
     num_iterations = 10
     # need to change this to be accurate
     reliability_settings = [
-        [1,1],
-        [.98,.96],
+        # [1,1],
+        # [.98,.96],
         [.95,.90],
-        [.85,.80],
+        # [.85,.80],
     ]
     num_classes = 1000
     epochs = 100
