@@ -59,10 +59,11 @@ def init_common_experiment_params():
     num_classes = 1000
     epochs = 100
     num_gpus = 1
+    num_workers = 32
     strides = (2,2)
-    return num_iterations, num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides
+    return num_iterations, num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides, num_workers
 
-def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus):
+def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus, num_workers):
     if load_model:
         model.load_weights(model_file)
     else:
@@ -73,6 +74,7 @@ def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model
                 generator = train_generator,
                 steps_per_epoch = num_train_examples / train_generator.batch_size,
                 epochs = epochs,
+                workers = num_workers,
                 class_weight = None,
                 verbose = verbose
                 )
@@ -84,6 +86,7 @@ def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model
                 generator = train_generator,
                 steps_per_epoch = num_train_examples / train_generator.batch_size,
                 epochs = epochs,
+                workers = num_workers,
                 class_weight = None,
                 verbose = verbose
                 )
