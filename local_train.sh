@@ -1,6 +1,6 @@
 
 TRAINER_PACKAGE_PATH="./Experiment"
-MAIN_TRAINER_MODULE="Experiment.cifar_failout_rate"
+MAIN_TRAINER_MODULE="Experiment.imagenet_average_accuracy"
 PACKAGE_STAGING_PATH="gs://anrl-storage"
 
 now=$(date +"%Y%m%d_%H%M%S")

@@ -18,7 +18,7 @@ def init_data(use_GCP, num_gpus, pc = 1):
         test_dir = "/home/ubuntu/imagenet/val"
         num_gpus = 1
     input_shape = (256,256)
-    batch_size = 64
+    batch_size = 128
     train_datagen = ImageDataGenerator(
         rescale = 1./255,
         rotation_range=30,
@@ -48,7 +48,7 @@ def init_common_experiment_params():
     num_test_examples = 50000
     input_shape = (256,256,3)
     alpha = .5
-    num_iterations = 10
+    num_iterations = 1
     # need to change this to be accurate
     reliability_settings = [
         # [1,1],
@@ -57,8 +57,8 @@ def init_common_experiment_params():
         # [.85,.80],
     ]
     num_classes = 1000
-    epochs = 100
-    num_gpus = 1
+    epochs = 1
+    num_gpus = 4
     num_workers = 32
     strides = (2,2)
     return num_iterations, num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides, num_workers
