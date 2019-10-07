@@ -4,6 +4,8 @@ from Experiment.LambdaLayers import add_node_layers
 from Experiment.mlp_Vanilla_camera import define_MLP_architecture_cloud, define_MLP_architecture_edge, define_MLP_architecture_fog_with_one_layer, define_MLP_architecture_fog_with_two_layers
 from keras.models import Model
 import random
+from Experiment.Failout import Failout
+
 def define_deepFogGuard_MLP(input_shape,
                             num_classes,
                             hidden_units,
