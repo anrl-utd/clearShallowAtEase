@@ -2,7 +2,7 @@ import os
 from keras.preprocessing.image import ImageDataGenerator 
 from keras.preprocessing.image import load_img
 from keras.utils import multi_gpu_model
-def init_data(use_GCP, num_gpus, pc = 1):
+def init_data(use_GCP, num_gpus, pc = 4):
     if pc == 1: # google cloud
         train_dir = "/home/yousefpour_ashkan/new_disk/train"
         test_dir = "/home/yousefpour_ashkan/val"

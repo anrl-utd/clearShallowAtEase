@@ -60,7 +60,7 @@ def init_common_experiment_params():
     epochs = 75
     progress_verbose = 1
     checkpoint_verbose = 1
-    use_GCP = True
+    use_GCP = False
     alpha = .5
     input_shape = (32,32,3)
     classes = 10

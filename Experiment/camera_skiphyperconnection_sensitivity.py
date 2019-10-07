@@ -84,7 +84,7 @@ def calc_accuracy(iteration, model_name, model, reliability_setting, skip_hyperc
 
 
 if __name__ == "__main__":
-    use_GCP = True
+    use_GCP = False
     training_data,val_data, test_data, training_labels,val_labels,test_labels = init_data(use_GCP)
 
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations = init_common_experiment_params()

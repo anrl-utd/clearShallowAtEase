@@ -20,7 +20,7 @@ def define_and_train(iteration, model_name, load_model, weight_scheme, reliabili
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    use_GCP = True
+    use_GCP = False
     training_data,val_data, test_data, training_labels,val_labels,test_labels = init_data(use_GCP)
 
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations = init_common_experiment_params()
