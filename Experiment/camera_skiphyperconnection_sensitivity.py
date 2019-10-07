@@ -90,7 +90,7 @@ if __name__ == "__main__":
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations = init_common_experiment_params()
     skip_hyperconnection_configurations = [
         # [f2,f3,f4,e1,e2,e3,e4]
-        [1,1,1,1,0,0,0],
+        [0,0,0,0,0,0,0],
         [1,0,0,0,0,0,1],
         [1,0,0,0,1,0,0],
         [0,0,0,0,1,0,1],

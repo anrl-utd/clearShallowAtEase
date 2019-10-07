@@ -27,7 +27,7 @@ if __name__ == "__main__":
    
     load_model = False
     # file name with the experiments accuracy output
-    output_name = "results/health_hyperconnection_fixed_random_weight.txt"
+    output_name = "results/health_hyperconnection_weight.txt"
     verbose = 2
     model_name = "DeepFogGuard Hyperconnection Weight"
     hyperconnection_weightedbyreliability_config = 2
