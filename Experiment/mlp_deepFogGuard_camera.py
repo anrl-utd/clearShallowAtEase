@@ -43,24 +43,34 @@ def define_deepFogGuard_MLP(input_shape,
     input_edge3 = add([img_input_4,img_input_5])
     input_edge4 = img_input_6
 
+    default_failout_survival_setting = [.9,.9,.9,.9,.9,.9,.9,.9] 
+    edge_failure_lambda, fog_failure_lambda = MLP_failout_definitions(default_failout_survival_setting)
 
     # edge nodes
     edge1_output = define_MLP_deepFogGuard_architecture_edge(input_edge1, hidden_units, "edge1_output_layer")
+    edge1_output = edge_failure_lambda[1](edge1_output)
     edge2_output = define_MLP_deepFogGuard_architecture_edge(input_edge2, hidden_units, "edge2_output_layer")
+    edge2_output = edge_failure_lambda[2](edge2_output)
     edge3_output = define_MLP_deepFogGuard_architecture_edge(input_edge3, hidden_units, "edge3_output_layer")
+    edge3_output = edge_failure_lambda[3](edge3_output)
     edge4_output = define_MLP_deepFogGuard_architecture_edge(input_edge4, hidden_units, "edge4_output_layer")
+    edge4_output = edge_failure_lambda[4](edge4_output)
 
     # fog node 4
     fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_hyperconnection_weight_layer)
+    fog4_output = fog_failure_lambda[4](fog4_output)
 
     # fog node 3
     fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_hyperconnection_weight_layer)
+    fog3_output = fog_failure_lambda[3](fog3_output)
     
     # fog node 2
     fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer)
+    fog2_output = fog_failure_lambda[2](fog2_output)
 
     # fog node 1
     fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer)
+    fog1_output = fog_failure_lambda[1](fog1_output)
 
     # cloud node
     cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer)
@@ -206,3 +216,24 @@ def define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_
         cloud_input = Lambda(add_node_layers,name="Cloud_Input")([multiply_hyperconnection_weight_layer["f1c"](fog1_output), multiply_hyperconnection_weight_layer["f2c"](fog2_output)])
     cloud_output = define_MLP_architecture_cloud(cloud_input, hidden_units, num_classes)
     return cloud_output
+
+def MLP_failout_definitions(failout_survival_setting):
+    fog_reliability = [0] * 5
+
+    fog_reliability[1] = failout_survival_setting[0]
+    fog_reliability[2] = failout_survival_setting[1]
+    fog_reliability[3] = failout_survival_setting[2]
+    fog_reliability[4] = failout_survival_setting[3]
+
+    edge_reliability = [0] * 5
+    edge_reliability[1] = failout_survival_setting[4]
+    edge_reliability[2] = failout_survival_setting[5]
+    edge_reliability[3] = failout_survival_setting[6]
+    edge_reliability[4] = failout_survival_setting[7]
+    
+    edge_failure_lambda = {}
+    fog_failure_lambda = {}
+    for i in range(1,5):
+        edge_failure_lambda[i] = Failout(edge_reliability[i])
+        fog_failure_lambda[i] = Failout(fog_reliability[i])
+    return edge_failure_lambda, fog_failure_lambda
