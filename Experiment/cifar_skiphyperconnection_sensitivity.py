@@ -14,7 +14,7 @@ import numpy as np
 import gc
 
 
-def make_output_dictionary(reliability_settings, num_iterations):
+def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
 
     # convert hyperconnection configuration into strings to be used as keys for dictionary
@@ -70,8 +70,7 @@ if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
     
     num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
-    output = make_output_dictionary(reliability_settings, num_iterations)
-    
+    num_iterations = 20
     skip_hyperconnection_configurations = [
         # [e1,IoT]
         [0,0],
@@ -79,7 +78,9 @@ if __name__ == "__main__":
         [0,1],
         [1,1],
     ]
-    num_iterations = 20
+
+    output = make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations)
+    
     load_model = False
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)

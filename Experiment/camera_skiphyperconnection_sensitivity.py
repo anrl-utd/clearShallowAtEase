@@ -9,7 +9,7 @@ import gc
 from keras.callbacks import ModelCheckpoint
 import numpy as np
 
-def make_output_dictionary(reliability_settings, num_iterations):
+def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
 
     # convert hyperconnection configuration into strings to be used as keys for dictionary
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
-    output = make_output_dictionary(reliability_settings, num_iterations)
+    output = make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations)
     model_name = "DeepFogGuard Hyperconnection Weight Sensitivity"
     make_results_folder()
     for iteration in range(1,num_iterations+1):   
