@@ -200,14 +200,14 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme,reliability_setti
         hyperconnection_weight_ec)
     return (hyperconnection_weight_IoTe, hyperconnection_weight_IoTf,hyperconnection_weight_ef,hyperconnection_weight_ec,hyperconnection_weight_fc)
   
-def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnections_config, connection_weight_IoTf, connection_weight_ec):
+def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_config, connection_weight_IoTf, connection_weight_ec):
     # take away the skip hyperconnection if the value in hyperconnections array is 0
     # from edge to cloud
-    if skip_hyperconnections_config[0] == 0:
-        connection_weight_ec = 0
-    # from iot to fog
-    if skip_hyperconnections_config[1] == 0:
+    if skip_hyperconnection_config[0] == 0:
         connection_weight_IoTf = 0
+    # from iot to fog
+    if skip_hyperconnection_config[1] == 0:
+        connection_weight_ec = 0
     return connection_weight_IoTf, connection_weight_ec
     
 def define_hyperconnection_weight_lambda_layers(hyperconnection_weight_IoTe, hyperconnection_weight_IoTf,hyperconnection_weight_ef,hyperconnection_weight_ec,hyperconnection_weight_fc):
