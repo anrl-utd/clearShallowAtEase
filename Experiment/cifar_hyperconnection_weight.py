@@ -39,16 +39,24 @@ if __name__ == "__main__":
     make_results_folder()
     output_name = 'results/cifar_hyperconnection_weight_results.txt'
     output_list = []
+    default_reliability_setting = [1,1]
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
-        for reliability_setting in reliability_settings:
-            for weight_scheme in weight_schemes:
-                model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
-                
-                output_list.append(str(reliability_setting) + str(weight_scheme) + '\n')
-                print(reliability_setting,weight_scheme)
-                output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
-                
+        for weight_scheme in weight_schemes:
+            if weight_scheme == 2 or weight_scheme == 3: # if the weight scheme depends on reliability
+                for reliability_setting in reliability_settings:
+                    model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+                    output_list.append(str(reliability_setting) + str(weight_scheme) + '\n')
+                    output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+                    # clear session so that model will recycled back into memory
+                    K.clear_session()
+                    gc.collect()
+                    del model
+            else:
+                model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, default_reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+                for reliability_setting in reliability_settings:
+                    output_list.append(str(reliability_setting) + str(weight_scheme) + '\n')
+                    output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
                 # clear session so that model will recycled back into memory
                 K.clear_session()
                 gc.collect()
