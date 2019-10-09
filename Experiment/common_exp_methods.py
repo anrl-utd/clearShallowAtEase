@@ -69,7 +69,6 @@ def make_output_dictionary_hyperconnection_weight(reliability_settings, num_iter
     reliability_weight_scheme = 3 # reliability
     random_weight_scheme = 4 # randomly weighted between 0 and 1
     random_weight_scheme2 = 5 # randomly weighted between 0 and 10
-    fifty_weight_scheme = 6  # randomly weighted by .5
 
     weight_schemes = [
         one_weight_scheme,
@@ -77,7 +76,6 @@ def make_output_dictionary_hyperconnection_weight(reliability_settings, num_iter
         reliability_weight_scheme,
         random_weight_scheme,
         random_weight_scheme2,
-        fifty_weight_scheme,
     ]
 
     # dictionary to store all the results
@@ -113,13 +111,6 @@ def make_output_dictionary_hyperconnection_weight(reliability_settings, num_iter
                 normal:[0] * num_iterations,
             },
             random_weight_scheme2:
-            {
-                no_failure: [0] * num_iterations,
-                hazardous:[0] * num_iterations,
-                poor:[0] * num_iterations,
-                normal:[0] * num_iterations,
-            },
-            fifty_weight_scheme:
             {
                 no_failure: [0] * num_iterations,
                 hazardous:[0] * num_iterations,

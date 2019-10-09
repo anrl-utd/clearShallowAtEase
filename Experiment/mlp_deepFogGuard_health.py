@@ -113,15 +113,6 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
         hyperconnection_weight_f2f1 = random.uniform(0,10)
         hyperconnection_weight_f2c = random.uniform(0,10)
         hyperconnection_weight_f1c = random.uniform(0,10)
-    # randomly weighted by .5
-    elif hyperconnection_weights_scheme == 6:
-        hyperconnection_weight_IoTe1 = .5
-        hyperconnection_weight_IoTf2  = .5
-        hyperconnection_weight_ef2 = .5
-        hyperconnection_weight_ef1 = .5
-        hyperconnection_weight_f2f1 = .5
-        hyperconnection_weight_f2c = .5
-        hyperconnection_weight_f1c = .5
     else:
         raise ValueError("Incorrect scheme value")
     hyperconnection_weight_IoTf2, hyperconnection_weight_ef1, hyperconnection_weight_f2c = remove_skip_hyperconnection_for_sensitvity_experiment(

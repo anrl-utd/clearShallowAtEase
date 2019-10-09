@@ -134,10 +134,6 @@ def set_hyperconnection_weights(hyperconnection_weight, hyperconnection_weights_
     elif hyperconnection_weights_scheme == 5:
         for connection_end in connection_ends:
             hyperconnection_weight[connection_end] = random.uniform(0,10)
-    # randomly weighted by .5
-    elif hyperconnection_weights_scheme == 6:
-        for connection_end in connection_ends:
-            hyperconnection_weight[connection_end] = 0.5
     else:
         raise ValueError("Incorrect scheme value")
     hyperconnection_weight = remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_config, hyperconnection_weight)
