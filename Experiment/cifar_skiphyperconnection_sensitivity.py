@@ -92,23 +92,23 @@ if __name__ == "__main__":
         print("iteration:",iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
             model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight Sensitivity", load_model, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
-            for reliability_settings in reliability_settings:
-                output_list.append(str(reliability_settings) + '\n')
-                print(reliability_settings)
-                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_settings)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, reliability_settings,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            for reliability_setting in reliability_settings:
+                output_list.append(str(reliability_setting) + '\n')
+                print(reliability_setting)
+                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
             del model
     
-    for reliability_settings in reliability_settings:
+    for reliability_setting in reliability_settings:
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-            output_list.append(str(reliability_settings) + '\n')
-            deepFogGuard_acc = average(output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_settings)][str(skip_hyperconnection_configuration)])
-            deepFogGuard_std = np.std(output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_settings)][str(skip_hyperconnection_configuration)],ddof=1)
-            output_list.append(str(reliability_settings) + str(skip_hyperconnection_configuration) + str(deepFogGuard_acc) + '\n')
-            output_list.append(str(reliability_settings) + str(skip_hyperconnection_configuration) + str(deepFogGuard_std) + '\n')
-            print(str(reliability_settings),deepFogGuard_acc)
-            print(str(reliability_settings), deepFogGuard_std)
+            output_list.append(str(reliability_setting) + '\n')
+            deepFogGuard_acc = average(output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)])
+            deepFogGuard_std = np.std(output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)],ddof=1)
+            output_list.append(str(reliability_setting) + str(skip_hyperconnection_configuration) + str(deepFogGuard_acc) + '\n')
+            output_list.append(str(reliability_setting) + str(skip_hyperconnection_configuration) + str(deepFogGuard_std) + '\n')
+            print(str(reliability_setting),deepFogGuard_acc)
+            print(str(reliability_setting), deepFogGuard_std)
     write_n_upload(output_name, output_list, use_GCP)
     print(output)
