@@ -4,6 +4,7 @@ import keras.backend as K
 import keras.layers as layers
 from Experiment.LambdaLayers import add_node_layers
 from Experiment.mlp_deepFogGuard_camera import define_MLP_deepFogGuard_architecture_cloud, define_MLP_deepFogGuard_architecture_edge, define_MLP_deepFogGuard_architecture_fog1, define_MLP_deepFogGuard_architecture_fog2, define_MLP_deepFogGuard_architecture_fog3, define_MLP_deepFogGuard_architecture_fog4
+from Experiment.mlp_deepFogGuard_camera import connection_ends, set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
 
 from keras.models import Model
 from keras.backend import constant
@@ -14,7 +15,9 @@ def define_ResiliNet_MLP(input_shape,
                             num_classes,
                             hidden_units,
                             failout_survival_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],
-                            ):
+                            reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0], 
+                            skip_hyperconnection_config = [1,1,1,1,1,1,1], 
+                            hyperconnection_weights_scheme = 1):
     """Define a ResiliNet model.
     ### Naming Convention
         ex: f2f1 = connection between fog node 2 and fog node 1
@@ -28,6 +31,11 @@ def define_ResiliNet_MLP(input_shape,
         Keras Model object
     """
 
+    hyperconnection_weight = {} # define the hyperconnection_weight as dictionary
+
+    hyperconnection_weight = set_hyperconnection_weights(hyperconnection_weight, hyperconnection_weights_scheme, reliability_setting, skip_hyperconnection_config, connection_ends)
+    multiply_hyperconnection_weight_layer = define_hyperconnection_weight_lambda_layers(hyperconnection_weight, connection_ends)
+   
     # IoT Node (input image)
     img_input_1 = Input(shape = input_shape)    
     img_input_2 = Input(shape = input_shape)
@@ -55,23 +63,23 @@ def define_ResiliNet_MLP(input_shape,
     edge4_output = edge_failure_lambda[4](edge4_output)
 
     # fog node 4
-    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units)
+    fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_hyperconnection_weight_layer)
     fog4_output = fog_failure_lambda[4](fog4_output)
 
     # fog node 3
-    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units)
+    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_hyperconnection_weight_layer)
     fog3_output = fog_failure_lambda[3](fog3_output)
 
     # fog node 2
-    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units)
+    fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer)
     fog2_output = fog_failure_lambda[2](fog2_output)
 
     # fog node 1
-    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units)
+    fog1_output = define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer)
     fog1_output = fog_failure_lambda[1](fog1_output)
 
     # cloud node
-    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes)
+    cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer)
 
     model = Model(inputs=[img_input_1,img_input_2,img_input_3,img_input_4,img_input_5,img_input_6], outputs=cloud_output)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])

@@ -10,6 +10,7 @@ import keras.backend as K
 import keras.layers as layers
 
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
+from Experiment.cnn_deepFogGuard import set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
 from Experiment.Failout import Failout
 from Experiment.common_exp_methods import compile_keras_parallel_model
 # ResiliNet
@@ -21,6 +22,9 @@ def define_ResiliNet_CNN(input_shape=None,
                                 classes=1000, 
                                 strides = (2,2),
                                 failout_survival_setting = [1.0,1.0],
+                                skip_hyperconnection_config = [1,1], 
+                                reliability_setting=[1.0,1.0], 
+                                hyperconnection_weights_scheme = 1,
                                 num_gpus = 1,
                                 **kwargs):
     """Instantiates the MobileNet architecture.
@@ -71,6 +75,17 @@ def define_ResiliNet_CNN(input_shape=None,
             backend that does not support separable convolutions.
     """
     
+    hyperconnection_weight_IoTe, hyperconnection_weight_IoTf,hyperconnection_weight_ef,hyperconnection_weight_ec,hyperconnection_weight_fc = set_hyperconnection_weights(
+        hyperconnection_weights_scheme, 
+        reliability_setting, 
+        skip_hyperconnection_config)
+    multiply_hyperconnection_weight_layer_IoTe, multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef, multiply_hyperconnection_weight_layer_ec, multiply_hyperconnection_weight_layer_fc = define_hyperconnection_weight_lambda_layers(
+        hyperconnection_weight_IoTe,
+        hyperconnection_weight_IoTf,
+        hyperconnection_weight_ef,
+        hyperconnection_weight_ec,
+        hyperconnection_weight_fc)
+
     # Determine proper input shape and default size.
     img_input = layers.Input(shape=input_shape)  
 
@@ -81,15 +96,14 @@ def define_ResiliNet_CNN(input_shape=None,
     iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input, strides = strides)
     
     # edge node
-    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, strides = strides, edge_failure_lambda = edge_failure_lambda)
-    # edge_output = edge_failure_lambda(edge_output)
+    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTe, strides = strides, edge_failure_lambda = edge_failure_lambda)
     
     # fog node
-    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, strides = strides)
+    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef, strides = strides)
     fog_output = fog_failure_lambda(fog_output)
 
     # cloud node
-    cloud_output = define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling)
+    cloud_output = define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling, multiply_hyperconnection_weight_layer_fc, multiply_hyperconnection_weight_layer_ec)
     
     model, parallel_model = compile_keras_parallel_model(img_input, cloud_output, num_gpus)
     return model, parallel_model

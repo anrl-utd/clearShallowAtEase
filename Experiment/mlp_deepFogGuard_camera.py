@@ -6,6 +6,7 @@ from keras.models import Model
 import random
 from Experiment.Failout import Failout
 
+connection_ends = ["e1f2","e2f2","e3f2","e4f2","f3f1","f4f1","f2c","e1f3","e2f4","e3f4","e4f4","f3f2","f4f2","f2f1","f1c"]
 def define_deepFogGuard_MLP(input_shape,
                             num_classes,
                             hidden_units,
@@ -27,7 +28,6 @@ def define_deepFogGuard_MLP(input_shape,
     """
 
     hyperconnection_weight = {} # define the hyperconnection_weight as dictionary
-    connection_ends = ["e1f2","e2f2","e3f2","e4f2","f3f1","f4f1","f2c","e1f3","e2f4","e3f4","e4f4","f3f2","f4f2","f2f1","f1c"]
 
     hyperconnection_weight = set_hyperconnection_weights(hyperconnection_weight, hyperconnection_weights_scheme, reliability_setting, skip_hyperconnection_config, connection_ends)
     multiply_hyperconnection_weight_layer = define_hyperconnection_weight_lambda_layers(hyperconnection_weight, connection_ends)
