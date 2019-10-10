@@ -24,46 +24,46 @@ def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconne
             hazardous:
             {
                 config[0]:[0] * num_iterations,
-                # config[1]:[0] * num_iterations,
-                # config[2]:[0] * num_iterations,
-                # config[3]:[0] * num_iterations,
-                # config[4]:[0] * num_iterations,
-                # config[5]:[0] * num_iterations,
-                # config[6]:[0] * num_iterations,
-                # config[7]:[0] * num_iterations
+                config[1]:[0] * num_iterations,
+                config[2]:[0] * num_iterations,
+                config[3]:[0] * num_iterations,
+                config[4]:[0] * num_iterations,
+                config[5]:[0] * num_iterations,
+                config[6]:[0] * num_iterations,
+                config[7]:[0] * num_iterations
             },
             poor:
             {
                 config[0]:[0] * num_iterations,
-                # config[1]:[0] * num_iterations,
-                # config[2]:[0] * num_iterations,
-                # config[3]:[0] * num_iterations,
-                # config[4]:[0] * num_iterations,
-                # config[5]:[0] * num_iterations,
-                # config[6]:[0] * num_iterations,
-                # config[7]:[0] * num_iterations
+                config[1]:[0] * num_iterations,
+                config[2]:[0] * num_iterations,
+                config[3]:[0] * num_iterations,
+                config[4]:[0] * num_iterations,
+                config[5]:[0] * num_iterations,
+                config[6]:[0] * num_iterations,
+                config[7]:[0] * num_iterations
             },
             normal:
             {
                 config[0]:[0] * num_iterations,
-                # config[1]:[0] * num_iterations,
-                # config[2]:[0] * num_iterations,
-                # config[3]:[0] * num_iterations,
-                # config[4]:[0] * num_iterations,
-                # config[5]:[0] * num_iterations,
-                # config[6]:[0] * num_iterations,
-                # config[7]:[0] * num_iterations
+                config[1]:[0] * num_iterations,
+                config[2]:[0] * num_iterations,
+                config[3]:[0] * num_iterations,
+                config[4]:[0] * num_iterations,
+                config[5]:[0] * num_iterations,
+                config[6]:[0] * num_iterations,
+                config[7]:[0] * num_iterations
             },
             no_failure:
             {
                 config[0]:[0] * num_iterations,
-                # config[1]:[0] * num_iterations,
-                # config[2]:[0] * num_iterations,
-                # config[3]:[0] * num_iterations,
-                # config[4]:[0] * num_iterations,
-                # config[5]:[0] * num_iterations,
-                # config[6]:[0] * num_iterations,
-                # config[7]:[0] * num_iterations
+                config[1]:[0] * num_iterations,
+                config[2]:[0] * num_iterations,
+                config[3]:[0] * num_iterations,
+                config[4]:[0] * num_iterations,
+                config[5]:[0] * num_iterations,
+                config[6]:[0] * num_iterations,
+                config[7]:[0] * num_iterations
             },
         }
     }
@@ -92,14 +92,14 @@ if __name__ == "__main__":
     num_iterations = 20
     skip_hyperconnection_configurations = [
         # [f2,,e1,g1]
-    #    [0,0,0],
+        [0,0,0],
         [1,0,0],
-    #    [0,1,0],
-    #    [0,0,1],
-    #    [1,1,0],
-    #    [1,0,1],
-    #    [0,1,1],
-    #    [1,1,1],
+        [0,1,0],
+        [0,0,1],
+        [1,1,0],
+        [1,0,1],
+        [0,1,1],
+        [1,1,1],
     ]
     default_reliability_setting = [1.0,1.0,1.0]
 

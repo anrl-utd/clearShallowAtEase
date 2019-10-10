@@ -44,20 +44,14 @@ def define_deepFogGuard_MLP(num_vars,
     img_input = Input(shape = (num_vars,))
     iot_output = define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units)
 
-    default_failout_survival_rate = [.95,.95,.95]
-    edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda  = MLP_failout_definitions(default_failout_survival_rate)
-
     # edge node
     edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, multiply_hyperconnection_weight_layer_IoTe1)
-    edge_output = edge_failure_lambda(edge_output)
 
     # fog node 2
     fog2_output = define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2)
-    fog2_output = fog2_failure_lambda(fog2_output)
 
     # fog node 1
     fog1_output = define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_units, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1)
-    fog1_output = fog1_failure_lambda(fog1_output)
 
     # cloud node
     cloud_output = define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer_f1c, multiply_hyperconnection_weight_layer_f2c)
@@ -181,13 +175,3 @@ def define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_
         cloud_input = Lambda(add_node_layers,name="Cloud_Input")([multiply_hyperconnection_weight_layer_f1c(fog1_output),multiply_hyperconnection_weight_layer_f2c(fog2_output)])
     cloud_output = define_MLP_architecture_cloud(cloud_input, hidden_units, num_classes)
     return cloud_output
-
-def MLP_failout_definitions(failout_survival_setting):
-    edge_reliability = failout_survival_setting[0]
-    fog2_reliability = failout_survival_setting[1]
-    fog1_reliability = failout_survival_setting[2]
-
-    edge_failure_lambda = Failout(edge_reliability)
-    fog2_failure_lambda = Failout(fog2_reliability)
-    fog1_failure_lambda = Failout(fog1_reliability)
-    return edge_failure_lambda, fog2_failure_lambda, fog1_failure_lambda
