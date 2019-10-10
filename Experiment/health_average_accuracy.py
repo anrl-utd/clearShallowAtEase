@@ -15,7 +15,7 @@ def define_and_train(iteration, model_name, load_model, training_data, training_
     K.set_learning_phase(1)
     # ResiliNet
     if model_name == "ResiliNet":
-        model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,default_failout_survival_rate)
+        model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units,failout_survival_setting=default_failout_survival_rate)
         model_file = 'models/' + "Health" + str(iteration) + 'average_accuracy_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":

@@ -7,6 +7,7 @@ import keras.backend as K
 import math
 import os 
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
+from Experiment.cnn_ResiliNet import define_ResiliNet_CNN
 from Experiment.Accuracy import calculateExpectedAccuracy
 from Experiment.common_exp_methods import average, make_results_folder, make_output_dictionary_hyperconnection_weight, write_n_upload
 from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params, get_model_weights_CNN_cifar
@@ -16,12 +17,16 @@ import gc
 
 def define_and_train(iteration, model_name, load_model, reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     K.set_learning_phase(1)
-    model_file = 'models/' + str(iteration) + "_" + str(reliability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection.h5'
-    model, parallel_model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,reliability_setting=reliability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides, num_gpus=num_gpus)
+    if model_name == "DeepFogGuard Hyperconnection Weight":
+        model_file = 'models/' + str(iteration) + "_" + str(reliability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection_deepFogGuard.h5'
+        model, parallel_model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,reliability_setting=reliability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides, num_gpus=num_gpus)
+    else: # model_name is "ResiliNet Hyperconnection Weight"
+        default_failout_survival_rate = [.95,.95]
+        model_file = 'models/' + str(iteration) + "_" + str(reliability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection_ResiliNet.h5'
+        model, parallel_model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape, alpha = alpha,reliability_setting=reliability_setting, failout_survival_setting=default_failout_survival_rate, hyperconnection_weights_scheme = weight_scheme, strides = strides, num_gpus=num_gpus)
     get_model_weights_CNN_cifar(model, parallel_model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
            
-
 # deepFogGuard hyperconnection weight experiment      
 if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
