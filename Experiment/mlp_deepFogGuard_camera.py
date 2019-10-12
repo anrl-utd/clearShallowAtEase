@@ -128,6 +128,7 @@ def set_hyperconnection_weights(hyperconnection_weight, hyperconnection_weights_
     hyperconnection_weight = remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_config, hyperconnection_weight)
     return (hyperconnection_weight)
 
+
 def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_config, hyperconnection_weight):
     # take away the skip hyperconnection if the value in hyperconnections array is 0
     # skip_hyperconnection_config = [f2,f3,f4,e1,e2,e3,e4]
@@ -141,13 +142,13 @@ def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_c
     if skip_hyperconnection_config[2] == 0:
         hyperconnection_weight["e2f2"] = 0
     # from edge node 1 to fog node 2
-    if skip_hyperconnection_config[4] == 0:
+    if skip_hyperconnection_config[3] == 0:
         hyperconnection_weight["e1f2"] = 0
     # from edge node 2 to fog node 2
-    if skip_hyperconnection_config[5] == 0:
+    if skip_hyperconnection_config[4] == 0:
         hyperconnection_weight["f4f1"] = 0
     # from edge node 3 to fog node 2
-    if skip_hyperconnection_config[6] == 0:
+    if skip_hyperconnection_config[5] == 0:
         hyperconnection_weight["f3f1"] = 0
     # from edge node 4 to fog node 2
     if skip_hyperconnection_config[6] == 0:
