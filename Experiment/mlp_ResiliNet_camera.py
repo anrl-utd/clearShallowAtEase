@@ -67,7 +67,8 @@ def define_ResiliNet_MLP(input_shape,
     fog4_output = fog_failure_lambda[4](fog4_output)
 
     # fog node 3
-    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_hyperconnection_weight_layer)
+    fog3 = Lambda(lambda x: x * 1,name="node4_input")(edge1_output)
+    fog3_output = define_MLP_deepFogGuard_architecture_fog3(fog3, hidden_units, multiply_hyperconnection_weight_layer)
     fog3_output = fog_failure_lambda[3](fog3_output)
 
     # fog node 2
