@@ -55,7 +55,8 @@ def define_deepFogGuard_MLP(input_shape,
     fog4_output = define_MLP_deepFogGuard_architecture_fog4(edge2_output, edge3_output, edge4_output, hidden_units, multiply_hyperconnection_weight_layer)
 
     # fog node 3
-    fog3_output = define_MLP_deepFogGuard_architecture_fog3(edge1_output, hidden_units, multiply_hyperconnection_weight_layer)
+    fog3 = Lambda(lambda x: x * 1,name="node4_input")(edge1_output)
+    fog3_output = define_MLP_deepFogGuard_architecture_fog3(fog3, hidden_units, multiply_hyperconnection_weight_layer)
     
     # fog node 2
     fog2_output = define_MLP_deepFogGuard_architecture_fog2(edge1_output, edge2_output, edge3_output, edge4_output, fog3_output, fog4_output, hidden_units, multiply_hyperconnection_weight_layer)
