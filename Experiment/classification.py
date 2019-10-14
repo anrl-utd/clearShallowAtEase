@@ -19,12 +19,12 @@ def predict(model,train_labels,test_data,test_labels, is_cnn):
         return a tuple of accuracy (as a float) and whether there is no information flow (as an integer)
     """
     if is_cnn: # CIFAR and imagenet
-        no_information_flow = identify_no_information_flow(model,test_data, 2)
+        no_information_flow = identify_no_information_flow(model,test_data, "CIFAR/Imagenet")
     else:
         if len(test_data) == 6: # camera
-            no_information_flow = identify_no_information_flow(model,test_data, 5)
+            no_information_flow = identify_no_information_flow(model,test_data, "Camera")
         else: # health
-            no_information_flow = identify_no_information_flow(model,test_data, 3)
+            no_information_flow = identify_no_information_flow(model,test_data, "Health")
 
     if no_information_flow is True:
         if is_cnn:
@@ -88,17 +88,40 @@ def toss_coin(cumulative_frequency):
     return 0
 
 
-def identify_no_information_flow(model,test_data,num_nodes):
+def identify_no_information_flow(model,test_data,exp):
     node_input = {} # define the input to all nodes as dictionary
     new_model = {}
     new_model_val = {}
+    horizontal_DNN = True
+    if exp == "CIFAR/Imagenet":
+        num_nodes = 2
+    if exp == "Health":
+        num_nodes = 3
+    if exp == "Camera":
+        num_nodes = 5
+        horizontal_DNN = False
     for i in range(1, num_nodes+1):
-        node_input[i] = model.get_layer(name = "node"+i+"_input").output
+        name = "node"+str(i)+"_input"
+        node_input[i] = model.get_layer(name = name).output
         # get the output from the layer
         new_model[i] = Model(inputs = model.input,outputs=node_input[i])
         new_model_val[i] = new_model[i].predict(test_data)
-        no_information_flow = np.array_equal(new_model_val[i],new_model_val[i] * 0)
-        if no_information_flow is True:
-            return True
-    
+        input_of_node_is_zero = np.array_equal(new_model_val[i],new_model_val[i] * 0)
+        if horizontal_DNN:
+            if input_of_node_is_zero is True:
+                return True
+        else:
+            if name == "node1_input" or name == "node2_input" or name == "node3_input":
+                if input_of_node_is_zero is True: # if input of any of the nodes 1,2,3 is zero, we have no_information_flow
+                    return True
+            else: # if name is node4_input or node5_input
+                if name == "node4_input":
+                    if input_of_node_is_zero is True:
+                        continue
+                    else: # since we are processing the nodes in order, when we get here, it means we for nodes 1,2,3,4 (input_of_node_is_zero is False)
+                        return False
+                if name == "node5_input": # since we are processing the nodes in order, when we get here, it means we for nodes 1,2,3 (input_of_node_is_zero is False) and for node 4 (input_of_node_is_zero is True)
+                    if input_of_node_is_zero is True:
+                        return True
+
     return False # Otherwise, return False

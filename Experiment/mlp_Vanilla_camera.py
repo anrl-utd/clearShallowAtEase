@@ -42,8 +42,7 @@ def define_vanilla_model_MLP(input_shape,
     fog4 = define_MLP_architecture_fog_with_two_layers(fog4_input, hidden_units,"fog4_output_layer","fog4_input_layer")
 
     # fog node 3
-    fog3 = Lambda(lambda x: x * 1,name="node4_input")(edge1)
-    fog3 = define_MLP_architecture_fog_with_one_layer(fog3, hidden_units, "fog3_output_layer")
+    fog3 = define_MLP_architecture_fog_with_one_layer(edge1, hidden_units, "fog3_output_layer")
 
     # fog node 2
     fog2_input = Lambda(add_node_layers,name="node3_input")([fog3, fog4])
