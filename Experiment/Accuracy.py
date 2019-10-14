@@ -123,7 +123,7 @@ def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
         # print(node_failure_combination)
         if needToGetModelAccuracy:
             # saves a copy of the original model so it does not change during failures 
-            no_information_flow = no_information_flow_map[node_failure_combination]
+            no_information_flow = no_information_flow_map[tuple(node_failure_combination)]
             if not no_information_flow:
                 old_weights = model.get_weights()
                 fail_node(model,node_failure_combination, is_cnn)

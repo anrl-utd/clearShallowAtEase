@@ -107,7 +107,7 @@ if __name__ == "__main__":
     default_reliability_setting = [1.0,1.0,1.0]
     no_information_flow_map = {}
     for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-        no_information_flow_map[skip_hyperconnection_configuration] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
+        no_information_flow_map[tuple(skip_hyperconnection_configuration)] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
     
     load_model = False
     output_name = 'results/health_skiphyperconnection_sensitivity.txt'
@@ -128,7 +128,7 @@ if __name__ == "__main__":
             for reliability_setting in reliability_settings:
                 print(reliability_setting)
                 output_list.append(str(reliability_setting) + '\n')
-                calc_accuracy(iteration, model_name, deepFogGuard_weight_sesitivity, no_information_flow_map[skip_hyperconnection_configuration] , reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels)
+                calc_accuracy(iteration, model_name, deepFogGuard_weight_sesitivity, no_information_flow_map[tuple(skip_hyperconnection_configuration)] , reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels)
             K.clear_session()
             gc.collect()
             del deepFogGuard_weight_sesitivity

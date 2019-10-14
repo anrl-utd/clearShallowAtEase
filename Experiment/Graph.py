@@ -45,7 +45,7 @@ def create_graph_MLP_health(skip_hyperconnection_config = None):
 def create_graph_MLP_camera(skip_hyperconnection_config = None):
     G = nx.DiGraph()
     # Vanilla
-    G.add_node('cams')
+    G.add_node('cams') # dummy node to connect to all edge nodes
     G.add_node('e1')
     G.add_node('e2')
     G.add_node('e3')
@@ -103,4 +103,4 @@ def identify_no_information_flow_graph(graph, exp):
     if exp == "Health":
         return not nx.has_path(graph, 'IoT', 'c')
     if exp == "Camera":
-        return not nx.has_path(graph, 'cam', 'c')
+        return not nx.has_path(graph, 'cams', 'c')

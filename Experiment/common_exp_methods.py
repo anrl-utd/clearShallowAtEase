@@ -187,6 +187,6 @@ def make_no_information_flow_map(exp, skip_hyperconnection_config = None):
         node_failure_combination = convertBinaryToList(i, numNodes)
         graph_copy = copy.deepcopy(graph) # make a new copy of the graph
         fail_node_graph(graph_copy, node_failure_combination, exp)
-        no_information_flow_map[node_failure_combination] = identify_no_information_flow_graph(graph_copy, exp)
+        no_information_flow_map[tuple(node_failure_combination)] = identify_no_information_flow_graph(graph_copy, exp)
         del graph_copy
     return no_information_flow_map

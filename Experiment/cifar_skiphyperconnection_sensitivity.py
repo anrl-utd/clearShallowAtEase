@@ -88,7 +88,7 @@ if __name__ == "__main__":
     
     no_information_flow_map = {}
     for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-        no_information_flow_map[skip_hyperconnection_configuration] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
+        no_information_flow_map[tuple(skip_hyperconnection_configuration)] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
     
     load_model = False
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
@@ -105,7 +105,7 @@ if __name__ == "__main__":
             for reliability_setting in reliability_settings:
                 output_list.append(str(reliability_setting) + '\n')
                 print(reliability_setting)
-                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, no_information_flow_map[skip_hyperconnection_configuration],reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, no_information_flow_map[tuple(skip_hyperconnection_configuration)],reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()
