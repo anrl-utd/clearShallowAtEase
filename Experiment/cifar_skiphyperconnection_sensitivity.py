@@ -75,7 +75,7 @@ if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
     
     num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
-    num_iterations = 20
+    num_iterations = 10
     skip_hyperconnection_configurations = [
         # [e1,IoT]
         [0,0],

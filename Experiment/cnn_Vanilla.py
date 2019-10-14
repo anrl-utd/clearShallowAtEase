@@ -79,13 +79,14 @@ def define_vanilla_model_CNN(input_shape=None,
     iot = define_cnn_architecture_IoT(img_input,alpha, strides = strides)
     # edge 
     edge = define_cnn_architecture_edge(iot,alpha,depth_multiplier, strides = strides)
+    
     # fog node
-    fog = define_cnn_architecture_fog(edge,alpha,depth_multiplier)
-    # layer alias to name cloud input (alias is used for random guessing)
-    # don't need between edge and IoT because 0 will propagate to this node
-    fog = layers.Lambda(lambda x : x * 1,name = 'Cloud_Input')(fog)
+    fog = layers.Lambda(lambda x : x * 1,name = 'node2_input')(edge)
+    fog = define_cnn_architecture_fog(fog,alpha,depth_multiplier)
+    
     # cloud node
-    cloud = define_cnn_architecture_cloud(fog,alpha,depth_multiplier,classes,include_top,pooling)
+    cloud = layers.Lambda(lambda x : x * 1,name = 'node1_input')(fog)
+    cloud = define_cnn_architecture_cloud(cloud,alpha,depth_multiplier,classes,include_top,pooling)
 
     model, parallel_model = compile_keras_parallel_model(img_input, cloud, num_gpus)
     return model, parallel_model

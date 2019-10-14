@@ -21,16 +21,20 @@ def define_vanilla_model_MLP(num_vars,num_classes,hidden_units):
 
     # edge node
     edge = define_MLP_architecture_edge(img_input, hidden_units)
+    
 
     # fog node 2
-    fog2 = define_MLP_architecture_fog2(edge, hidden_units)
+    fog2 = Lambda(lambda x: x * 1,name="node3_input")(edge)
+    fog2 = define_MLP_architecture_fog2(fog2, hidden_units)
+    
 
     # fog node 1
-    fog1 = define_MLP_architecture_fog1(fog2, hidden_units)
-    fog1 = Lambda(lambda x: x * 1,name="Cloud_Input")(fog1)
+    fog1 = Lambda(lambda x: x * 1,name="node2_input")(fog2)
+    fog1 = define_MLP_architecture_fog1(fog1, hidden_units)
     
     # cloud node
-    cloud = define_MLP_architecture_cloud(fog1, hidden_units, num_classes)
+    cloud = Lambda(lambda x: x * 1,name="node1_input")(fog1)
+    cloud = define_MLP_architecture_cloud(cloud, hidden_units, num_classes)
 
     model = Model(inputs=img_input, outputs=cloud)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])

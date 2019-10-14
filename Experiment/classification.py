@@ -18,15 +18,15 @@ def predict(model,train_labels,test_data,test_labels, is_cnn):
     ### Returns
         return a tuple of accuracy (as a float) and whether there is no information flow (as an integer)
     """
-    # check if the cloud input is 0 which means that there is no data flowing in the network
-    cloud_input = model.get_layer(name = "Cloud_Input").output
-    # get the output from the layer
-    new_model = Model(inputs = model.inputs,outputs=cloud_input)
-    cloud_output = new_model.predict(test_data)
-    no_information_flow = np.array_equal(cloud_output,cloud_output * 0)
-    # there is no connection flow, make random guess 
+    if is_cnn: # CIFAR and imagenet
+        no_information_flow = identify_no_information_flow(model,test_data, 2)
+    else:
+        if len(test_data) == 6: # camera
+            no_information_flow = identify_no_information_flow(model,test_data, 5)
+        else: # health
+            no_information_flow = identify_no_information_flow(model,test_data, 3)
 
-    if no_information_flow:
+    if no_information_flow is True:
         if is_cnn:
             # make into 1d vector
             train_labels = [item for sublist in train_labels for item in sublist]
@@ -88,6 +88,17 @@ def toss_coin(cumulative_frequency):
     return 0
 
 
-
-        
-
+def identify_no_information_flow(model,test_data,num_nodes):
+    node_input = {} # define the input to all nodes as dictionary
+    new_model = {}
+    new_model_val = {}
+    for i in range(1, num_nodes+1):
+        node_input[i] = model.get_layer(name = "node"+i+"_input").output
+        # get the output from the layer
+        new_model[i] = Model(inputs = model.input,outputs=node_input[i])
+        new_model_val[i] = new_model[i].predict(test_data)
+        no_information_flow = np.array_equal(new_model_val[i],new_model_val[i] * 0)
+        if no_information_flow is True:
+            return True
+    
+    return False # Otherwise, return False

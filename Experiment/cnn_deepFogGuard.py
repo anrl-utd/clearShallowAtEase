@@ -133,9 +133,9 @@ def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplie
 
 def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None, strides = (2,2)):
     if multiply_hyperconnection_weight_layer_IoTf == None or multiply_hyperconnection_weight_layer_ef == None:
-        fog_input = layers.add([skip_iotfog, edge_output], name = "connection_fog")
+        fog_input = layers.add([skip_iotfog, edge_output], name = "node2_input")
     else:
-        fog_input = layers.add([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)], name = "connection_fog")
+        fog_input = layers.add([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)], name = "node2_input")
     fog = define_cnn_architecture_fog(fog_input,alpha,depth_multiplier)
     # cnn for imagenet does not need padding
     if strides == (2,2):
@@ -150,9 +150,9 @@ def define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, de
 
 def define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling, multiply_hyperconnection_weight_layer_fc = None, multiply_hyperconnection_weight_layer_ec = None):
     if multiply_hyperconnection_weight_layer_fc == None or multiply_hyperconnection_weight_layer_ec == None:
-        cloud_input = layers.add([fog_output, skip_edgecloud], name = "Cloud_Input")
+        cloud_input = layers.add([fog_output, skip_edgecloud], name = "node1_input")
     else:
-        cloud_input = layers.add([multiply_hyperconnection_weight_layer_fc(fog_output), multiply_hyperconnection_weight_layer_ec(skip_edgecloud)], name = "Cloud_Input")
+        cloud_input = layers.add([multiply_hyperconnection_weight_layer_fc(fog_output), multiply_hyperconnection_weight_layer_ec(skip_edgecloud)], name = "node1_input")
     cloud_output = define_cnn_architecture_cloud(cloud_input,alpha,depth_multiplier,classes,include_top,pooling)
     return cloud_output
 

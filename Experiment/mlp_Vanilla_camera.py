@@ -38,22 +38,25 @@ def define_vanilla_model_MLP(input_shape,
     edge4 = define_MLP_architecture_edge(input_edge4, hidden_units, "edge4_output_layer")
 
     # fog node 4
-    fog4_input = Lambda(add_node_layers,name="fog4_input_lambda")([edge2,edge3, edge4])
+    fog4_input = Lambda(add_node_layers,name="node5_input")([edge2,edge3, edge4])
     fog4 = define_MLP_architecture_fog_with_two_layers(fog4_input, hidden_units,"fog4_output_layer","fog4_input_layer")
 
     # fog node 3
-    fog3 = define_MLP_architecture_fog_with_one_layer(edge1, hidden_units, "fog3_output_layer")
+    fog3 = Lambda(lambda x: x * 1,name="node4_input")(edge1)
+    fog3 = define_MLP_architecture_fog_with_one_layer(fog3, hidden_units, "fog3_output_layer")
 
     # fog node 2
-    fog2_input = Lambda(add_node_layers,name="fog2_input_lambda")([fog3, fog4])
+    fog2_input = Lambda(add_node_layers,name="node3_input")([fog3, fog4])
     fog2 = define_MLP_architecture_fog_with_two_layers(fog2_input, hidden_units, "fog2_output_layer", "fog2_input_layer")
 
     # fog node 1
-    fog1 = define_MLP_architecture_fog_with_two_layers(fog2, hidden_units, "fog1_output_layer", "fog1_input_layer")
-    fog1 = Lambda(lambda x: x * 1,name="Cloud_Input")(fog1)
+    fog1 = Lambda(lambda x: x * 1,name="node2_input")(fog2)
+    fog1 = define_MLP_architecture_fog_with_two_layers(fog1, hidden_units, "fog1_output_layer", "fog1_input_layer")
+    
 
     # cloud node
-    cloud = define_MLP_architecture_cloud(fog1, hidden_units, num_classes)
+    cloud = Lambda(lambda x: x * 1,name="node1_input")(fog1)
+    cloud = define_MLP_architecture_cloud(cloud, hidden_units, num_classes)
 
     model = Model(inputs=[img_input_1,img_input_2,img_input_3,img_input_4,img_input_5,img_input_6], outputs=cloud)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
