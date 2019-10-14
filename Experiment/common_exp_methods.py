@@ -4,6 +4,10 @@ import numpy as np
 from keras.utils import multi_gpu_model
 import keras
 import tensorflow as tf
+from Accuracy import convertBinaryToList
+from Graph import fail_node_graph, identify_no_information_flow_graph
+import copy
+from Graph import create_graph_MLP_camera, create_graph_MLP_health, create_graph_CNN
 
 def make_results_folder():
     # makes folder for results and models (if they don't exist)
@@ -142,7 +146,7 @@ def make_output_dictionary_failout_rate(failout_survival_rates, reliability_sett
 
     return output
 
-def fail_node(model,node_failure_combination):
+def fail_node(model,node_failure_combination, is_cnn):
     """fails node(s) by making the specified node(s) output 0
     ### Arguments
         model (Model): Keras model to have nodes failed
@@ -170,7 +174,6 @@ def fail_node(model,node_failure_combination):
         layer.set_weights([new_weights])
         
     is_img_input = False
-    is_cnn = False
     # determines type of network by the first layer input shape
     first_layer = model.get_layer(index = 0)
     if len(first_layer.input_shape) == 4:
@@ -179,7 +182,7 @@ def fail_node(model,node_failure_combination):
     # input is image 
     if is_img_input:
         # camera MLP
-        if model.get_layer("output").output_shape == (None,3):
+        if not is_cnn:
             nodes = [
                 "fog1_output_layer",
                 "fog2_output_layer",
@@ -199,7 +202,6 @@ def fail_node(model,node_failure_combination):
             for index,node in enumerate(node_failure_combination):
                 if node == 0: # dead
                     set_weights_zero_CNN(model, nodes, index)
-            is_cnn = True
                     
     # input is non image
     else:
@@ -208,7 +210,6 @@ def fail_node(model,node_failure_combination):
             # node failed
             if node == 0:
                 set_weights_zero_MLP(model, nodes, index)
-    return is_cnn
 
 def average(list):
     """function to return average of a list 
@@ -234,3 +235,23 @@ def compile_keras_parallel_model(input, cloud_output, num_gpus, name='ANRL_mobil
     else:
         model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model, parallel_model
+
+def make_no_information_flow_map(exp, skip_hyperconnection_config = None):
+    if exp == "CIFAR/Imagenet":
+        graph = create_graph_CNN(skip_hyperconnection_config)
+        numNodes = 3
+    if exp == "Health":
+        graph = create_graph_MLP_health(skip_hyperconnection_config)
+        numNodes = 4
+    if exp == "Camera":
+        graph = create_graph_MLP_camera(skip_hyperconnection_config)
+        numNodes = 9
+    maxNumNodeFailure = 2 ** numNodes
+    no_information_flow_map = {} # make a dictionary
+    for i in range(maxNumNodeFailure):
+        node_failure_combination = convertBinaryToList(i, numNodes)
+        graph_copy = copy.deepcopy(graph) # make a new copy of the graph
+        fail_node_graph(graph_copy, node_failure_combination, exp)
+        no_information_flow_map[node_failure_combination] = identify_no_information_flow_graph(graph_copy, exp)
+        del graph_copy
+    return no_information_flow_map

@@ -1,6 +1,7 @@
 from Experiment.cnn_Vanilla import define_vanilla_model_CNN
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from Experiment.cnn_ResiliNet import define_ResiliNet_CNN
+from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 
 def define_model(iteration, model_name, dataset_name, input_shape, classes, alpha, strides, num_gpus):
     # ResiliNet

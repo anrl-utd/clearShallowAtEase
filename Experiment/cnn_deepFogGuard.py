@@ -12,6 +12,7 @@ import random
 from Experiment.cnn_Vanilla import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog
 from Experiment.common_exp_methods import compile_keras_parallel_model
 
+default_skip_hyperconnection_config = [1,1]
 def define_deepFogGuard_CNN(input_shape=None,
                             alpha=1.0,
                             depth_multiplier=1,
@@ -20,7 +21,7 @@ def define_deepFogGuard_CNN(input_shape=None,
                             pooling=None,
                             classes=1000,
                             strides = (2,2),
-                            skip_hyperconnection_config = [1,1], # binary representating if a skip hyperconnection is alive [e1,IoT]
+                            skip_hyperconnection_config = default_skip_hyperconnection_config, # binary representating if a skip hyperconnection is alive [e1,IoT]
                             reliability_setting=[1.0,1.0], # reliability of a node between 0 and 1 [f1,e1]
                             hyperconnection_weights_scheme = 1,
                             num_gpus = 1,

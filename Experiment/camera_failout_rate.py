@@ -7,6 +7,8 @@ import gc
 import os
 from keras.callbacks import ModelCheckpoint
 import numpy as np
+from Experiment.common_exp_methods import make_no_information_flow_map
+from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
 
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
@@ -45,6 +47,9 @@ if __name__ == "__main__":
         [.5,.5,.5,.5,.5,.5,.5,.5],
         [.3,.3,.3,.3,.3,.3,.3,.3],
     ]
+
+    no_information_flow_map = make_no_information_flow_map("Camera", default_skip_hyperconnection_config)
+
     # file name with the experiments accuracy output
     output_name = "results/camera_failout_rate.txt"
     verbose = 2
@@ -62,7 +67,7 @@ if __name__ == "__main__":
         for reliability_setting in reliability_settings:
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
             multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
-            output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, no_information_flow_map,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
         
             # clear session so that model will recycled back into memory
             K.clear_session()
@@ -76,7 +81,7 @@ if __name__ == "__main__":
             for reliability_setting in reliability_settings:
                 output_list.append(str(reliability_setting)+ '\n')
                 print(reliability_setting)
-                output[str(failout_survival_setting)][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_fixed,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+                output[str(failout_survival_setting)][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_fixed,no_information_flow_map,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()

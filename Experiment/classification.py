@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
-def predict(model,train_labels,test_data,test_labels, is_cnn):
+def predict(model,no_information_flow,train_labels,test_data,test_labels, is_cnn):
     """Performs prediction for test data, based on th learned parameters. (Performs random guess if there is no information flow in the DNN)
     ### Arguments
         model (Model): Keras model
@@ -18,13 +18,6 @@ def predict(model,train_labels,test_data,test_labels, is_cnn):
     ### Returns
         return a tuple of accuracy (as a float) and whether there is no information flow (as an integer)
     """
-    if is_cnn: # CIFAR and imagenet
-        no_information_flow = identify_no_information_flow(model,test_data, "CIFAR/Imagenet")
-    else:
-        if len(test_data) == 6: # camera
-            no_information_flow = identify_no_information_flow(model,test_data, "Camera")
-        else: # health
-            no_information_flow = identify_no_information_flow(model,test_data, "Health")
 
     if no_information_flow is True:
         if is_cnn:
@@ -86,7 +79,6 @@ def toss_coin(cumulative_frequency):
         if rand_num <= cumulative_frequency[index] and rand_num >= cumulative_frequency[index-1]:
             return index - 1
     return 0
-
 
 def identify_no_information_flow(model,test_data,exp):
     node_input = {} # define the input to all nodes as dictionary

@@ -13,7 +13,8 @@ from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_exper
 from Experiment.common_exp_methods import average, make_results_folder, convert_to_string, write_n_upload, make_results_folder
 import numpy as np
 import gc
-
+from Experiment.common_exp_methods import make_no_information_flow_map
+from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 
 def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
@@ -75,7 +76,6 @@ if __name__ == "__main__":
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
     
     num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
-    num_iterations = 10
     skip_hyperconnection_configurations = [
         # [e1,IoT]
         [0,0],
@@ -96,11 +96,12 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
+            no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet", skip_hyperconnection_configuration)
             model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight Sensitivity", load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             for reliability_setting in reliability_settings:
                 output_list.append(str(reliability_setting) + '\n')
                 print(reliability_setting)
-                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, no_information_flow_map,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()

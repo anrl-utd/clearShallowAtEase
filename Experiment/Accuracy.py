@@ -13,6 +13,7 @@ modelAccuracyDict = dict()
 def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
                                             numNodes,
                                             model,
+                                            no_information_flow_map,
                                             output_list,
                                             training_labels = None,
                                             test_data = None,
@@ -44,6 +45,10 @@ def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
         isImageNet = True
     else:
         isImageNet = False
+    if model.get_layer("output").output_shape == (None,3):
+        is_cnn = False
+    else:
+        is_cnn = True
     
     output_list.append('Calculating accuracy for reliability setting ' + str(reliability_setting) + '\n')
     print("Calculating accuracy for reliability setting "+ str(reliability_setting))
@@ -53,16 +58,18 @@ def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
         # print(node_failure_combination)
         if needToGetModelAccuracy:
             # saves a copy of the original model so it does not change during failures 
-            old_weights = model.get_weights()
-            is_cnn = fail_node(model,node_failure_combination)
+            no_information_flow = no_information_flow_map[node_failure_combination]
+            if not no_information_flow:
+                old_weights = model.get_weights()
+                fail_node(model,node_failure_combination, is_cnn)
             output_list.append(str(node_failure_combination))
             if isImageNet:
                 accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]  
             else: 
-                accuracy,_ = predict(model,training_labels,test_data,test_labels, is_cnn)
+                accuracy,_ = predict(model,no_information_flow,training_labels,test_data,test_labels, is_cnn)
             accuracyList.append(accuracy)
-            # change the changed weights to the original weights
-            model.set_weights(old_weights)
+            if not no_information_flow:
+                model.set_weights(old_weights) # change the changed weights to the original weights
         weight = calcWeightProbability(reliability_setting, node_failure_combination)
         weightList.append(weight)
     print("Acc List: " + str(accuracyList))
@@ -147,6 +154,7 @@ def normalize(weights):
     return normalized
  
 def calculateExpectedAccuracy(model,
+                            no_information_flow_map,
                             reliability_setting,
                             output_list,
                             training_labels = None,
@@ -168,7 +176,7 @@ def calculateExpectedAccuracy(model,
     """  
     K.set_learning_phase(0)
     numNodes = len(reliability_setting)
-    accuracyList, weightList = iterateAllFailureCombinationsCalcAccuracy(reliability_setting,numNodes, model,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
+    accuracyList, weightList = iterateAllFailureCombinationsCalcAccuracy(reliability_setting,numNodes, model,no_information_flow_map,output_list,training_labels,test_data,test_labels, test_generator, num_test_examples)
     weightList = normalize(weightList)
     avg_acc = calcWeightedAverage(accuracyList, weightList)
     # output_list.append('Times we had no information flow: ' + str(no_information_flow_count) + '\n')

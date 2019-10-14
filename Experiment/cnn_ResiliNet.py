@@ -13,6 +13,7 @@ from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT
 from Experiment.cnn_deepFogGuard import set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
 from Experiment.Failout import Failout
 from Experiment.common_exp_methods import compile_keras_parallel_model
+from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 # ResiliNet
 def define_ResiliNet_CNN(input_shape=None,
                                 alpha=1.0,
@@ -22,7 +23,7 @@ def define_ResiliNet_CNN(input_shape=None,
                                 classes=1000, 
                                 strides = (2,2),
                                 failout_survival_setting = [.95,.95],
-                                skip_hyperconnection_config = [1,1], 
+                                skip_hyperconnection_config = default_skip_hyperconnection_config, 
                                 reliability_setting=[1.0,1.0], 
                                 hyperconnection_weights_scheme = 1,
                                 num_gpus = 1,

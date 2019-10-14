@@ -8,6 +8,8 @@ import datetime
 import gc
 import os
 import numpy as np
+from Experiment.common_exp_methods import make_no_information_flow_map
+from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 
 import tensorflow as tf
 def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha,num_train_examples, epochs,num_gpus, strides, num_workers):
@@ -16,10 +18,10 @@ def define_and_train(iteration, model_name, load_model, train_generator, val_gen
     model = get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs, num_gpus, num_workers)
     return model
 
-def calc_accuracy(iteration, model_name, model, reliability_setting, output_list,test_generator, num_test_examples):
+def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliability_setting, output_list,test_generator, num_test_examples):
     output_list.append(model_name + "\n")
     print(model_name)
-    output[model_name][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,reliability_setting,output_list,test_generator= test_generator,num_test_examples = num_test_examples)
+    output[model_name][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,no_information_flow_map,reliability_setting,output_list,test_generator= test_generator,num_test_examples = num_test_examples)
 
 
 # runs all 3 failure configurations for all 3 models
@@ -28,6 +30,10 @@ if __name__ == "__main__":
     use_GCP = False
     num_iterations,num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides, num_workers = init_common_experiment_params()
     train_generator, test_generator = init_data(use_GCP, num_gpus) 
+    
+    ResiliNet_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet", default_skip_hyperconnection_config)
+    deepFogGuard_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet", default_skip_hyperconnection_config)
+    Vanilla_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet")
     
     load_model = False
     num_iterations = 3
@@ -89,9 +95,9 @@ if __name__ == "__main__":
         #     )
         # test models
         for reliability_setting in reliability_settings:
-            calc_accuracy(iteration, "ResiliNet", ResiliNet, reliability_setting, output_list,test_generator, num_test_examples)
-            # calc_accuracy(iteration, "deepFogGuard", deepFogGuard, reliability_setting, output_list,test_generator, num_test_examples)
-            # calc_accuracy(iteration, "Vanilla", Vanilla, reliability_setting, output_list,test_generator, num_test_examples)
+            calc_accuracy(iteration, "ResiliNet", ResiliNet, ResiliNet_no_information_flow_map, reliability_setting, output_list,test_generator, num_test_examples)
+            # calc_accuracy(iteration, "deepFogGuard", deepFogGuard, deepFogGuard_no_information_flow_map, reliability_setting, output_list,test_generator, num_test_examples)
+            # calc_accuracy(iteration, "Vanilla", Vanilla, Vanilla_no_information_flow_map, reliability_setting, output_list,test_generator, num_test_examples)
             
         # clear session so that model will recycled back into memory
         K.clear_session()

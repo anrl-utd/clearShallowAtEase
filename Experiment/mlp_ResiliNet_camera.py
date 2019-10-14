@@ -5,6 +5,7 @@ import keras.layers as layers
 from Experiment.LambdaLayers import add_node_layers
 from Experiment.mlp_deepFogGuard_camera import define_MLP_deepFogGuard_architecture_cloud, define_MLP_deepFogGuard_architecture_edge, define_MLP_deepFogGuard_architecture_fog1, define_MLP_deepFogGuard_architecture_fog2, define_MLP_deepFogGuard_architecture_fog3, define_MLP_deepFogGuard_architecture_fog4
 from Experiment.mlp_deepFogGuard_camera import connection_ends, set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
+from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
 
 from keras.models import Model
 from keras.backend import constant
@@ -16,7 +17,7 @@ def define_ResiliNet_MLP(input_shape,
                             hidden_units,
                             failout_survival_setting = [.9,.9,.9,.9,.9,.9,.9,.9],
                             reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0], 
-                            skip_hyperconnection_config = [1,1,1,1,1,1,1], 
+                            skip_hyperconnection_config = default_skip_hyperconnection_config, 
                             hyperconnection_weights_scheme = 1):
     """Define a ResiliNet model.
     ### Naming Convention

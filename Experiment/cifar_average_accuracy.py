@@ -9,6 +9,8 @@ from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_exper
 from Experiment.common_exp_methods import average, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import gc
 import numpy as np
+from Experiment.common_exp_methods import make_no_information_flow_map
+from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     K.set_learning_phase(1)
@@ -21,6 +23,10 @@ if __name__ == "__main__":
 
     num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
     
+    ResiliNet_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet", default_skip_hyperconnection_config)
+    deepFogGuard_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet", default_skip_hyperconnection_config)
+    Vanilla_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet")
+
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
 
@@ -39,9 +45,9 @@ if __name__ == "__main__":
         for reliability_setting in reliability_settings:
             output_list.append(str(reliability_setting) + '\n')
             print(reliability_setting)
-            output["Vanilla"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(Vanilla, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
-            output["deepFogGuard"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
-            output["ResiliNet"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            output["Vanilla"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(Vanilla, Vanilla_no_information_flow_map,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            output["deepFogGuard"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard, deepFogGuard_no_information_flow_map, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+            output["ResiliNet"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet, ResiliNet_no_information_flow_map, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
         # clear session so that model will recycled back into memory
         K.clear_session()
         gc.collect()

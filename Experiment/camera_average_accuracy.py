@@ -11,6 +11,10 @@ import datetime
 import gc
 import os
 import numpy as np
+from Experiment.common_exp_methods import make_no_information_flow_map
+from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
+
+
 def define_and_train(iteration, model_name, load_model,train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs):
     K.set_learning_phase(1)
     # ResiliNet
@@ -29,10 +33,10 @@ def define_and_train(iteration, model_name, load_model,train_data, train_labels,
     get_model_weights_MLP_camera(model, model_name, load_model, model_file, train_data, train_labels, val_data,val_labels,epochs, batch_size, verbose)
     return model
 
-def calc_accuracy(iteration, model_name, model, reliability_setting, output_list,train_labels, test_data, test_labels):
+def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliability_setting, output_list,train_labels, test_data, test_labels):
     output_list.append(model_name + "\n")
     print(model_name)
-    output[model_name][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model, reliability_setting, output_list, training_labels= train_labels, test_data= test_data, test_labels= test_labels)
+    output[model_name][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model, no_information_flow_map, reliability_setting, output_list, training_labels= train_labels, test_data= test_data, test_labels= test_labels)
 
 
 # runs all 3 failure configurations for all 3 models
@@ -40,6 +44,10 @@ if __name__ == "__main__":
     use_GCP = False
     train_data,val_data, test_data, train_labels,val_labels,test_labels = init_data(use_GCP) 
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations = init_common_experiment_params()
+    
+    ResiliNet_no_information_flow_map = make_no_information_flow_map("Camera", default_skip_hyperconnection_config)
+    deepFogGuard_no_information_flow_map = make_no_information_flow_map("Camera", default_skip_hyperconnection_config)
+    Vanilla_no_information_flow_map = make_no_information_flow_map("Camera")
 
     load_model = False
 
@@ -64,9 +72,9 @@ if __name__ == "__main__":
  
         # test models
         for reliability_setting in reliability_settings:
-            calc_accuracy(iteration, "ResiliNet", ResiliNet, reliability_setting, output_list,train_labels, test_data, test_labels)
-            calc_accuracy(iteration, "deepFogGuard", deepFogGuard, reliability_setting, output_list,train_labels, test_data, test_labels)
-            calc_accuracy(iteration, "Vanilla", Vanilla, reliability_setting, output_list,train_labels, test_data, test_labels)
+            calc_accuracy(iteration, "ResiliNet", ResiliNet, ResiliNet_no_information_flow_map, reliability_setting, output_list,train_labels, test_data, test_labels)
+            calc_accuracy(iteration, "deepFogGuard", deepFogGuard, deepFogGuard_no_information_flow_map, reliability_setting, output_list,train_labels, test_data, test_labels)
+            calc_accuracy(iteration, "Vanilla", Vanilla, Vanilla_no_information_flow_map, reliability_setting, output_list,train_labels, test_data, test_labels)
             
         # clear session so that model will recycled back into memory
         K.clear_session()

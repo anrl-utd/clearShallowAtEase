@@ -6,11 +6,13 @@ from keras.models import Model
 import random
 from Experiment.Failout import Failout
 
+default_skip_hyperconnection_config = [1,1,1]
+
 def define_deepFogGuard_MLP(num_vars,
                             num_classes,
                             hidden_units,
                             reliability_setting = [1.0,1.0,1.0], # reliability of a node between 0 and 1, [f1,f2,e1]
-                            skip_hyperconnection_config = [1,1,1], # binary representating if a skip hyperconnection is alive [f2,e1,g1]
+                            skip_hyperconnection_config = default_skip_hyperconnection_config, # binary representating if a skip hyperconnection is alive [f2,e1,g1]
                             hyperconnection_weights_scheme = 1):
     """Define a deepFogGuard model.
     ### Naming Convention
@@ -27,12 +29,12 @@ def define_deepFogGuard_MLP(num_vars,
         Keras Model object
     """
 
-    hyperconnection_weight_IoTe1, hyperconnection_weight_IoTf2,hyperconnection_weight_ef2,hyperconnection_weight_ef1,hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c = set_hyperconnection_weights(
+    hyperconnection_weight_IoTe, hyperconnection_weight_IoTf2,hyperconnection_weight_ef2,hyperconnection_weight_ef1,hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c = set_hyperconnection_weights(
         hyperconnection_weights_scheme, 
         reliability_setting, 
         skip_hyperconnection_config)
-    multiply_hyperconnection_weight_layer_IoTe1, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1, multiply_hyperconnection_weight_layer_f2c, multiply_hyperconnection_weight_layer_f1c = define_hyperconnection_weight_lambda_layers(
-        hyperconnection_weight_IoTe1,
+    multiply_hyperconnection_weight_layer_IoTe, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1, multiply_hyperconnection_weight_layer_f2c, multiply_hyperconnection_weight_layer_f1c = define_hyperconnection_weight_lambda_layers(
+        hyperconnection_weight_IoTe,
         hyperconnection_weight_IoTf2, 
         hyperconnection_weight_ef2, 
         hyperconnection_weight_ef1, 
@@ -45,7 +47,7 @@ def define_deepFogGuard_MLP(num_vars,
     iot_output = define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units)
 
     # edge node
-    edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, multiply_hyperconnection_weight_layer_IoTe1)
+    edge_output = define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, multiply_hyperconnection_weight_layer_IoTe)
 
     # fog node 2
     fog2_output = define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2)
@@ -64,7 +66,7 @@ def define_deepFogGuard_MLP(num_vars,
 def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_setting, skip_hyperconnection_config):
     # weighted by 1
     if hyperconnection_weights_scheme == 1: 
-        hyperconnection_weight_IoTe1 = 1
+        hyperconnection_weight_IoTe = 1
         hyperconnection_weight_IoTf2  = 1
         hyperconnection_weight_ef2 = 1
         hyperconnection_weight_ef1 = 1
@@ -73,7 +75,7 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
         hyperconnection_weight_f1c = 1
     # normalized reliability
     elif hyperconnection_weights_scheme == 2: 
-        hyperconnection_weight_IoTe1 = 1  
+        hyperconnection_weight_IoTe = 1  
         hyperconnection_weight_IoTf2  = 1 / (1+reliability_setting[2])
         hyperconnection_weight_ef2 = reliability_setting[2] / (1 + reliability_setting[2])
         hyperconnection_weight_ef1 = reliability_setting[2] / (reliability_setting[2] + reliability_setting[1])
@@ -82,7 +84,7 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
         hyperconnection_weight_f1c = reliability_setting[0] / (reliability_setting[1] + reliability_setting[0])
     # reliability
     elif hyperconnection_weights_scheme == 3:
-        hyperconnection_weight_IoTe1 = 1
+        hyperconnection_weight_IoTe = 1
         hyperconnection_weight_IoTf2  = 1
         hyperconnection_weight_ef2 = reliability_setting[2] 
         hyperconnection_weight_ef1 = reliability_setting[2] 
@@ -91,7 +93,7 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
         hyperconnection_weight_f1c = reliability_setting[0]
     # randomly weighted between 0 and 1
     elif hyperconnection_weights_scheme == 4:
-        hyperconnection_weight_IoTe1 = random.uniform(0,1)
+        hyperconnection_weight_IoTe = random.uniform(0,1)
         hyperconnection_weight_IoTf2  = random.uniform(0,1)
         hyperconnection_weight_ef2 = random.uniform(0,1)
         hyperconnection_weight_ef1 = random.uniform(0,1)
@@ -100,7 +102,7 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
         hyperconnection_weight_f1c = random.uniform(0,1)
     # randomly weighted between 0 and 10
     elif hyperconnection_weights_scheme == 5:
-        hyperconnection_weight_IoTe1 = random.uniform(0,10)
+        hyperconnection_weight_IoTe = random.uniform(0,10)
         hyperconnection_weight_IoTf2  = random.uniform(0,10)
         hyperconnection_weight_ef2 = random.uniform(0,10)
         hyperconnection_weight_ef1 = random.uniform(0,10)
@@ -114,7 +116,7 @@ def set_hyperconnection_weights(hyperconnection_weights_scheme, reliability_sett
         hyperconnection_weight_IoTf2, 
         hyperconnection_weight_ef1, 
         hyperconnection_weight_f2c)
-    return (hyperconnection_weight_IoTe1,hyperconnection_weight_IoTf2,hyperconnection_weight_ef2,hyperconnection_weight_ef1,hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c)
+    return (hyperconnection_weight_IoTe,hyperconnection_weight_IoTf2,hyperconnection_weight_ef2,hyperconnection_weight_ef1,hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c)
 
 def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_config, hyperconnection_weight_IoTf2, hyperconnection_weight_ef1, hyperconnection_weight_f2c):
     # take away the skip hyperconnection if the value in hyperconnections array is 0
@@ -129,16 +131,16 @@ def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_c
         hyperconnection_weight_f2c = 0
     return hyperconnection_weight_IoTf2, hyperconnection_weight_ef1, hyperconnection_weight_f2c
  
-def define_hyperconnection_weight_lambda_layers(hyperconnection_weight_IoTe1, hyperconnection_weight_IoTf2, hyperconnection_weight_ef2, hyperconnection_weight_ef1, hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c):
+def define_hyperconnection_weight_lambda_layers(hyperconnection_weight_IoTe, hyperconnection_weight_IoTf2, hyperconnection_weight_ef2, hyperconnection_weight_ef1, hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c):
     # define lambdas for multiplying node weights by connection weight
-    multiply_hyperconnection_weight_layer_IoTe1 = Lambda((lambda x: x * hyperconnection_weight_IoTe1), name = "hyperconnection_weight_IoTe1")
+    multiply_hyperconnection_weight_layer_IoTe = Lambda((lambda x: x * hyperconnection_weight_IoTe), name = "hyperconnection_weight_IoTe")
     multiply_hyperconnection_weight_layer_IoTf2 = Lambda((lambda x: x * hyperconnection_weight_IoTf2), name = "hyperconnection_weight_IoTf2")
     multiply_hyperconnection_weight_layer_ef2 = Lambda((lambda x: x * hyperconnection_weight_ef2), name = "hyperconnection_weight_ef2")
     multiply_hyperconnection_weight_layer_ef1 = Lambda((lambda x: x * hyperconnection_weight_ef1), name = "hyperconnection_weight_ef1")
     multiply_hyperconnection_weight_layer_f2f1 = Lambda((lambda x: x * hyperconnection_weight_f2f1), name = "hyperconnection_weight_f2f1")
     multiply_hyperconnection_weight_layer_f2c = Lambda((lambda x: x * hyperconnection_weight_f2c), name = "hyperconnection_weight_f2c")
     multiply_hyperconnection_weight_layer_f1c = Lambda((lambda x: x * hyperconnection_weight_f1c), name = "hyperconnection_weight_f1c")
-    return multiply_hyperconnection_weight_layer_IoTe1, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1, multiply_hyperconnection_weight_layer_f2c, multiply_hyperconnection_weight_layer_f1c
+    return multiply_hyperconnection_weight_layer_IoTe, multiply_hyperconnection_weight_layer_IoTf2, multiply_hyperconnection_weight_layer_ef2, multiply_hyperconnection_weight_layer_ef1, multiply_hyperconnection_weight_layer_f2f1, multiply_hyperconnection_weight_layer_f2c, multiply_hyperconnection_weight_layer_f1c
 
 
 def define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units):
@@ -146,9 +148,9 @@ def define_MLP_deepFogGuard_architecture_IoT(img_input, hidden_units):
     iot_output = Dense(units=hidden_units,name="skip_iotfog2",activation='linear')(img_input)
     return iot_output
 
-def define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, multiply_hyperconnection_weight_layer_IoTe1 = None):
-    if multiply_hyperconnection_weight_layer_IoTe1 != None:
-        iot_output = multiply_hyperconnection_weight_layer_IoTe1(iot_output)
+def define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, multiply_hyperconnection_weight_layer_IoTe = None):
+    if multiply_hyperconnection_weight_layer_IoTe != None:
+        iot_output = multiply_hyperconnection_weight_layer_IoTe(iot_output)
     edge_output = define_MLP_architecture_edge(iot_output, hidden_units)
     return edge_output
 

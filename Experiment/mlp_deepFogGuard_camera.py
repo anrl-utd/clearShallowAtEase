@@ -7,11 +7,13 @@ import random
 from Experiment.Failout import Failout
 
 connection_ends = ["e1f2","e2f2","e3f2","e4f2","f3f1","f4f1","f2c","e1f3","e2f4","e3f4","e4f4","f3f2","f4f2","f2f1","f1c"]
+
+default_skip_hyperconnection_config = [1,1,1,1,1,1,1]
 def define_deepFogGuard_MLP(input_shape,
                             num_classes,
                             hidden_units,
                             reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0], # reliability of a node between 0 and 1, [f1,f2,f3,f4,e1,e2,e3,e4]
-                            skip_hyperconnection_config = [1,1,1,1,1,1,1], # binary representating if a skip hyperconnection is alive. source of skip hyperconnections: [f2,f3,f4,e1,e2,e3,e4]
+                            skip_hyperconnection_config = default_skip_hyperconnection_config, # binary representating if a skip hyperconnection is alive. source of skip hyperconnections: [f2,f3,f4,e1,e2,e3,e4]
                             hyperconnection_weights_scheme = 1):
     """Define a deepFogGuard model.
     ### Naming Convention

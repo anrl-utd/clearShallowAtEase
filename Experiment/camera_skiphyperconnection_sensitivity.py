@@ -9,6 +9,9 @@ import os
 import gc 
 from keras.callbacks import ModelCheckpoint
 import numpy as np
+from Experiment.common_exp_methods import make_no_information_flow_map
+from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
+
 
 def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
@@ -81,10 +84,10 @@ def define_and_train(iteration, model_name, load_model, reliability_setting, ski
     get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
-def calc_accuracy(iteration, model_name, model, reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels):
+def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels):
     output_list.append(model_name + str(skip_hyperconnection_configuration)+ '\n')
     print(model_name+ str(skip_hyperconnection_configuration))
-    output[model_name][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+    output[model_name][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, no_information_flow_map,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
 
 
 if __name__ == "__main__":
@@ -104,7 +107,6 @@ if __name__ == "__main__":
         [1,1,1,1,1,1,1]
     ]
     default_reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
-    num_iterations = 10
     load_model = False
     output_name = 'results/camera_skiphyperconnection_sensitivity.txt'
     
@@ -118,14 +120,13 @@ if __name__ == "__main__":
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-          
+            no_information_flow_map = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
             deepFogGuard_weight_sesitivity = define_and_train(iteration, model_name, load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
             # test models
             for reliability_setting in reliability_settings:
                 print(reliability_setting)
                 output_list.append(str(reliability_setting) + '\n')
-                calc_accuracy(iteration, model_name, deepFogGuard_weight_sesitivity, reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels)
-            # clear session to remove old graphs from memory so that subsequent training is not slower
+                calc_accuracy(iteration, model_name, deepFogGuard_weight_sesitivity, no_information_flow_map, reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels)
             K.clear_session()
             gc.collect()
             del deepFogGuard_weight_sesitivity

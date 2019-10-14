@@ -70,7 +70,7 @@ x = tf.placeholder(tf.float32, shape=[None, num_cameras, img_size,img_size,num_c
 y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
 y_true_cls = tf.argmax(y_true, dimension=1)
 
-##Network graph params
+##Network params
 fc1_layer_size = 32
 fc2_layer_size = 32
 fc3_layer_size = 32
