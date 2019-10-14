@@ -10,9 +10,9 @@ import os
 import numpy as np
 
 import tensorflow as tf
-def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha, default_failout_survival_rate,num_train_examples, epochs,num_gpus, strides, num_workers):
+def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha,num_train_examples, epochs,num_gpus, strides, num_workers):
     K.set_learning_phase(1)
-    model, parallel_model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, default_failout_survival_rate, strides, num_gpus)
+    model, parallel_model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, strides, num_gpus)
     model = get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs, num_gpus, num_workers)
     return model
 
@@ -29,7 +29,6 @@ if __name__ == "__main__":
     num_iterations,num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides, num_workers = init_common_experiment_params()
     train_generator, test_generator = init_data(use_GCP, num_gpus) 
     
-    default_failout_survival_rate = [.95,.95,.95]
     load_model = False
     num_iterations = 3
     make_results_folder()
@@ -52,7 +51,6 @@ if __name__ == "__main__":
             input_shape = input_shape, 
             classes = num_classes, 
             alpha = alpha, 
-            default_failout_survival_rate = default_failout_survival_rate,
             num_train_examples = num_train_examples,
             epochs = epochs,
             num_gpus = num_gpus,
@@ -68,7 +66,6 @@ if __name__ == "__main__":
         #     input_shape = input_shape, 
         #     classes = num_classes, 
         #     alpha = alpha, 
-        #     default_failout_survival_rate = None,
         #     num_train_examples = num_train_examples,
         #     epochs = epochs,
         #     num_gpus = num_gpus,
@@ -84,7 +81,6 @@ if __name__ == "__main__":
         #     input_shape = input_shape, 
         #     classes = num_classes, 
         #     alpha = alpha, 
-        #     default_failout_survival_rate = None,
         #     num_train_examples = num_train_examples,
         #     epochs = epochs,
         #     num_gpus = num_gpus,

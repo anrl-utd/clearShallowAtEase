@@ -11,15 +11,15 @@ import datetime
 import gc
 import os
 import numpy as np
-def define_and_train(iteration, model_name, load_model,train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_reliability_setting, allpresent_skip_hyperconnections_configuration):
+def define_and_train(iteration, model_name, load_model,train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs):
     K.set_learning_phase(1)
     # ResiliNet
     if model_name == "ResiliNet":
-        model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units,failout_survival_setting=default_failout_survival_rate)
+        model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units)
         model_file = "models/" + "Camera" + str(iteration) + 'average_accuracy_ResiliNet.h5'
     # deepFogGuard
     if model_name == "deepFogGuard":
-        model = define_deepFogGuard_MLP(input_shape, num_classes, hidden_units, default_reliability_setting, allpresent_skip_hyperconnections_configuration)
+        model = define_deepFogGuard_MLP(input_shape, num_classes, hidden_units)
         model_file =  "models/" + "Camera" + str(iteration) + 'average_accuracy_deepFogGuard.h5'
     # Vanilla model
     if model_name == "Vanilla":
@@ -41,9 +41,6 @@ if __name__ == "__main__":
     train_data,val_data, test_data, train_labels,val_labels,test_labels = init_data(use_GCP) 
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations = init_common_experiment_params()
 
-    default_failout_survival_rate = [.95,.95,.95,.95,.95,.95,.95,.95]
-    allpresent_skip_hyperconnections_configuration = [1,1,1,1,1,1,1]
-    default_reliability_setting = [1,1,1,1,1,1,1,1]
     load_model = False
 
     # file name with the experiments accuracy output
@@ -61,9 +58,9 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
-        ResiliNet = define_and_train(iteration, "ResiliNet", load_model, train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_reliability_setting, allpresent_skip_hyperconnections_configuration)
-        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, train_data, train_labels, val_data, val_labels,input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_reliability_setting, allpresent_skip_hyperconnections_configuration)
-        Vanilla = define_and_train(iteration, "Vanilla", load_model, train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs, default_failout_survival_rate, default_reliability_setting, allpresent_skip_hyperconnections_configuration)
+        ResiliNet = define_and_train(iteration, "ResiliNet", load_model, train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs)
+        deepFogGuard = define_and_train(iteration, "deepFogGuard", load_model, train_data, train_labels, val_data, val_labels,input_shape, num_classes, hidden_units, verbose, batch_size, epochs)
+        Vanilla = define_and_train(iteration, "Vanilla", load_model, train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs)
  
         # test models
         for reliability_setting in reliability_settings:

@@ -70,14 +70,13 @@ def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconne
     }
     return output
 
-def define_and_train(iteration, model_name, load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
+def define_and_train(iteration, model_name, load_model, reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
     if model_name == "DeepFogGuard Hyperconnection Weight Sensitivity":
-        model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units, reliability_setting=default_reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
+        model = define_deepFogGuard_MLP(num_vars,num_classes,hidden_units, reliability_setting=reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
         model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'health_skiphyperconnection_sensitivity_deepFogGuard.h5'
     else: # model_name is "ResiliNet Hyperconnection Weight Sensitivity"
-        default_failout_survival_rate = [.95,.95,.95]
-        model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units, failout_survival_setting=default_failout_survival_rate, reliability_setting=default_reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
+        model = define_ResiliNet_MLP(num_vars,num_classes,hidden_units, reliability_setting=reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
         model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'health_skiphyperconnection_sensitivity_ResiliNet.h5'
     get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
@@ -94,7 +93,7 @@ if __name__ == "__main__":
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP)
 
     num_iterations, num_vars, num_classes, reliability_settings, num_train_epochs, hidden_units, batch_size = init_common_experiment_params(training_data)
-    num_iterations = 20
+    num_iterations = 10
     skip_hyperconnection_configurations = [
         # [f2,,e1,g1]
         [0,0,0],

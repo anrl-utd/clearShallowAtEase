@@ -21,9 +21,8 @@ def define_and_train(iteration, model_name, load_model, reliability_setting, wei
         model_file = 'models/' + str(iteration) + "_" + str(reliability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection_deepFogGuard.h5'
         model, parallel_model = define_deepFogGuard_CNN(classes=classes,input_shape = input_shape, alpha = alpha,reliability_setting=reliability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides, num_gpus=num_gpus)
     else: # model_name is "ResiliNet Hyperconnection Weight"
-        default_failout_survival_rate = [.95,.95]
         model_file = 'models/' + str(iteration) + "_" + str(reliability_setting) + "_" + str(weight_scheme) + 'cifar_hyperconnection_ResiliNet.h5'
-        model, parallel_model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape, alpha = alpha,reliability_setting=reliability_setting, failout_survival_setting=default_failout_survival_rate, hyperconnection_weights_scheme = weight_scheme, strides = strides, num_gpus=num_gpus)
+        model, parallel_model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape, alpha = alpha,reliability_setting=reliability_setting, hyperconnection_weights_scheme = weight_scheme, strides = strides, num_gpus=num_gpus)
     get_model_weights_CNN_cifar(model, parallel_model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
            

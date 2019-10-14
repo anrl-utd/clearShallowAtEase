@@ -70,14 +70,13 @@ def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconne
     }
     return output
 
-def define_and_train(iteration, model_name, load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
+def define_and_train(iteration, model_name, load_model, reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
     if model_name == "DeepFogGuard Hyperconnection Weight Sensitivity":
-        model = define_deepFogGuard_MLP(input_shape,num_classes,hidden_units, default_reliability_setting,skip_hyperconnection_configuration)
+        model = define_deepFogGuard_MLP(input_shape,num_classes,hidden_units, reliability_setting=reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
         model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'camera_skiphyperconnection_sensitivity_deepFogGuard.h5'
     else: # model_name is "ResiliNet Hyperconnection Weight Sensitivity"
-        default_failout_survival_rate = [.95,.95,.95,.95,.95,.95,.95,.95]
-        model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units, failout_survival_setting=default_failout_survival_rate, reliability_setting=default_reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
+        model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units, reliability_setting=reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
         model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'camera_skiphyperconnection_sensitivity_ResiliNet.h5'
     get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
@@ -105,7 +104,7 @@ if __name__ == "__main__":
         [1,1,1,1,1,1,1]
     ]
     default_reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
-    num_iterations = 20
+    num_iterations = 10
     load_model = False
     output_name = 'results/camera_skiphyperconnection_sensitivity.txt'
     

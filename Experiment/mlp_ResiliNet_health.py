@@ -13,7 +13,7 @@ import random
 def define_ResiliNet_MLP(num_vars,
                             num_classes,
                             hidden_units,
-                            failout_survival_setting = [1.0,1.0,1.0],
+                            failout_survival_setting = [0.95,0.95,0.95],
                             reliability_setting = [1.0,1.0,1.0], 
                             skip_hyperconnection_config = [1,1,1], 
                             hyperconnection_weights_scheme = 1):
