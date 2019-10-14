@@ -15,7 +15,7 @@ import numpy as np
 import gc
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
-
+import Experiment.Accuracy
 
 def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     K.set_learning_phase(1)
@@ -39,7 +39,7 @@ def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_sett
 
 # ResiliNet variable failout experiment
 if __name__ == "__main__":
- #   K = keras.backend   
+    Experiment.Accuracy.experiment = "CIFAR"
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
     num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params() 

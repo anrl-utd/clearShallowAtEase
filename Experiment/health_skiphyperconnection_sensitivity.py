@@ -11,6 +11,7 @@ from keras.callbacks import ModelCheckpoint
 import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_health import default_skip_hyperconnection_config
+import Experiment.Accuracy
 
 def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
@@ -89,6 +90,7 @@ def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliabi
     output[model_name][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model,no_information_flow_map,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
 
 if __name__ == "__main__":
+    Experiment.Accuracy.experiment = "Health"
     use_GCP = False
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP)
 
@@ -107,7 +109,7 @@ if __name__ == "__main__":
     default_reliability_setting = [1.0,1.0,1.0]
     no_information_flow_map = {}
     for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-        no_information_flow_map[tuple(skip_hyperconnection_configuration)] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
+        no_information_flow_map[tuple(skip_hyperconnection_configuration)] = make_no_information_flow_map("Health", skip_hyperconnection_configuration)
     
     load_model = False
     output_name = 'results/health_skiphyperconnection_sensitivity.txt'

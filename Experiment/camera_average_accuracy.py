@@ -13,6 +13,7 @@ import os
 import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
+import Experiment.Accuracy
 
 
 def define_and_train(iteration, model_name, load_model,train_data, train_labels, val_data, val_labels, input_shape, num_classes, hidden_units, verbose, batch_size, epochs):
@@ -41,6 +42,7 @@ def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliabi
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
+    Experiment.Accuracy.experiment = "Camera"
     use_GCP = False
     train_data,val_data, test_data, train_labels,val_labels,test_labels = init_data(use_GCP) 
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, epochs, num_iterations = init_common_experiment_params()

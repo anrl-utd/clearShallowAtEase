@@ -6,26 +6,24 @@ import keras.backend as K
 from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
+from Experiment.Accuracy import experiment
 
-def predict(model,no_information_flow,train_labels,test_data,test_labels, is_cnn):
+def predict(model,no_information_flow,train_labels,test_data,test_labels):
     """Performs prediction for test data, based on th learned parameters. (Performs random guess if there is no information flow in the DNN)
     ### Arguments
         model (Model): Keras model
         train_labels (numpy array): 1D array that corresponds to each row in the training data with a class label, used for calculating train class distribution
         test_data (numpy array): 2D array that contains the test data, assumes that each column is a variable and that each row is a test example
         test_labels (numpy array): 1D array that corresponds to each row in the test data with a class label
-        is_cnn (boolean): indicates if the predict is going to be used for CNN or MLP
     ### Returns
         return a tuple of accuracy (as a float) and whether there is no information flow (as an integer)
     """
 
     if no_information_flow is True:
-        if is_cnn:
+        if experiment == "CIFAR" :
             # make into 1d vector
             train_labels = [item for sublist in train_labels for item in sublist]
-        else: # it is MLP
-            # check if there are 6 images in the first dimension (used for Camera)
-            if len(test_data) == 6:
+        elif experiment == "Camera" :
                 # reformat by switching the 1st and 2nd dimension
                 test_data = np.transpose(test_data,axes=[1,0,2,3,4])
         # print("There is no data flow in the network")

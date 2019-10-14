@@ -6,10 +6,12 @@ from sklearn.metrics import precision_score
 from Experiment.classification import predict
 import keras.backend as K
 import numpy as np
+import sys
 
 modelAccuracyDict = dict()
+experiment_name = ""
 
-def fail_node(model,node_failure_combination, is_cnn):
+def fail_node(model,node_failure_combination):
     """fails node(s) by making the specified node(s) output 0
     ### Arguments
         model (Model): Keras model to have nodes failed
@@ -36,43 +38,38 @@ def fail_node(model,node_failure_combination, is_cnn):
         new_weights = np.zeros(layer_weights[0].shape)
         layer.set_weights([new_weights])
         
-    is_img_input = False
-    # determines type of network by the first layer input shape
-    first_layer = model.get_layer(index = 0)
-    if len(first_layer.input_shape) == 4:
-        # CIFAR and Camera input shapes are 4 dimensions
-        is_img_input = True
     # input is image 
-    if is_img_input:
-        # camera MLP
-        if not is_cnn:
-            nodes = [
-                "fog1_output_layer",
-                "fog2_output_layer",
-                "fog3_output_layer",
-                "fog4_output_layer",
-                "edge1_output_layer",
-                "edge2_output_layer",
-                "edge3_output_layer",
-                "edge4_output_layer"
-                ]
-            for index, node in enumerate(node_failure_combination):
-                if node == 0: # if dead
-                    set_weights_zero_MLP(model, nodes, index)
-        # cnn 
-        else:
-            nodes = ["conv_pw_8","conv_pw_3"]
-            for index,node in enumerate(node_failure_combination):
-                if node == 0: # dead
-                    set_weights_zero_CNN(model, nodes, index)
-                    
-    # input is non image
-    else: # Health
+    if experiment_name == "Camera":
+        nodes = [
+            "fog1_output_layer",
+            "fog2_output_layer",
+            "fog3_output_layer",
+            "fog4_output_layer",
+            "edge1_output_layer",
+            "edge2_output_layer",
+            "edge3_output_layer",
+            "edge4_output_layer"
+            ]
+        for index, node in enumerate(node_failure_combination):
+            if node == 0: # if dead
+                set_weights_zero_MLP(model, nodes, index)
+        
+    elif experiment_name == "CIFAR": 
+        nodes = ["conv_pw_8","conv_pw_3"]
+        for index,node in enumerate(node_failure_combination):
+            if node == 0: # dead
+                set_weights_zero_CNN(model, nodes, index)
+
+    elif experiment_name == "Health":              
         nodes = ["fog1_output_layer","fog2_output_layer","edge_output_layer"]
         for index,node in enumerate(node_failure_combination):
             # node failed
             if node == 0:
                 set_weights_zero_MLP(model, nodes, index)
+    else:
+        print("Error! Please specify the correct experiment name")
+        sys.exit()
+
 
 
 def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
@@ -106,15 +103,6 @@ def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
         accuracyList = []
         needToGetModelAccuracy = True
 
-    if training_labels is None or test_data is None or test_labels is None:
-        isImageNet = True
-    else:
-        isImageNet = False
-    if model.get_layer("output").output_shape == (None,3):
-        is_cnn = False
-    else:
-        is_cnn = True
-    
     output_list.append('Calculating accuracy for reliability setting ' + str(reliability_setting) + '\n')
     print("Calculating accuracy for reliability setting "+ str(reliability_setting))
     maxNumNodeFailure = 2 ** numNodes
@@ -126,12 +114,12 @@ def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
             no_information_flow = no_information_flow_map[tuple(node_failure_combination)]
             if not no_information_flow:
                 old_weights = model.get_weights()
-                fail_node(model,node_failure_combination, is_cnn)
+                fail_node(model,node_failure_combination)
             output_list.append(str(node_failure_combination))
-            if isImageNet:
+            if experiment_name == "Imagenet":
                 accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]  
             else: 
-                accuracy,_ = predict(model,no_information_flow,training_labels,test_data,test_labels, is_cnn)
+                accuracy,_ = predict(model,no_information_flow,training_labels,test_data,test_labels)
             accuracyList.append(accuracy)
             if not no_information_flow:
                 model.set_weights(old_weights) # change the changed weights to the original weights

@@ -11,6 +11,7 @@ from keras.callbacks import ModelCheckpoint
 import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_health import default_skip_hyperconnection_config
+import Experiment.Accuracy
 
 def define_and_train(iteration, model_name, load_model, weight_scheme, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
@@ -25,6 +26,7 @@ def define_and_train(iteration, model_name, load_model, weight_scheme, reliabili
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
+    Experiment.Accuracy.experiment = "Health"
     use_GCP = False
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP)
 

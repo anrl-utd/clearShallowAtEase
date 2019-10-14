@@ -10,6 +10,7 @@ import os
 import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
+import Experiment.Accuracy
 
 import tensorflow as tf
 def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha,num_train_examples, epochs,num_gpus, strides, num_workers):
@@ -26,7 +27,7 @@ def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliabi
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-
+    Experiment.Accuracy.experiment = "Imagenet"
     use_GCP = False
     num_iterations,num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides, num_workers = init_common_experiment_params()
     train_generator, test_generator = init_data(use_GCP, num_gpus) 
