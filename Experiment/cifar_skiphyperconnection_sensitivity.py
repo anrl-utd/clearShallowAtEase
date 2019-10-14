@@ -86,6 +86,10 @@ if __name__ == "__main__":
     default_reliability_setting = [1.0,1.0,1.0]
     output = make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations)
     
+    no_information_flow_map = {}
+    for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
+        no_information_flow_map[skip_hyperconnection_configuration] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
+    
     load_model = False
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
@@ -96,12 +100,12 @@ if __name__ == "__main__":
     for iteration in range(1,num_iterations+1):
         print("iteration:",iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-            no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet", skip_hyperconnection_configuration)
+            
             model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight Sensitivity", load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             for reliability_setting in reliability_settings:
                 output_list.append(str(reliability_setting) + '\n')
                 print(reliability_setting)
-                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, no_information_flow_map,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
+                output["DeepFogGuard Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model, no_information_flow_map[skip_hyperconnection_configuration],reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             # clear session so that model will recycled back into memory
             K.clear_session()
             gc.collect()

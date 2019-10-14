@@ -3,12 +3,77 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import precision_score
 
-
-from Experiment.common_exp_methods import fail_node
 from Experiment.classification import predict
 import keras.backend as K
+import numpy as np
 
 modelAccuracyDict = dict()
+
+def fail_node(model,node_failure_combination, is_cnn):
+    """fails node(s) by making the specified node(s) output 0
+    ### Arguments
+        model (Model): Keras model to have nodes failed
+        node_failure_combination (list): bit list that corresponds to the node failure combination, 1 in the list represents to alive and 0 corresponds to dead. they are ordered from top to down, left to right (like from f1,f2,...,e1,e2,...)
+    ### Returns
+        return a boolean whether the model failed was a cnn or not
+    """
+    def set_weights_zero_MLP(model, nodes, index):
+        layer_name = nodes[index]
+        layer = model.get_layer(name=layer_name)
+        layer_weights = layer.get_weights()
+        # make new weights for the connections
+        new_weights = np.zeros(layer_weights[0].shape)
+        #new_weights[:] = np.nan # set weights to nan
+        # make new weights for biases
+        new_bias_weights = np.zeros(layer_weights[1].shape)
+        layer.set_weights([new_weights,new_bias_weights])
+
+    def set_weights_zero_CNN(model, nodes, index):
+        layer_name = nodes[index]
+        layer = model.get_layer(name=layer_name)
+        layer_weights = layer.get_weights()
+        # make new weights for the connections
+        new_weights = np.zeros(layer_weights[0].shape)
+        layer.set_weights([new_weights])
+        
+    is_img_input = False
+    # determines type of network by the first layer input shape
+    first_layer = model.get_layer(index = 0)
+    if len(first_layer.input_shape) == 4:
+        # CIFAR and Camera input shapes are 4 dimensions
+        is_img_input = True
+    # input is image 
+    if is_img_input:
+        # camera MLP
+        if not is_cnn:
+            nodes = [
+                "fog1_output_layer",
+                "fog2_output_layer",
+                "fog3_output_layer",
+                "fog4_output_layer",
+                "edge1_output_layer",
+                "edge2_output_layer",
+                "edge3_output_layer",
+                "edge4_output_layer"
+                ]
+            for index, node in enumerate(node_failure_combination):
+                if node == 0: # if dead
+                    set_weights_zero_MLP(model, nodes, index)
+        # cnn 
+        else:
+            nodes = ["conv_pw_8","conv_pw_3"]
+            for index,node in enumerate(node_failure_combination):
+                if node == 0: # dead
+                    set_weights_zero_CNN(model, nodes, index)
+                    
+    # input is non image
+    else: # Health
+        nodes = ["fog1_output_layer","fog2_output_layer","edge_output_layer"]
+        for index,node in enumerate(node_failure_combination):
+            # node failed
+            if node == 0:
+                set_weights_zero_MLP(model, nodes, index)
+
 
 def iterateAllFailureCombinationsCalcAccuracy(reliability_setting,
                                             numNodes,

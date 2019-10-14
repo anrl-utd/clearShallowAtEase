@@ -4,10 +4,10 @@ import numpy as np
 from keras.utils import multi_gpu_model
 import keras
 import tensorflow as tf
-from Accuracy import convertBinaryToList
-from Graph import fail_node_graph, identify_no_information_flow_graph
+from Experiment.Accuracy import convertBinaryToList
+from Experiment.Graph import fail_node_graph, identify_no_information_flow_graph
 import copy
-from Graph import create_graph_MLP_camera, create_graph_MLP_health, create_graph_CNN
+from Experiment.Graph import create_graph_MLP_camera, create_graph_MLP_health, create_graph_CNN
 
 def make_results_folder():
     # makes folder for results and models (if they don't exist)
@@ -146,71 +146,6 @@ def make_output_dictionary_failout_rate(failout_survival_rates, reliability_sett
 
     return output
 
-def fail_node(model,node_failure_combination, is_cnn):
-    """fails node(s) by making the specified node(s) output 0
-    ### Arguments
-        model (Model): Keras model to have nodes failed
-        node_failure_combination (list): bit list that corresponds to the node failure combination, 1 in the list represents to alive and 0 corresponds to dead. they are ordered from top to down, left to right (like from f1,f2,...,e1,e2,...)
-    ### Returns
-        return a boolean whether the model failed was a cnn or not
-    """
-    def set_weights_zero_MLP(model, nodes, index):
-        layer_name = nodes[index]
-        layer = model.get_layer(name=layer_name)
-        layer_weights = layer.get_weights()
-        # make new weights for the connections
-        new_weights = np.zeros(layer_weights[0].shape)
-        #new_weights[:] = np.nan # set weights to nan
-        # make new weights for biases
-        new_bias_weights = np.zeros(layer_weights[1].shape)
-        layer.set_weights([new_weights,new_bias_weights])
-
-    def set_weights_zero_CNN(model, nodes, index):
-        layer_name = nodes[index]
-        layer = model.get_layer(name=layer_name)
-        layer_weights = layer.get_weights()
-        # make new weights for the connections
-        new_weights = np.zeros(layer_weights[0].shape)
-        layer.set_weights([new_weights])
-        
-    is_img_input = False
-    # determines type of network by the first layer input shape
-    first_layer = model.get_layer(index = 0)
-    if len(first_layer.input_shape) == 4:
-        # CIFAR and Camera input shapes are 4 dimensions
-        is_img_input = True
-    # input is image 
-    if is_img_input:
-        # camera MLP
-        if not is_cnn:
-            nodes = [
-                "fog1_output_layer",
-                "fog2_output_layer",
-                "fog3_output_layer",
-                "fog4_output_layer",
-                "edge1_output_layer",
-                "edge2_output_layer",
-                "edge3_output_layer",
-                "edge4_output_layer"
-                ]
-            for index, node in enumerate(node_failure_combination):
-                if node == 0: # if dead
-                    set_weights_zero_MLP(model, nodes, index)
-        # cnn 
-        else:
-            nodes = ["conv_pw_8","conv_pw_3"]
-            for index,node in enumerate(node_failure_combination):
-                if node == 0: # dead
-                    set_weights_zero_CNN(model, nodes, index)
-                    
-    # input is non image
-    else:
-        nodes = ["fog1_output_layer","fog2_output_layer","edge_output_layer"]
-        for index,node in enumerate(node_failure_combination):
-            # node failed
-            if node == 0:
-                set_weights_zero_MLP(model, nodes, index)
-
 def average(list):
     """function to return average of a list 
     ### Arguments
@@ -239,13 +174,13 @@ def compile_keras_parallel_model(input, cloud_output, num_gpus, name='ANRL_mobil
 def make_no_information_flow_map(exp, skip_hyperconnection_config = None):
     if exp == "CIFAR/Imagenet":
         graph = create_graph_CNN(skip_hyperconnection_config)
-        numNodes = 3
+        numNodes = 2
     if exp == "Health":
         graph = create_graph_MLP_health(skip_hyperconnection_config)
-        numNodes = 4
+        numNodes = 3
     if exp == "Camera":
         graph = create_graph_MLP_camera(skip_hyperconnection_config)
-        numNodes = 9
+        numNodes = 8
     maxNumNodeFailure = 2 ** numNodes
     no_information_flow_map = {} # make a dictionary
     for i in range(maxNumNodeFailure):

@@ -106,6 +106,10 @@ if __name__ == "__main__":
         [1,1,1,1,0,0,1],
         [1,1,1,1,1,1,1]
     ]
+    no_information_flow_map = {}
+    for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
+        no_information_flow_map[skip_hyperconnection_configuration] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
+    
     default_reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
     load_model = False
     output_name = 'results/camera_skiphyperconnection_sensitivity.txt'
@@ -120,13 +124,13 @@ if __name__ == "__main__":
         output_list.append('ITERATION ' + str(iteration) +  '\n')
         print("ITERATION ", iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
-            no_information_flow_map = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
+            
             deepFogGuard_weight_sesitivity = define_and_train(iteration, model_name, load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
             # test models
             for reliability_setting in reliability_settings:
                 print(reliability_setting)
                 output_list.append(str(reliability_setting) + '\n')
-                calc_accuracy(iteration, model_name, deepFogGuard_weight_sesitivity, no_information_flow_map, reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels)
+                calc_accuracy(iteration, model_name, deepFogGuard_weight_sesitivity, no_information_flow_map[skip_hyperconnection_configuration], reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels)
             K.clear_session()
             gc.collect()
             del deepFogGuard_weight_sesitivity

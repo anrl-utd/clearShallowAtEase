@@ -45,6 +45,7 @@ def create_graph_MLP_health(skip_hyperconnection_config = None):
 def create_graph_MLP_camera(skip_hyperconnection_config = None):
     G = nx.DiGraph()
     # Vanilla
+    G.add_node('cams')
     G.add_node('e1')
     G.add_node('e2')
     G.add_node('e3')
@@ -55,6 +56,10 @@ def create_graph_MLP_camera(skip_hyperconnection_config = None):
     G.add_node('f4')
     G.add_node('c')
 
+    G.add_edge('cams','e1')
+    G.add_edge('cams','e2')
+    G.add_edge('cams','e3')
+    G.add_edge('cams','e4')
     G.add_edge('e1','f3')
     G.add_edge('e2','f4')
     G.add_edge('e3','f4')
@@ -83,14 +88,14 @@ def create_graph_MLP_camera(skip_hyperconnection_config = None):
 
 def fail_node_graph(graph, node_failure_combination, exp):
     if exp == "CIFAR/Imagenet":
-        nodes = ["IoT", "e", "f", "c"]
+        nodes = ["f", "e"]
     if exp == "Health":
-        nodes = ["IoT", "e", "f1", "f2", "c"]
+        nodes = ["f1", "f2", "e"]
     if exp == "Camera":
-        nodes = ["e1", "e2", "e3", "e4", "f1", "f2", "f3", "f4", "c"]
+        nodes = ["f1", "f2", "f3", "f4", "e1", "e2", "e3", "e4"]
     for index, node in enumerate(node_failure_combination):
         if node == 0: # if dead
-            graph.remove_node(node)
+            graph.remove_node(nodes[index])
 
 def identify_no_information_flow_graph(graph, exp):
     if exp == "CIFAR/Imagenet":
@@ -98,5 +103,4 @@ def identify_no_information_flow_graph(graph, exp):
     if exp == "Health":
         return not nx.has_path(graph, 'IoT', 'c')
     if exp == "Camera":
-        information_flow = nx.has_path(graph, 'e1', 'c') or nx.has_path(graph, 'e2', 'c') or nx.has_path(graph, 'e3', 'c') or nx.has_path(graph, 'e4', 'c')
-        return not information_flow
+        return not nx.has_path(graph, 'cam', 'c')
