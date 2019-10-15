@@ -67,9 +67,11 @@ if __name__ == "__main__":
         output_list.append('ResiliNet' + '\n') 
         # variable failout rate  
         for reliability_setting in reliability_settings:
+            if reliability_setting == [1,1]:
+                output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = 0
+                continue
             ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
-            output_list.append(str(reliability_setting) + '\n')
             output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, no_information_flow_map, reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
             
             # clear session so that model will recycled back into memory
