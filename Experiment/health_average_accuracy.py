@@ -2,7 +2,7 @@
 from Experiment.mlp_ResiliNet_health import define_ResiliNet_MLP
 from Experiment.mlp_deepFogGuard_health import define_deepFogGuard_MLP
 from Experiment.mlp_Vanilla_health import define_vanilla_model_MLP
-from Experiment.Accuracy import calculateExpectedAccuracy
+from Experiment.Accuracy import accuracy
 from Experiment.common_exp_methods_MLP_health import init_data, init_common_experiment_params, get_model_weights_MLP_health
 from Experiment.common_exp_methods import average, convert_to_string, make_output_dictionary_average_accuracy, write_n_upload, make_results_folder
 import keras.backend as K
@@ -12,7 +12,6 @@ import os
 import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_health import default_skip_hyperconnection_config
-import Experiment.Accuracy
 
 def define_and_train(iteration, model_name, load_model, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, num_vars, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
@@ -40,7 +39,8 @@ def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliabi
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    Experiment.Accuracy.experiment = "Health"
+    accuracy = accuracy("health")
+    calculateExpectedAccuracy = accuracy.calculateExpectedAccuracy
     use_GCP = False
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP) 
     

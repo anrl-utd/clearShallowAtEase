@@ -4,7 +4,6 @@ import numpy as np
 from keras.utils import multi_gpu_model
 import keras
 import tensorflow as tf
-from Experiment.Accuracy import convertBinaryToList
 from Experiment.Graph import fail_node_graph, identify_no_information_flow_graph
 import copy
 from Experiment.Graph import create_graph_MLP_camera, create_graph_MLP_health, create_graph_CNN
@@ -190,3 +189,21 @@ def make_no_information_flow_map(exp, skip_hyperconnection_config = None):
         no_information_flow_map[tuple(node_failure_combination)] = identify_no_information_flow_graph(graph_copy, exp)
         del graph_copy
     return no_information_flow_map
+
+def convertBinaryToList(number, numBits):
+    """converts a number (e.g. 128) to its binary representation in a list. It converts number 128 to [1,0,0,0,0,0,0,0]    
+    ### Arguments
+        number (int): number to be converted to binary
+        numBits (int): number of maximum bits 
+    ### Returns
+        return binary number to a list representing the binary number
+    """  
+    # convert given number into binary
+    # output will be like bin(11)=0b1101
+    binary = bin(number)
+    lst = [bits for bits in binary[2:]]
+    # pad '0's to the begging of the list, if its length is not 'numBits'
+    for _ in range(max(0,numBits - len(lst))):
+        lst.insert(0,'0')
+    lst_integer = [int(num) for num in lst] # converts ["0","1","0"] to [0,1,0]
+    return lst_integer

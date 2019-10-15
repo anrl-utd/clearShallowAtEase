@@ -6,9 +6,8 @@ import keras.backend as K
 from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
-from Experiment.Accuracy import experiment
 
-def predict(model,no_information_flow,train_labels,test_data,test_labels):
+def predict(model,no_information_flow,train_labels,test_data,test_labels, experiment_name):
     """Performs prediction for test data, based on th learned parameters. (Performs random guess if there is no information flow in the DNN)
     ### Arguments
         model (Model): Keras model
@@ -18,12 +17,12 @@ def predict(model,no_information_flow,train_labels,test_data,test_labels):
     ### Returns
         return a tuple of accuracy (as a float) and whether there is no information flow (as an integer)
     """
-
+    
     if no_information_flow is True:
-        if experiment == "CIFAR" :
+        if experiment_name == "CIFAR" :
             # make into 1d vector
             train_labels = [item for sublist in train_labels for item in sublist]
-        elif experiment == "Camera" :
+        elif experiment_name == "Camera" :
                 # reformat by switching the 1st and 2nd dimension
                 test_data = np.transpose(test_data,axes=[1,0,2,3,4])
         # print("There is no data flow in the network")

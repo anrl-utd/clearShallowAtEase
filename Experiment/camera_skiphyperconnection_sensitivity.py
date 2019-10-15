@@ -2,7 +2,7 @@
 from Experiment.mlp_deepFogGuard_camera import define_deepFogGuard_MLP
 from Experiment.mlp_ResiliNet_camera import define_ResiliNet_MLP
 from Experiment.common_exp_methods_MLP_camera import init_data, init_common_experiment_params, get_model_weights_MLP_camera
-from Experiment.Accuracy import calculateExpectedAccuracy
+from Experiment.Accuracy import accuracy
 from Experiment.common_exp_methods import average, convert_to_string, write_n_upload, make_results_folder
 import keras.backend as K
 import os
@@ -11,7 +11,6 @@ from keras.callbacks import ModelCheckpoint
 import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
-import Experiment.Accuracy
 
 def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
@@ -91,7 +90,8 @@ def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliabi
 
 
 if __name__ == "__main__":
-    Experiment.Accuracy.experiment = "Camera"
+    accuracy = accuracy("Camera")
+    calculateExpectedAccuracy = accuracy.calculateExpectedAccuracy
     use_GCP = False
     training_data,val_data, test_data, training_labels,val_labels,test_labels = init_data(use_GCP)
 

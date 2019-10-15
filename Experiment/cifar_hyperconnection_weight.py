@@ -8,14 +8,13 @@ import math
 import os 
 from Experiment.cnn_deepFogGuard import define_deepFogGuard_CNN
 from Experiment.cnn_ResiliNet import define_ResiliNet_CNN
-from Experiment.Accuracy import calculateExpectedAccuracy
+from Experiment.Accuracy import accuracy
 from Experiment.common_exp_methods import average, make_results_folder, make_output_dictionary_hyperconnection_weight, write_n_upload
 from Experiment.common_exp_methods_CNN_cifar import init_data, init_common_experiment_params, get_model_weights_CNN_cifar
 import numpy as np
 import gc
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
-import Experiment.Accuracy
 
 def define_and_train(iteration, model_name, load_model, reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     K.set_learning_phase(1)
@@ -30,7 +29,8 @@ def define_and_train(iteration, model_name, load_model, reliability_setting, wei
            
 # deepFogGuard hyperconnection weight experiment      
 if __name__ == "__main__":
-    Experiment.Accuracy.experiment = "CIFAR"
+    accuracy = accuracy("CIFAR")
+    calculateExpectedAccuracy = accuracy.calculateExpectedAccuracy
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 
     num_iterations, classes, reliability_settings, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, use_GCP, alpha, input_shape, strides, num_gpus = init_common_experiment_params()
