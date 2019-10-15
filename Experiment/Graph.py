@@ -14,9 +14,9 @@ def create_graph_CNN(skip_hyperconnection_config = None):
     
     if skip_hyperconnection_config: # deepFogGuard and ResiliNet
         if skip_hyperconnection_config[0] == 1:
-            G.add_edge('IoT','f')
-        if skip_hyperconnection_config[1] == 1:
             G.add_edge('e','c')
+        if skip_hyperconnection_config[1] == 1:
+            G.add_edge('IoT','f')
     return G
 
 def create_graph_MLP_health(skip_hyperconnection_config = None):
@@ -35,11 +35,11 @@ def create_graph_MLP_health(skip_hyperconnection_config = None):
 
     if skip_hyperconnection_config: # deepFogGuard and ResiliNet
         if skip_hyperconnection_config[0] == 1:
-            G.add_edge('IoT','f2')
+            G.add_edge('f2','c')
         if skip_hyperconnection_config[1] == 1:
             G.add_edge('e','f1')
         if skip_hyperconnection_config[2] == 1:
-            G.add_edge('f2','c')
+            G.add_edge('IoT','f2')
     return G
 
 def create_graph_MLP_camera(skip_hyperconnection_config = None):
@@ -71,19 +71,20 @@ def create_graph_MLP_camera(skip_hyperconnection_config = None):
     
     if skip_hyperconnection_config: # deepFogGuard and ResiliNet
         if skip_hyperconnection_config[0] == 1:
-            G.add_edge('e4','f2')
+            G.add_edge('f2','c')
         if skip_hyperconnection_config[1] == 1:
-            G.add_edge('e3','f2')
+            G.add_edge('f3','f1')
         if skip_hyperconnection_config[2] == 1:
-            G.add_edge('e2','f2')
+            G.add_edge('f4','f1')
         if skip_hyperconnection_config[3] == 1:
             G.add_edge('e1','f2')
         if skip_hyperconnection_config[4] == 1:
-            G.add_edge('f4','f1')
+            G.add_edge('e2','f2')
         if skip_hyperconnection_config[5] == 1:
-            G.add_edge('f3','f1')
+            G.add_edge('e3','f2')
         if skip_hyperconnection_config[6] == 1:
-            G.add_edge('f2','c')
+            G.add_edge('e4','f2')
+           
     return G
 
 def fail_node_graph(graph, node_failure_combination, exp):
