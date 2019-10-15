@@ -19,7 +19,7 @@ def define_and_train(iteration, model_name, load_model, training_data, training_
     return model
 
 if __name__ == "__main__":
-    accuracy = accuracy("Camera")
+    accuracy = accuracy("CIFAR")
     calculateExpectedAccuracy = accuracy.calculateExpectedAccuracy
     training_data, test_data, training_labels, test_labels, val_data, val_labels = init_data() 
 

@@ -35,7 +35,7 @@ def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_sett
             
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    accuracy = accuracy("health")
+    accuracy = accuracy("Health")
     calculateExpectedAccuracy = accuracy.calculateExpectedAccuracy
     use_GCP = False
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP)

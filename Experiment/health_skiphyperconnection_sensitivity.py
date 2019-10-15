@@ -89,7 +89,7 @@ def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliabi
     output[model_name][str(reliability_setting)][str(skip_hyperconnection_configuration)][iteration-1] = calculateExpectedAccuracy(model,no_information_flow_map,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
 
 if __name__ == "__main__":
-    accuracy = accuracy("health")
+    accuracy = accuracy("Health")
     calculateExpectedAccuracy = accuracy.calculateExpectedAccuracy
     use_GCP = False
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP)

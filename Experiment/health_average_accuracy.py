@@ -39,7 +39,7 @@ def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliabi
 
 # runs all 3 failure configurations for all 3 models
 if __name__ == "__main__":
-    accuracy = accuracy("health")
+    accuracy = accuracy("Health")
     calculateExpectedAccuracy = accuracy.calculateExpectedAccuracy
     use_GCP = False
     training_data, val_data, test_data, training_labels, val_labels, test_labels = init_data(use_GCP) 

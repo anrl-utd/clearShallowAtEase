@@ -122,13 +122,13 @@ def remove_skip_hyperconnection_for_sensitvity_experiment(skip_hyperconnection_c
     # take away the skip hyperconnection if the value in hyperconnections array is 0
     # from fog node 2 to cloud node
     if skip_hyperconnection_config[0] == 0:
-        hyperconnection_weight_IoTf2 = 0
+        hyperconnection_weight_f2c = 0
     # from edge node to fog node 1
     if skip_hyperconnection_config[1] == 0:
         hyperconnection_weight_ef1 = 0
     # from IoT node to fog node 2
     if skip_hyperconnection_config[2] == 0:
-        hyperconnection_weight_f2c = 0
+        hyperconnection_weight_IoTf2 = 0
     return hyperconnection_weight_IoTf2, hyperconnection_weight_ef1, hyperconnection_weight_f2c
  
 def define_hyperconnection_weight_lambda_layers(hyperconnection_weight_IoTe, hyperconnection_weight_IoTf2, hyperconnection_weight_ef2, hyperconnection_weight_ef1, hyperconnection_weight_f2f1, hyperconnection_weight_f2c, hyperconnection_weight_f1c):
