@@ -52,6 +52,9 @@ if __name__ == "__main__":
         for weight_scheme in weight_schemes:
             if weight_scheme == 2 or weight_scheme == 3: # if the weight scheme depends on reliability
                 for reliability_setting in reliability_settings:
+                    if reliability_setting == [1,1]:
+                        output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)][iteration-1] = 0
+                        continue
                     model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight", load_model, reliability_setting, weight_scheme, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
                     output_list.append(str(reliability_setting) + str(weight_scheme) + '\n')
                     output["DeepFogGuard Hyperconnection Weight"][weight_scheme][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(model,no_information_flow_map,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)

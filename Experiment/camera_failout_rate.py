@@ -19,7 +19,16 @@ def define_and_train(iteration, model_name, load_model, failout_survival_setting
 
 def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, model):
     if dropout_like_failout == True:
-        nodes = ["fog1_output_layer","fog2_output_layer","edge_output_layer",]
+        nodes = [
+            "fog1_output_layer",
+            "fog2_output_layer",
+            "fog3_output_layer",
+            "fog4_output_layer",
+            "edge1_output_layer",
+            "edge2_output_layer",
+            "edge3_output_layer",
+            "edge4_output_layer"
+            ]
         for i, node in enumerate(nodes):
             failout_survival_rate = failout_survival_setting[i]
             # node failed
