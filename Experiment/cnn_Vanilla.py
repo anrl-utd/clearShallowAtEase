@@ -7,6 +7,7 @@ import warnings
 
 import keras.backend as K
 import keras.layers as layers
+from keras.applications.imagenet_utils import _obtain_input_shape
 from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
 from Experiment.common_exp_methods import compile_keras_parallel_model
 
@@ -21,6 +22,8 @@ def define_vanilla_model_CNN(input_shape=None,
                             classes=1000,
                             strides = (2,2),
                             num_gpus = 1,
+                            dropout=1e-3,
+                            weights=None,
                             **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -72,6 +75,9 @@ def define_vanilla_model_CNN(input_shape=None,
         RuntimeError: If attempting to run this model with a
             backend that does not support separable convolutions.
     """
+    if weights == 'imagenet':
+        imagenet_related_functions(weights, input_shape, include_top, classes, depth_multiplier, alpha)
+
     # Determine proper input shape and default size.
     img_input = layers.Input(shape=input_shape)  
     # changed the strides from 2 to 1 since cifar-10 images are smaller
@@ -86,7 +92,7 @@ def define_vanilla_model_CNN(input_shape=None,
     
     # cloud node
     cloud = layers.Lambda(lambda x : x * 1,name = 'node1_input')(fog)
-    cloud = define_cnn_architecture_cloud(cloud,alpha,depth_multiplier,classes,include_top,pooling)
+    cloud = define_cnn_architecture_cloud(cloud,alpha,depth_multiplier,classes,include_top,pooling, dropout)
 
     model, parallel_model = compile_keras_parallel_model(img_input, cloud, num_gpus)
     return model, parallel_model
@@ -111,7 +117,7 @@ def define_cnn_architecture_fog(edge_output,alpha, depth_multiplier):
     fog_output = _depthwise_conv_block(fog, 512, alpha, depth_multiplier, block_id=8)
     return fog_output
 
-def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,include_top,pooling):
+def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,include_top,pooling, dropout=1e-3):
     cloud = _depthwise_conv_block(fog_output, 512, alpha, depth_multiplier, block_id=9)
     cloud = _depthwise_conv_block(cloud, 512, alpha, depth_multiplier, block_id=10)
     cloud = _depthwise_conv_block(cloud, 512, alpha, depth_multiplier, block_id=11)
@@ -128,7 +134,7 @@ def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,inc
 
         cloud = layers.GlobalAveragePooling2D()(cloud)
         cloud = layers.Reshape(shape, name='reshape_1')(cloud)
-        cloud = layers.Dropout(1e-3, name='dropout')(cloud)
+        cloud = layers.Dropout(dropout, name='dropout')(cloud)
         cloud = layers.Conv2D(classes, (1, 1),
                           padding='same',
                           name='conv_preds')(cloud)
@@ -140,3 +146,64 @@ def define_cnn_architecture_cloud(fog_output,alpha,depth_multiplier, classes,inc
         elif pooling == 'max':
             cloud_output = layers.GlobalMaxPooling2D()(cloud)
     return cloud_output
+
+def imagenet_related_functions(weights, input_shape, include_top, classes, depth_multiplier, alpha):
+    # global backend, layers, models, keras_utils
+    # backend, layers, models, keras_utils = get_submodules_from_kwargs(kwargs)
+
+    if not (weights in {'imagenet', None} or os.path.exists(weights)):
+        raise ValueError('The `weights` argument should be either '
+                         '`None` (random initialization), `imagenet` '
+                         '(pre-training on ImageNet), '
+                         'or the path to the weights file to be loaded.')
+
+    if weights == 'imagenet' and include_top and classes != 1000:
+        raise ValueError('If using `weights` as `"imagenet"` with `include_top` '
+                         'as true, `classes` should be 1000')
+
+    
+    if input_shape is None:
+        default_size = 224
+    else:
+        if K.image_data_format() == 'channels_first':
+            rows = input_shape[1]
+            cols = input_shape[2]
+        else:
+            rows = input_shape[0]
+            cols = input_shape[1]
+
+        if rows == cols and rows in [128, 160, 192, 224]:
+            default_size = rows
+        else:
+            default_size = 224
+
+    input_shape = _obtain_input_shape(input_shape,
+                                      default_size=default_size,
+                                      min_size=32,
+                                      data_format=K.image_data_format(),
+                                      require_flatten=include_top,
+                                      weights=weights)
+
+    if K.image_data_format() == 'channels_last':
+        row_axis, col_axis = (0, 1)
+    else:
+        row_axis, col_axis = (1, 2)
+    rows = input_shape[row_axis]
+    cols = input_shape[col_axis]
+
+    if weights == 'imagenet':
+        if depth_multiplier != 1:
+            raise ValueError('If imagenet weights are being loaded, '
+                             'depth multiplier must be 1')
+
+        if alpha not in [0.25, 0.50, 0.75, 1.0]:
+            raise ValueError('If imagenet weights are being loaded, '
+                             'alpha can be one of'
+                             '`0.25`, `0.50`, `0.75` or `1.0` only.')
+
+        if rows != cols or rows not in [128, 160, 192, 224]:
+            rows = 224
+            warnings.warn('`input_shape` is undefined or non-square, '
+                          'or `rows` is not in [128, 160, 192, 224]. '
+                          'Weights for input shape (224, 224) will be'
+                          ' loaded as the default.')
