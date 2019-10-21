@@ -11,6 +11,7 @@ import keras.layers as layers
 
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.cnn_deepFogGuard import set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
+from Experiment.cnn_Vanilla import imagenet_related_functions
 from Experiment.Failout import Failout
 from Experiment.common_exp_methods import compile_keras_parallel_model
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
@@ -27,6 +28,7 @@ def define_ResiliNet_CNN(input_shape=None,
                                 reliability_setting=[1.0,1.0], 
                                 hyperconnection_weights_scheme = 1,
                                 num_gpus = 1,
+                                weights=None,
                                 **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -75,7 +77,10 @@ def define_ResiliNet_CNN(input_shape=None,
         RuntimeError: If attempting to run this model with a
             backend that does not support separable convolutions.
     """
-    
+    if weights == 'imagenet':
+        weights = None
+        imagenet_related_functions(weights, input_shape, include_top, classes, depth_multiplier, alpha)
+
     hyperconnection_weight_IoTe, hyperconnection_weight_IoTf,hyperconnection_weight_ef,hyperconnection_weight_ec,hyperconnection_weight_fc = set_hyperconnection_weights(
         hyperconnection_weights_scheme, 
         reliability_setting, 

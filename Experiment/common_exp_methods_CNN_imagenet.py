@@ -51,10 +51,10 @@ def init_common_experiment_params():
     num_iterations = 1
     # need to change this to be accurate
     reliability_settings = [
-        # [1,1],
-        # [.98,.96],
+        [1,1],
+        [.98,.96],
         [.95,.90],
-        # [.85,.80],
+        [.85,.80],
     ]
     num_classes = 1000
     epochs = 1
@@ -79,7 +79,7 @@ def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model
                 verbose = verbose
                 )
             # save the weights
-            model.save_weights(model_file)
+            parallel_model.save_weights(model_file)
             return model
         else:
             model.fit_generator(

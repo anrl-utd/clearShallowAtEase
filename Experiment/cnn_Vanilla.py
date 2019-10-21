@@ -76,6 +76,7 @@ def define_vanilla_model_CNN(input_shape=None,
             backend that does not support separable convolutions.
     """
     if weights == 'imagenet':
+        weights = None
         imagenet_related_functions(weights, input_shape, include_top, classes, depth_multiplier, alpha)
 
     # Determine proper input shape and default size.

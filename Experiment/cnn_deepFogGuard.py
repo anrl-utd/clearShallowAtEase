@@ -9,7 +9,7 @@ import keras.backend as K
 import keras.layers as layers
 from keras_applications.imagenet_utils import _obtain_input_shape, get_submodules_from_kwargs
 import random 
-from Experiment.cnn_Vanilla import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog
+from Experiment.cnn_Vanilla import define_cnn_architecture_IoT, define_cnn_architecture_cloud, define_cnn_architecture_edge, define_cnn_architecture_fog, imagenet_related_functions
 from Experiment.common_exp_methods import compile_keras_parallel_model
 
 default_skip_hyperconnection_config = [1,1]
@@ -25,6 +25,7 @@ def define_deepFogGuard_CNN(input_shape=None,
                             reliability_setting=[1.0,1.0], # reliability of a node between 0 and 1 [f1,e1]
                             hyperconnection_weights_scheme = 1,
                             num_gpus = 1,
+                            weights=None,
                             **kwargs):
     """Instantiates the MobileNet architecture.
 
@@ -76,6 +77,11 @@ def define_deepFogGuard_CNN(input_shape=None,
         RuntimeError: If attempting to run this model with a
             backend that does not support separable convolutions.
     """
+
+    if weights == 'imagenet':
+        weights = None
+        imagenet_related_functions(weights, input_shape, include_top, classes, depth_multiplier, alpha)
+
     hyperconnection_weight_IoTe, hyperconnection_weight_IoTf,hyperconnection_weight_ef,hyperconnection_weight_ec,hyperconnection_weight_fc = set_hyperconnection_weights(
         hyperconnection_weights_scheme, 
         reliability_setting, 

@@ -37,7 +37,6 @@ if __name__ == "__main__":
     Vanilla_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet")
     
     load_model = False
-    num_iterations = 3
     make_results_folder()
     output_name = 'results' + '/imagenet_average_accuracy_results.txt'
     output_list = []
