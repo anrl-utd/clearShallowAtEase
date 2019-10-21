@@ -71,7 +71,7 @@ class accuracy:
                 # node failed
                 if node == 0:
                     set_weights_zero_MLP(model, nodes, index)
-        else:
+        elif self.experiment_name is not "Imagenet":
             print("Error! Please specify the correct experiment name")
             sys.exit()
 

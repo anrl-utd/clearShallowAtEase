@@ -47,7 +47,7 @@ def init_common_experiment_params():
     num_train_examples = 1300000
     num_test_examples = 50000
     input_shape = (256,256,3)
-    alpha = .5
+    alpha = .75
     num_iterations = 1
     # need to change this to be accurate
     reliability_settings = [
