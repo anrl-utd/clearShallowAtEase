@@ -119,9 +119,10 @@ def define_cnn_deepFogGuard_architecture_IoT(input_shape, alpha, img_input, stri
     # 1x1 conv2d is used to change the filter size (from 3 to 64)
     # cifar-10
     if strides == (1,1):
-        skip_iotfog = layers.Conv2D(64,(1,1),strides = 1, use_bias = False, name = "skip_hyperconnection_iotfog")(iot_output)
+        # 64 (alpha=0.5), 96 (alpha=0.75)
+        skip_iotfog = layers.Conv2D(96,(1,1),strides = 1, use_bias = False, name = "skip_hyperconnection_iotfog")(iot_output)
     elif strides == (2,2):
-        skip_iotfog = layers.Conv2D(64,(1,1),strides = 2, use_bias = False, name = "skip_hyperconnection_iotfog")(iot_output)
+        skip_iotfog = layers.Conv2D(96,(1,1),strides = 2, use_bias = False, name = "skip_hyperconnection_iotfog")(iot_output)
     else:
         raise ValueError("Invalid stride configuration")
     return iot_output, skip_iotfog
@@ -134,7 +135,8 @@ def define_cnn_deepFogGuard_architecture_edge(iot_output, alpha, depth_multiplie
          edge_output = edge_failure_lambda(edge_output)
     # used stride 4 to match (31,31,64) to (7,7,256)
     # 1x1 conv2d is used to change the filter size (from 64 to 256)
-    skip_edgecloud = layers.Conv2D(256,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(edge_output)
+    # 256 (alpha=0.5), 384 (alpha=0.75)
+    skip_edgecloud = layers.Conv2D(384,(1,1),strides = 4, use_bias = False, name = "skip_hyperconnection_edgecloud")(edge_output)
     return edge_output, skip_edgecloud
    
 
