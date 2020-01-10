@@ -1,5 +1,6 @@
 import os
 from keras.preprocessing.image import ImageDataGenerator 
+from keras.applications.imagenet_utils import preprocess_input
 from keras.preprocessing.image import load_img
 from keras.utils import multi_gpu_model
 from keras.callbacks import ModelCheckpoint
@@ -19,7 +20,7 @@ def init_data(use_GCP, num_gpus, pc = 4):
         train_dir = "/home/ubuntu/imagenet/train"
         test_dir = "/home/ubuntu/imagenet/val"
         num_gpus = 1
-    input_shape = (256,256)
+    input_shape = (160,160)
     batch_size = 1024
     train_datagen = ImageDataGenerator(
         rescale = 1./255,
@@ -27,6 +28,7 @@ def init_data(use_GCP, num_gpus, pc = 4):
         width_shift_range=0.2,
         height_shift_range=0.2,
         horizontal_flip=True,
+        # preprocessing_function=preprocess_input
     )
     test_datagen = ImageDataGenerator(
         rescale = 1./255
@@ -35,21 +37,25 @@ def init_data(use_GCP, num_gpus, pc = 4):
         directory = train_dir,
         target_size = input_shape,
         batch_size = batch_size * num_gpus,
-        class_mode = "sparse"
+        class_mode = "sparse",
+        shuffle=True,
+        seed=42
     )
     test_generator = test_datagen.flow_from_directory(
+        # shuffle = False,
         directory = test_dir,
         target_size = input_shape,
         batch_size = batch_size * num_gpus,
-        class_mode = "sparse"
+        class_mode = "sparse",
+        seed=42
     )
     return train_generator, test_generator
 
 def init_common_experiment_params():
     num_train_examples = 1300000
     num_test_examples = 50000
-    input_shape = (256,256,3)
-    alpha = .5
+    input_shape = (160,160,3)
+    alpha = .75
     num_iterations = 1
     # need to change this to be accurate
     reliability_settings = [
@@ -59,7 +65,7 @@ def init_common_experiment_params():
         [.85,.80],
     ]
     num_classes = 1000
-    epochs = 1
+    epochs = 10
     num_gpus = 4
     num_workers = 32
     strides = (2,2)
@@ -74,6 +80,8 @@ def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model
         print(model_name)
         verbose = 1
         if num_gpus > 1:
+            # parallel_model.load_weights(model_file)
+           # model = parallel_model.layers[-2]
             modelCheckPoint = ModelCheckpoint(model_file, save_weights_only=True)
             parallel_model.fit_generator(
                 generator = train_generator,

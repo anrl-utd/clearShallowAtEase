@@ -59,7 +59,7 @@ class accuracy:
                 if node == 0: # if dead
                     set_weights_zero_MLP(model, nodes, index)
             
-        elif self.experiment_name == "CIFAR": 
+        elif self.experiment_name == "CIFAR" or self.experiment_name == "Imagenet" : 
             nodes = ["conv_pw_8","conv_pw_3"]
             for index,node in enumerate(node_failure_combination):
                 if node == 0: # dead
@@ -121,7 +121,19 @@ class accuracy:
                     self.fail_node(model,node_failure_combination)
                 output_list.append(str(node_failure_combination))
                 if self.experiment_name == "Imagenet":
-                    accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]  
+                    if no_information_flow:
+                        accuracy = 0.001
+                    else:
+                        accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]
+                        # test_generator.reset()
+                        # Y_pred = model.predict_generator(test_generator)
+                        # print('Ypred',Y_pred.shape)
+                        # classes = test_generator.classes[test_generator.index_array]
+                        # y_pred = np.argmax(Y_pred, axis=-1)
+                        # print('ypred',y_pred.shape)
+                        # print('classes',classes.shape)
+                        # accuracy = accuracy_score(classes, y_pred)
+                        # accuracy = sum(y_pred==classes)/num_test_examples 
                 else: 
                     accuracy,_ = predict(model,no_information_flow,training_labels,test_data,test_labels, self.experiment_name)
                 accuracyList.append(accuracy)
