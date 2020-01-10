@@ -12,7 +12,7 @@ from keras.callbacks import ModelCheckpoint
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
 
-def define_and_train(iteration, model_name, load_model, weight_scheme, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
+def define_and_train(iteration, model_name, load_for_inference, weight_scheme, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
     if model_name == "DeepFogGuard Hyperconnection Weight":
         model = define_deepFogGuard_MLP(input_shape,num_classes,hidden_units, reliability_setting=reliability_setting, hyperconnection_weights_scheme = weight_scheme)
@@ -20,7 +20,7 @@ def define_and_train(iteration, model_name, load_model, weight_scheme, reliabili
     else: # model_name is "ResiliNet Hyperconnection Weight"
         model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units, reliability_setting=reliability_setting, hyperconnection_weights_scheme = weight_scheme)
         model_file = "models/" + str(iteration) + "_" + str(reliability_setting) + "_" + str(weight_scheme) + 'camera_hyperconnection_ResiliNet.h5'
-    get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    get_model_weights_MLP_camera(model, model_name, load_for_inference, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 # runs all 3 failure configurations for all 3 models
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations = init_common_experiment_params()
     no_information_flow_map = make_no_information_flow_map("Camera", default_skip_hyperconnection_config)
    
-    load_model = False
+    load_for_inference = False
     # file name with the experiments accuracy output
     output_name = "results/camera_hyperconnection_weight.txt"
     verbose = 2
@@ -52,14 +52,14 @@ if __name__ == "__main__":
         for weight_scheme in weight_schemes:
             if weight_scheme == 2 or weight_scheme == 3: # if the weight scheme depends on reliability
                 for reliability_setting in reliability_settings:
-                    deepFogGuard_hyperconnection_weight = define_and_train(iteration, model_name, load_model, weight_scheme, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
+                    deepFogGuard_hyperconnection_weight = define_and_train(iteration, model_name, load_for_inference, weight_scheme, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
                     output[model_name][weight_scheme][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard_hyperconnection_weight, no_information_flow_map,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
                     # clear session so that model will recycled back into memory
                     K.clear_session()
                     gc.collect()
                     del deepFogGuard_hyperconnection_weight
             else:
-                deepFogGuard_hyperconnection_weight = define_and_train(iteration, model_name, load_model, weight_scheme, default_reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
+                deepFogGuard_hyperconnection_weight = define_and_train(iteration, model_name, load_for_inference, weight_scheme, default_reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
                 for reliability_setting in reliability_settings:
                     output[model_name][weight_scheme][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(deepFogGuard_hyperconnection_weight, no_information_flow_map,reliability_setting,output_list,training_labels= training_labels, test_data= test_data, test_labels= test_labels)
                 # clear session so that model will recycled back into memory

@@ -10,11 +10,11 @@ import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_config
 
-def define_and_train(iteration, model_name, load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
+def define_and_train(iteration, model_name, load_for_inference, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
     model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units,failout_survival_setting=failout_survival_setting)
     model_file = 'models/' + str(iteration) + " " + str(failout_survival_setting) + 'camera_failout_rate.h5'
-    get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    get_model_weights_MLP_camera(model, model_name, load_for_inference, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 def multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, model):
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     training_data,val_data, test_data, training_labels,val_labels,test_labels = init_data(use_GCP)
 
     reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations = init_common_experiment_params()
-    load_model = False
+    load_for_inference = False
     failout_survival_settings = [
         [.95,.95,.95,.95,.95,.95,.95,.95],
         [.9,.9,.9,.9,.9,.9,.9,.9],
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             if reliability_setting == [1,1,1,1,1,1,1,1]:
                 output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = 0
                 continue
-            ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_model, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
+            ResiliNet_failout_rate_variable = define_and_train(iteration, "Variable Failout 1x", load_for_inference, reliability_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
             multiply_hyperconnection_weights(dropout_like_failout, reliability_setting, ResiliNet_failout_rate_variable)
             output["Variable Failout 1x"][str(reliability_setting)][iteration-1] = calculateExpectedAccuracy(ResiliNet_failout_rate_variable, no_information_flow_map,reliability_setting,output_list, training_labels= training_labels, test_data= test_data, test_labels= test_labels)
         
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             del ResiliNet_failout_rate_variable
         # fixed failout rate
         for failout_survival_setting in failout_survival_settings:
-            ResiliNet_failout_rate_fixed = define_and_train(iteration, "Fixed Failout 1x", load_model, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
+            ResiliNet_failout_rate_fixed = define_and_train(iteration, "Fixed Failout 1x", load_for_inference, failout_survival_setting, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
             multiply_hyperconnection_weights(dropout_like_failout, failout_survival_setting, ResiliNet_failout_rate_fixed)   
                 
             for reliability_setting in reliability_settings:

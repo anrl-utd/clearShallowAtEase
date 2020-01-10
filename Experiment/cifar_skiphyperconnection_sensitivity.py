@@ -60,7 +60,7 @@ def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconne
     }
     return output
 
-def define_and_train(iteration, model_name, load_model, reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
+def define_and_train(iteration, model_name, load_for_inference, reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus):
     K.set_learning_phase(1)
     if model_name == "DeepFogGuard Hyperconnection Weight Sensitivity":
         model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'cifar_skiphyperconnection_sensitivity_deepFogGuard.h5'
@@ -68,7 +68,7 @@ def define_and_train(iteration, model_name, load_model, reliability_setting, ski
     else: # model_name is "ResiliNet Hyperconnection Weight Sensitivity"
         model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'cifar_skiphyperconnection_sensitivity_ResiliNet.h5'
         model, parallel_model = define_ResiliNet_CNN(classes=classes,input_shape = input_shape,alpha = alpha, reliability_setting=reliability_setting, skip_hyperconnection_config = skip_hyperconnection_configuration, strides = strides, num_gpus=num_gpus)
-    get_model_weights_CNN_cifar(model, parallel_model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+    get_model_weights_CNN_cifar(model, parallel_model, model_name, load_for_inference, model_file, training_data, training_labels, val_data, val_labels, train_datagen, batch_size, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
     return model
 
 # deepFogGuard hyperconnection failure configuration ablation experiment
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
         no_information_flow_map[tuple(skip_hyperconnection_configuration)] = make_no_information_flow_map("CIFAR/Imagenet", skip_hyperconnection_configuration)
     
-    load_model = False
+    load_for_inference = False
     train_steps_per_epoch = math.ceil(len(training_data) / batch_size)
     val_steps_per_epoch = math.ceil(len(val_data) / batch_size)
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         print("iteration:",iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
             
-            model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight Sensitivity", load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
+            model = define_and_train(iteration, "DeepFogGuard Hyperconnection Weight Sensitivity", load_for_inference, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, batch_size, classes, input_shape, alpha, strides, train_datagen, epochs, progress_verbose, checkpoint_verbose, train_steps_per_epoch, val_steps_per_epoch, num_gpus)
             for reliability_setting in reliability_settings:
                 output_list.append(str(reliability_setting) + '\n')
                 print(reliability_setting)

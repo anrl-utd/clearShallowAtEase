@@ -48,8 +48,8 @@ def init_common_experiment_params():
     num_iterations = 10
     return reliability_settings, input_shape, num_classes, hidden_units, batch_size, num_train_epochs, num_iterations
 
-def get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels,num_train_epochs, batch_size, verbose):
-    if load_model:
+def get_model_weights_MLP_camera(model, model_name, load_for_inference, model_file, training_data, training_labels, val_data, val_labels,num_train_epochs, batch_size, verbose):
+    if load_for_inference:
         model.load_weights(model_file)
     else:
         print(model_name)

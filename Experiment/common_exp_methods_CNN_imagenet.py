@@ -71,8 +71,8 @@ def init_common_experiment_params():
     strides = (2,2)
     return num_iterations, num_train_examples,num_test_examples, reliability_settings, input_shape, num_classes, alpha, epochs, num_gpus, strides, num_workers
 
-def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus, num_workers):
-    if load_model:
+def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_for_inference, continue_training, model_file, train_generator, val_generator, num_train_examples, epochs, num_gpus, num_workers):
+    if load_for_inference:
         parallel_model.load_weights(model_file)
         model = parallel_model.layers[-2]
         return model
@@ -80,8 +80,9 @@ def get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model
         print(model_name)
         verbose = 1
         if num_gpus > 1:
-            # parallel_model.load_weights(model_file)
-           # model = parallel_model.layers[-2]
+            if continue_training:
+                parallel_model.load_weights(model_file)
+                model = parallel_model.layers[-2]
             modelCheckPoint = ModelCheckpoint(model_file, save_weights_only=True)
             parallel_model.fit_generator(
                 generator = train_generator,

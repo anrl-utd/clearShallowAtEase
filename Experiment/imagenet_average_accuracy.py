@@ -12,10 +12,10 @@ from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 
 import tensorflow as tf
-def define_and_train(iteration, model_name, load_model, train_generator, val_generator, input_shape, classes, alpha,num_train_examples, epochs,num_gpus, strides, num_workers):
+def define_and_train(iteration, model_name, load_for_inference, continue_training, train_generator, val_generator, input_shape, classes, alpha,num_train_examples, epochs,num_gpus, strides, num_workers):
     K.set_learning_phase(1)
     model, parallel_model, model_file = define_model(iteration, model_name, "imagenet", input_shape, classes, alpha, strides, num_gpus, weights='imagenet')
-    model = get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_model, model_file, train_generator, val_generator,num_train_examples,epochs, num_gpus, num_workers)
+    model = get_model_weights_CNN_imagenet(model, parallel_model, model_name, load_for_inference, continue_training, model_file, train_generator, val_generator,num_train_examples,epochs, num_gpus, num_workers)
     return model
 
 def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliability_setting, output_list,test_generator, num_test_examples):
@@ -36,7 +36,8 @@ if __name__ == "__main__":
     deepFogGuard_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet", default_skip_hyperconnection_config)
     Vanilla_no_information_flow_map = make_no_information_flow_map("CIFAR/Imagenet")
     
-    load_model = False
+    load_for_inference = False
+    continue_training = False # loads a pre-trained model and improves it with more training
     make_results_folder()
     output_name = 'results' + '/imagenet_average_accuracy_results.txt'
     output_list = []
@@ -51,7 +52,8 @@ if __name__ == "__main__":
         ResiliNet = define_and_train(
             iteration = iteration, 
             model_name = "ResiliNet", 
-            load_model = load_model, 
+            load_for_inference = load_for_inference, 
+            continue_training = continue_training,
             train_generator = train_generator, 
             val_generator = val_generator, 
             input_shape = input_shape, 
@@ -66,7 +68,8 @@ if __name__ == "__main__":
         # deepFogGuard = define_and_train(
         #     iteration = iteration, 
         #     model_name = "deepFogGuard", 
-        #     load_model = load_model, 
+        #     load_for_inference = load_for_inference, 
+        #     continue_training = continue_training,
         #     train_generator = train_generator, 
         #     val_generator = val_generator, 
         #     input_shape = input_shape, 
@@ -81,7 +84,8 @@ if __name__ == "__main__":
         # Vanilla = define_and_train(
         #     iteration = iteration, 
         #     model_name = "Vanilla", 
-        #     load_model = load_model, 
+        #     load_for_inference = load_for_inference, 
+        #     continue_training = continue_training,
         #     train_generator = train_generator, 
         #     val_generator = val_generator, 
         #     input_shape = input_shape, 

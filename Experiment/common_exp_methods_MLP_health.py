@@ -31,8 +31,8 @@ def init_common_experiment_params(train_data):
     num_iterations = 1
     return num_iterations, num_vars, num_classes, reliability_settings, num_train_epochs, hidden_units, batch_size
 
-def get_model_weights_MLP_health(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose):
-    if load_model:
+def get_model_weights_MLP_health(model, model_name, load_for_inference, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose):
+    if load_for_inference:
         model.load_weights(model_file)
     else:
         print(model_name)

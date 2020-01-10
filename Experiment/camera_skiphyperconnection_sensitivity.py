@@ -72,7 +72,7 @@ def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconne
     }
     return output
 
-def define_and_train(iteration, model_name, load_model, reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
+def define_and_train(iteration, model_name, load_for_inference, reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose):
     K.set_learning_phase(1)
     if model_name == "DeepFogGuard Hyperconnection Weight Sensitivity":
         model = define_deepFogGuard_MLP(input_shape,num_classes,hidden_units, reliability_setting=reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
@@ -80,7 +80,7 @@ def define_and_train(iteration, model_name, load_model, reliability_setting, ski
     else: # model_name is "ResiliNet Hyperconnection Weight Sensitivity"
         model = define_ResiliNet_MLP(input_shape,num_classes,hidden_units, reliability_setting=reliability_setting,skip_hyperconnection_config=skip_hyperconnection_configuration)
         model_file = 'models/' + str(iteration) + " " + str(skip_hyperconnection_configuration) + " " + 'camera_skiphyperconnection_sensitivity_ResiliNet.h5'
-    get_model_weights_MLP_camera(model, model_name, load_model, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
+    get_model_weights_MLP_camera(model, model_name, load_for_inference, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose)
     return model
 
 def calc_accuracy(iteration, model_name, model, no_information_flow_map, reliability_setting, skip_hyperconnection_configuration, output_list,training_labels,test_data,test_labels):
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         no_information_flow_map[tuple(skip_hyperconnection_configuration)] = make_no_information_flow_map("Camera", skip_hyperconnection_configuration)
     
     default_reliability_setting = [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
-    load_model = False
+    load_for_inference = False
     output_name = 'results/camera_skiphyperconnection_sensitivity.txt'
     
     verbose = 2
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         print("ITERATION ", iteration)
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
             
-            deepFogGuard_weight_sesitivity = define_and_train(iteration, model_name, load_model, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
+            deepFogGuard_weight_sesitivity = define_and_train(iteration, model_name, load_for_inference, default_reliability_setting, skip_hyperconnection_configuration, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, input_shape, num_classes, hidden_units, verbose)
             # test models
             for reliability_setting in reliability_settings:
                 print(reliability_setting)
