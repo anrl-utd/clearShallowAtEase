@@ -13,13 +13,15 @@ class Failout(Layer):
         super(Failout, self).__init__(**kwargs)
         self.seed = seed
         self.reliability = K.variable(reliability)
+        self.has_failed = None
 
     def call(self, inputs, training=None):
         rand = K.random_uniform(K.variable(0).shape, seed = self.seed)
         # assumes that there is only one input in inputs
         fail = Lambda(lambda x: x * 0)
-        condition = K.switch(K.greater(rand, self.reliability),fail(inputs),inputs)
-        failout = K.in_train_phase(condition, inputs, training)
+        self.has_failed = K.greater(rand, self.reliability)
+        failed_inputs = K.switch(self.has_failed,fail(inputs),inputs)
+        failout = K.in_train_phase(failed_inputs, inputs, training)
         return failout
 
     def get_config(self):
