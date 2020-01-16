@@ -1,5 +1,6 @@
 from keras.layers import add
 import keras.backend as K
+from keras.layers import Lambda
 
 def add_node_layers(input_tensors):
     """lambda function to add physical nodes in the network 
@@ -17,4 +18,5 @@ def add_node_layers(input_tensors):
         return add(output)
 
 def switch(inputs):
-    return K.switch(inputs[0], inputs[1], inputs[2])
+    lambdaswitch = Lambda(lambda x: K.switch(x[0],x[1],x[2]))
+    return lambdaswitch([inputs[0], inputs[1], inputs[2]])
