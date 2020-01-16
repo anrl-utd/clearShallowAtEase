@@ -15,3 +15,6 @@ def add_node_layers(input_tensors):
         for tensors in input_tensors:
             output.append(tensors)
         return add(output)
+
+def switch(inputs):
+    return K.switch(inputs[0], inputs[1], inputs[2])
