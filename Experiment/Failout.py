@@ -1,4 +1,4 @@
-from keras.layers import Layer
+from keras.layers import Layer, _Merge, Add
 from keras.layers import Lambda
 import keras.backend as K
 class Failout(Layer):
@@ -37,33 +37,18 @@ class Failout(Layer):
         return input_shape
 
 
-class InputMux(Layer):
+class InputMux(_Merge):
     """
     Input Multiplexer for a node that receives input from more than one downstream nodes
     # Arguments
         node_has_failed: Boolean Tensor showing if a node has failer
     """
-    def __init__(self, has_failed, input1, input2, name, **kwargs):
+    def __init__(self, has_failed, **kwargs):
         super(InputMux, self).__init__(**kwargs)
         self.has_failed = has_failed
-        self.input1 = input1
-        self.input2 = input2
-        self.name = name
+        # self.name = name
 
-    def call(self, inputs, training=None):
-        input = K.switch(self.has_failed, self.input1, self.input2)
-        mux = Lambda(lambda x : x * 1,name = self.name)(input)
-        return mux
-
-    def get_config(self):
-        config = {
-                  'node_has_failed': self.has_failed,
-                  'input1': self.input1,
-                  'input2': self.input2,
-                  'name': self.name
-                }
-        base_config = super(InputMux, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
-
-    def compute_output_shape(self, input_shape):
-        return input_shape
+    def _merge_function(self, inputs):
+        output = K.switch(self.has_failed, inputs[0],inputs[1])
+        # mux = Lambda(lambda x : x * 1,name = self.name)(input)
+        return output
