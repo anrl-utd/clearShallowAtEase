@@ -18,5 +18,4 @@ def add_node_layers(input_tensors):
         return add(output)
 
 def switch(inputs):
-    lambdaswitch = Lambda(lambda x: K.switch(x[0],x[1],x[2]))
-    return lambdaswitch([inputs[0], inputs[1], inputs[2]])
+    return Lambda(lambda x: K.switch(x))([inputs[0], inputs[1], inputs[2]])

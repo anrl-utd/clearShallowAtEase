@@ -27,9 +27,42 @@ class Failout(Layer):
     def get_config(self):
         config = {
                   'seed': self.seed,
-                  'reliability': self.reliability
+                  'reliability': self.reliability,
+                  'has_failed': self.has_failed
                 }
         base_config = super(Failout, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+
+class InputMux(Layer):
+    """
+    Input Multiplexer for a node that receives input from more than one downstream nodes
+    # Arguments
+        node_has_failed: Boolean Tensor showing if a node has failer
+    """
+    def __init__(self, has_failed, input1, input2, name, **kwargs):
+        super(InputMux, self).__init__(**kwargs)
+        self.has_failed = has_failed
+        self.input1 = input1
+        self.input2 = input2
+        self.name = name
+
+    def call(self, inputs, training=None):
+        input = K.switch(self.has_failed, self.input1, self.input2)
+        mux = Lambda(lambda x : x * 1,name = self.name)(input)
+        return mux
+
+    def get_config(self):
+        config = {
+                  'node_has_failed': self.has_failed,
+                  'input1': self.input1,
+                  'input2': self.input2,
+                  'name': self.name
+                }
+        base_config = super(InputMux, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
     def compute_output_shape(self, input_shape):
