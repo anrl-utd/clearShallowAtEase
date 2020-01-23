@@ -1,10 +1,8 @@
-from keras.layers import Layer, _Merge, Add
+from keras.layers import Layer, Add
 from keras.layers import Lambda
 import keras.backend as K
 class Failout(Layer):
     """Applies Failout to the input.
-    Failout consists in randomly dropping out entire output of a layer by setting output to 0 at each update during training time,
-    which helps increase resilencey of a distributed neural network 
     # Arguments
         reliability: float between 0 and 1. Probability of node failure.
         seed: A Python integer to use as random seed.
@@ -37,7 +35,7 @@ class Failout(Layer):
         return input_shape
 
 
-class InputMux(_Merge):
+class InputMux(Add):
     """
     Input Multiplexer for a node that receives input from more than one downstream nodes
     # Arguments
