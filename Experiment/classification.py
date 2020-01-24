@@ -3,7 +3,7 @@ from collections import Counter
 import random 
 from keras.models import Model
 import keras.backend as K
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_score
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
@@ -33,7 +33,11 @@ def predict(model,no_information_flow,train_labels,test_data,test_labels, experi
         preds = np.argmax(preds,axis=1)
         no_information_flow_count = 0
 
-    acc = accuracy_score(test_labels,preds)
+    # camera experiments should report precision 
+    if experiment_name == 'Camera':
+        acc = precision_score(test_labels, preds)
+    else:
+        acc = accuracy_score(test_labels,preds)
     return acc,no_information_flow_count
 
 def random_guess(train_labels,test_data):
