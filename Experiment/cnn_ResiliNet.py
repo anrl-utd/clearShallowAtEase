@@ -12,7 +12,7 @@ import keras.layers as layers
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
 from Experiment.cnn_deepFogGuard import set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
 from Experiment.cnn_Vanilla import imagenet_related_functions
-from Experiment.Failout import Failout
+from Experiment.Custom_Layers import Failout
 from Experiment.common_exp_methods import compile_keras_parallel_model
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 # ResiliNet

@@ -11,7 +11,7 @@ from keras.models import Model
 from keras.backend import constant
 import random 
 
-from Experiment.Failout import Failout
+from Experiment.Custom_Layers import Failout
 def define_ResiliNet_MLP(input_shape,
                             num_classes,
                             hidden_units,

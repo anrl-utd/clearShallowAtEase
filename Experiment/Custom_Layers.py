@@ -1,10 +1,11 @@
 from keras.layers import Layer, Add
 from keras.layers import Lambda
 import keras.backend as K
+
 class Failout(Layer):
-    """Applies Failout to the input.
+    """Applies Failout to the output of a node.
     # Arguments
-        reliability: float between 0 and 1. Probability of node failure.
+        reliability: float between 0 and 1. Probability of survival of a node (1 - prob_failure).
         seed: A Python integer to use as random seed.
     """
     def __init__(self, reliability, seed=None, **kwargs):
@@ -37,7 +38,7 @@ class Failout(Layer):
 
 class InputMux(Add):
     """
-    Input Multiplexer for a node that receives input from more than one downstream nodes
+    Input Multiplexer for a node that receives input from more than one downstream nodes, 
     # Arguments
         node_has_failed: Boolean Tensor showing if a node has failer
     """
@@ -47,6 +48,8 @@ class InputMux(Add):
         # self.name = name
 
     def _merge_function(self, inputs):
-        output = K.switch(self.has_failed, inputs[0],inputs[1])
-        # mux = Lambda(lambda x : x * 1,name = self.name)(input)
+        selected = K.switch(self.has_failed, inputs[0], inputs[1]) # selects one of the inputs
+        added = super()._merge_function(inputs) # calls the add function
+
+        output = K.in_train_phase(added, selected)
         return output
