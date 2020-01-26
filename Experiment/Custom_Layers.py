@@ -43,7 +43,7 @@ class InputMux(Add):
         node_has_failed: Boolean Tensor showing if the downstream node has failed
     """
     def __init__(self, has_failed, **kwargs):
-        super(InputMux, self).__init__(**kwargs)
+        super().__init__(has_failed, **kwargs)
         self.has_failed = has_failed
         # self.name = name
 
@@ -57,7 +57,7 @@ class InputMux(Add):
         selected = K.switch(self.has_failed, inputs[0], inputs[1]) # selects one of the inputs. 
         # If the node below has failed, use the input from skip hyperconnection, otherwise, use the input from the node below
         
-        added = super()._merge_function(inputs) # calls the add function
+        added = Add(inputs) # calls the add function
 
         output = K.in_train_phase(added, selected)
         return output
@@ -80,7 +80,7 @@ class InputMuxMobileNet(InputMux):
         selected = K.switch(self.has_failed, skip_iotfog, edge_output) # selects one of the inputs. 
         # If the node below has failed, use the input from skip hyperconnection, otherwise, use the input from the node below
         
-        added = super()._merge_function(inputs) # calls the add function
+        added = Add(inputs) # calls the add function
 
         output = K.in_train_phase(added, selected)
         return output
