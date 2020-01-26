@@ -57,7 +57,7 @@ class InputMux(Add):
         selected = K.switch(self.has_failed, inputs[0], inputs[1]) # selects one of the inputs. 
         # If the node below has failed, use the input from skip hyperconnection, otherwise, use the input from the node below
         
-        added = Add(inputs) # calls the add function
+        added = layers.add(inputs) # calls the add function
 
         output = K.in_train_phase(added, selected)
         return output
@@ -80,7 +80,7 @@ class InputMuxMobileNet(InputMux):
         selected = K.switch(self.has_failed, skip_iotfog, edge_output) # selects one of the inputs. 
         # If the node below has failed, use the input from skip hyperconnection, otherwise, use the input from the node below
         
-        added = Add(inputs) # calls the add function
+        added = layers.add(inputs) # calls the add function
 
         output = K.in_train_phase(added, selected)
         return output
