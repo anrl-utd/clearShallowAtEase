@@ -7,7 +7,8 @@ from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
 import os
 import warnings
 import keras.backend as K
-import keras.layers as layers, Lambda
+import keras.layers as layers
+from keras.layers import Lambda
 
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_edge
 from Experiment.cnn_deepFogGuard import set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
