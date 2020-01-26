@@ -139,8 +139,8 @@ if __name__ == "__main__":
         output_list.append(str(reliability_setting) + '\n')
         for skip_hyperconnection_configuration in skip_hyperconnection_configurations:
             output_list.append(str(skip_hyperconnection_configuration) + '\n')
-            acc = average(output["Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)])
-            std = np.std(output["Hyperconnection Weight Sensitivity"][str(reliability_setting)][str(skip_hyperconnection_configuration)],ddof=1)
+            acc = average(output[model_name][str(reliability_setting)][str(skip_hyperconnection_configuration)])
+            std = np.std(output[model_name][str(reliability_setting)][str(skip_hyperconnection_configuration)],ddof=1)
             # write to output list
             output_list.append(str(reliability_setting) + " " + str(skip_hyperconnection_configuration) + " Accuracy: " + str(acc) + '\n')
             print(str(reliability_setting),str(skip_hyperconnection_configuration),"Accuracy:",acc)
