@@ -28,7 +28,7 @@ def init_common_experiment_params(train_data):
     num_train_epochs = 50
     hidden_units = 250
     batch_size = 1024
-    num_iterations = 1
+    num_iterations = 10
     return num_iterations, num_vars, num_classes, reliability_settings, num_train_epochs, hidden_units, batch_size
 
 def get_model_weights_MLP_health(model, model_name, load_for_inference, model_file, training_data, training_labels, val_data, val_labels, num_train_epochs, batch_size, verbose):

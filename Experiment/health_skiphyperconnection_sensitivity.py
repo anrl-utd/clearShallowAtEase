@@ -12,7 +12,7 @@ import numpy as np
 from Experiment.common_exp_methods import make_no_information_flow_map
 from Experiment.mlp_deepFogGuard_health import default_skip_hyperconnection_config
 
-def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations):
+def make_output_dictionary(model_name, reliability_settings, num_iterations, skip_hyperconnection_configurations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
 
     # convert hyperconnection configuration into strings to be used as keys for dictionary
@@ -22,7 +22,7 @@ def make_output_dictionary(reliability_settings, num_iterations, skip_hyperconne
 
     # dictionary to store all the results
     output = {
-        "DeepFogGuard Hyperconnection Weight Sensitivity":
+        model_name:
         {
             hazardous:
             {
@@ -117,8 +117,8 @@ if __name__ == "__main__":
     verbose = 2
     # keep track of output so that output is in order
     output_list = []
-    output = make_output_dictionary(reliability_settings, num_iterations, skip_hyperconnection_configurations)
     model_name = "ResiliNet Hyperconnection Weight Sensitivity"
+    output = make_output_dictionary(model_name, reliability_settings, num_iterations, skip_hyperconnection_configurations)
     make_results_folder()
     for iteration in range(1,num_iterations+1):   
         output_list.append('ITERATION ' + str(iteration) +  '\n')

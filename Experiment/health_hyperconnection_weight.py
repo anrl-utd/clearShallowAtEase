@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # keep track of output so that output is in order
     output_list = []
     
-    output, weight_schemes = make_output_dictionary_hyperconnection_weight(reliability_settings, num_iterations)
+    output, weight_schemes = make_output_dictionary_hyperconnection_weight(model_name, reliability_settings, num_iterations)
     default_reliability_setting = [1,1,1]
     make_results_folder()
     for iteration in range(1,num_iterations+1):   
