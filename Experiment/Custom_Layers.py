@@ -1,5 +1,5 @@
-from keras.layers import Layer, Add
-from keras.layers import Lambda
+from keras.layers import Layer, Add, Lambda
+import keras.layers as layers
 import keras.backend as K
 
 class Failout(Layer):
@@ -40,7 +40,7 @@ class InputMux(Add):
     """
     Input Multiplexer for a node that receives input from more than one downstream nodes, 
     # Arguments
-        node_has_failed: Boolean Tensor showing if a node has failer
+        node_has_failed: Boolean Tensor showing if the downstream node has failed
     """
     def __init__(self, has_failed, **kwargs):
         super(InputMux, self).__init__(**kwargs)
@@ -61,3 +61,28 @@ class InputMux(Add):
 
         output = K.in_train_phase(added, selected)
         return output
+
+
+class InputMuxMobileNet(InputMux):
+    """
+    Input Multiplexer MobileNet CNN
+    """
+    def __init__(self, has_failed, **kwargs):
+        super(InputMuxMobileNet, self).__init__(**kwargs)
+
+    def _merge_function(self, inputs):
+        # 1x1 conv2d is used to change the filter size 
+        # ? (alpha=0.5), ? (alpha=0.75)
+        skip_iotfog = layers.Conv2D(96,(1,1),strides = 4, use_bias = False, name = "random_name")(inputs[0])
+
+        edge_output = layers.Conv2D(64,(1,1),strides = 4, use_bias = False, name = "random_name2")(inputs[1])
+
+        selected = K.switch(self.has_failed, skip_iotfog, edge_output) # selects one of the inputs. 
+        # If the node below has failed, use the input from skip hyperconnection, otherwise, use the input from the node below
+        
+        added = super()._merge_function(inputs) # calls the add function
+
+        output = K.in_train_phase(added, selected)
+        return output
+
+

@@ -13,7 +13,7 @@ from keras.layers import Lambda
 from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_edge
 from Experiment.cnn_deepFogGuard import set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
 from Experiment.cnn_Vanilla import imagenet_related_functions, define_cnn_architecture_cloud, define_cnn_architecture_fog
-from Experiment.Custom_Layers import Failout, InputMux
+from Experiment.Custom_Layers import Failout, InputMux, InputMuxMobileNet
 from Experiment.common_exp_methods import compile_keras_parallel_model
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 # ResiliNet
@@ -125,9 +125,9 @@ def define_cnn_ResiliNet_architecture_edge(iot_output, alpha, depth_multiplier, 
 
 def define_cnn_ResiliNet_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, edge_failure_lambda, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None, strides = (2,2)):
     if multiply_hyperconnection_weight_layer_IoTf == None or multiply_hyperconnection_weight_layer_ef == None:
-        fog_input = Lambda(InputMux(edge_failure_lambda.has_failed),name="node2_input")([skip_iotfog, edge_output])
+        fog_input = Lambda(InputMuxMobileNet(edge_failure_lambda.has_failed),name="node2_input")([skip_iotfog, edge_output])
     else:
-        fog_input = Lambda(InputMux(edge_failure_lambda.has_failed),name="node2_input")([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)]) 
+        fog_input = Lambda(InputMuxMobileNet(edge_failure_lambda.has_failed),name="node2_input")([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)]) 
     fog = define_cnn_architecture_fog(fog_input,alpha,depth_multiplier)
     # cnn for imagenet does not need padding
     if strides == (2,2):
