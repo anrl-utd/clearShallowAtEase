@@ -7,12 +7,12 @@ from Experiment.MobileNet_blocks import _conv_block, _depthwise_conv_block
 import os
 import warnings
 import keras.backend as K
-import keras.layers as layers
+import keras.layers as layers, Lambda
 
-from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_cloud, define_cnn_deepFogGuard_architecture_edge, define_cnn_deepFogGuard_architecture_fog
+from Experiment.cnn_deepFogGuard import define_cnn_deepFogGuard_architecture_IoT, define_cnn_deepFogGuard_architecture_edge
 from Experiment.cnn_deepFogGuard import set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
-from Experiment.cnn_Vanilla import imagenet_related_functions
-from Experiment.Custom_Layers import Failout
+from Experiment.cnn_Vanilla import imagenet_related_functions, define_cnn_architecture_cloud, define_cnn_architecture_fog
+from Experiment.Custom_Layers import Failout, InputMux
 from Experiment.common_exp_methods import compile_keras_parallel_model
 from Experiment.cnn_deepFogGuard import default_skip_hyperconnection_config
 # ResiliNet
@@ -99,20 +99,53 @@ def define_ResiliNet_CNN(input_shape=None,
     edge_failure_lambda, fog_failure_lambda = cnn_failout_definitions(failout_survival_setting)
 
      # iot node
-    iot_output,skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input, strides = strides)
+    iot_output,skip_iotfog = define_cnn_ResiliNet_architecture_IoT(input_shape,alpha,img_input, strides = strides)
     
     # edge node
-    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTe, strides = strides, edge_failure_lambda = edge_failure_lambda)
+    edge_output, skip_edgecloud = define_cnn_ResiliNet_architecture_edge(iot_output,alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTe, strides = strides, edge_failure_lambda = edge_failure_lambda)
     
     # fog node
-    fog_output = define_cnn_deepFogGuard_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef, strides = strides)
+    fog_output = define_cnn_ResiliNet_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, edge_failure_lambda, multiply_hyperconnection_weight_layer_IoTf, multiply_hyperconnection_weight_layer_ef, strides = strides)
     fog_output = fog_failure_lambda(fog_output)
 
     # cloud node
-    cloud_output = define_cnn_deepFogGuard_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling, multiply_hyperconnection_weight_layer_fc, multiply_hyperconnection_weight_layer_ec)
+    cloud_output = define_cnn_ResiliNet_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling, fog_failure_lambda, multiply_hyperconnection_weight_layer_fc, multiply_hyperconnection_weight_layer_ec)
     
     model, parallel_model = compile_keras_parallel_model(img_input, cloud_output, num_gpus)
     return model, parallel_model
+
+def define_cnn_ResiliNet_architecture_IoT(input_shape, alpha, img_input, strides):
+    iot_output, skip_iotfog = define_cnn_deepFogGuard_architecture_IoT(input_shape,alpha,img_input, strides = strides)
+    return iot_output, skip_iotfog
+
+def define_cnn_ResiliNet_architecture_edge(iot_output, alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTe, strides, edge_failure_lambda):
+    edge_output, skip_edgecloud = define_cnn_deepFogGuard_architecture_edge(iot_output,alpha, depth_multiplier, multiply_hyperconnection_weight_layer_IoTe, strides = strides, edge_failure_lambda = edge_failure_lambda)
+    return edge_output, skip_edgecloud
+
+def define_cnn_ResiliNet_architecture_fog(skip_iotfog, edge_output, alpha, depth_multiplier, edge_failure_lambda, multiply_hyperconnection_weight_layer_IoTf = None, multiply_hyperconnection_weight_layer_ef = None, strides = (2,2)):
+    if multiply_hyperconnection_weight_layer_IoTf == None or multiply_hyperconnection_weight_layer_ef == None:
+        fog_input = Lambda(InputMux(edge_failure_lambda.has_failed),name="node2_input")([skip_iotfog, edge_output])
+    else:
+        fog_input = Lambda(InputMux(edge_failure_lambda.has_failed),name="node2_input")([multiply_hyperconnection_weight_layer_IoTf(skip_iotfog), multiply_hyperconnection_weight_layer_ef(edge_output)]) 
+    fog = define_cnn_architecture_fog(fog_input,alpha,depth_multiplier)
+    # cnn for imagenet does not need padding
+    if strides == (2,2):
+        fog_output = fog
+    elif strides == (1,1):
+        # pad from (7,7,256) to (8,8,256)
+        fog_output = layers.ZeroPadding2D(padding = ((0, 1), (0, 1)), name = "fogcloud_connection_padding")(fog)
+    else:
+        raise ValueError("Incorrect stride value")
+    
+    return fog_output
+
+def define_cnn_ResiliNet_architecture_cloud(fog_output, skip_edgecloud, alpha, depth_multiplier, classes, include_top, pooling, fog_failure_lambda, multiply_hyperconnection_weight_layer_fc = None, multiply_hyperconnection_weight_layer_ec = None):
+    if multiply_hyperconnection_weight_layer_fc == None or multiply_hyperconnection_weight_layer_ec == None:
+        cloud_input = Lambda(InputMux(fog_failure_lambda.has_failed),name="node1_input")([skip_edgecloud, fog_output])
+    else:
+        cloud_input = Lambda(InputMux(fog_failure_lambda.has_failed),name="node1_input")([multiply_hyperconnection_weight_layer_ec(skip_edgecloud), multiply_hyperconnection_weight_layer_fc(fog_output)]) 
+    cloud_output = define_cnn_architecture_cloud(cloud_input,alpha,depth_multiplier,classes,include_top,pooling)
+    return cloud_output
 
 def cnn_failout_definitions(failout_survival_setting):
     edge_reliability = failout_survival_setting[0]

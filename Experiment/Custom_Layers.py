@@ -48,7 +48,15 @@ class InputMux(Add):
         # self.name = name
 
     def _merge_function(self, inputs):
-        selected = K.switch(self.has_failed, inputs[0], inputs[1]) # selects one of the inputs
+        """
+        # inputs
+        the two incoming connections to a node. inputs[0] MUST be the input from skip hyperconnection
+        and inputs[1] MUST be the input from the node below.
+        """
+        
+        selected = K.switch(self.has_failed, inputs[0], inputs[1]) # selects one of the inputs. 
+        # If the node below has failed, use the input from skip hyperconnection, otherwise, use the input from the node below
+        
         added = super()._merge_function(inputs) # calls the add function
 
         output = K.in_train_phase(added, selected)
