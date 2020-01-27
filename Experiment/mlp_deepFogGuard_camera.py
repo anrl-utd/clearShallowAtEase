@@ -4,7 +4,6 @@ from Experiment.LambdaLayers import add_node_layers
 from Experiment.mlp_Vanilla_camera import define_MLP_architecture_cloud, define_MLP_architecture_edge, define_MLP_architecture_fog_with_one_layer, define_MLP_architecture_fog_with_two_layers
 from keras.models import Model
 import random
-from Experiment.Failout import Failout
 
 connection_ends = ["e1f2","e2f2","e3f2","e4f2","f3f1","f4f1","f2c","e1f3","e2f4","e3f4","e4f4","f3f2","f4f2","f2f1","f1c"]
 

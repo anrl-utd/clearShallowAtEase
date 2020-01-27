@@ -1,8 +1,4 @@
 
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import precision_score
-
 from Experiment.classification import predict
 import keras.backend as K
 import numpy as np
@@ -125,15 +121,6 @@ class accuracy:
                         accuracy = 0.001
                     else:
                         accuracy = model.evaluate_generator(test_generator, steps = num_test_examples / test_generator.batch_size)[1]
-                        # test_generator.reset()
-                        # Y_pred = model.predict_generator(test_generator)
-                        # print('Ypred',Y_pred.shape)
-                        # classes = test_generator.classes[test_generator.index_array]
-                        # y_pred = np.argmax(Y_pred, axis=-1)
-                        # print('ypred',y_pred.shape)
-                        # print('classes',classes.shape)
-                        # accuracy = accuracy_score(classes, y_pred)
-                        # accuracy = sum(y_pred==classes)/num_test_examples 
                 else: 
                     accuracy,_ = predict(model,no_information_flow,training_labels,test_data,test_labels, self.experiment_name)
                 accuracyList.append(accuracy)

@@ -64,7 +64,7 @@ def make_output_dictionary_average_accuracy(reliability_settings, num_iterations
     }
     return output
 
-def make_output_dictionary_hyperconnection_weight(reliability_settings, num_iterations):
+def make_output_dictionary_hyperconnection_weight(model_name, reliability_settings, num_iterations):
     no_failure, normal, poor, hazardous = convert_to_string(reliability_settings)
 
     # define weight schemes for hyperconnections
@@ -84,7 +84,7 @@ def make_output_dictionary_hyperconnection_weight(reliability_settings, num_iter
 
     # dictionary to store all the results
     output = {
-        "DeepFogGuard Hyperconnection Weight": 
+        model_name: 
         {
             one_weight_scheme:
             {

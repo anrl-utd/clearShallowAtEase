@@ -61,7 +61,7 @@ def init_common_experiment_params():
     progress_verbose = 1
     checkpoint_verbose = 1
     use_GCP = False
-    alpha = .5
+    alpha = .75
     input_shape = (32,32,3)
     classes = 10
     num_gpus = 1
