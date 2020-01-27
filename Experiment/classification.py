@@ -3,7 +3,7 @@ from collections import Counter
 import random 
 from keras.models import Model
 import keras.backend as K
-from sklearn.metrics import accuracy_score, precision_score
+from sklearn.metrics import accuracy_score, precision_score, f1_score
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
@@ -35,7 +35,7 @@ def predict(model,no_information_flow,train_labels,test_data,test_labels, experi
 
     # camera experiments should report precision 
     if experiment_name == 'Camera':
-        acc = precision_score(test_labels, preds)
+        acc = f1_score(test_labels, preds, average='micro')
     else:
         acc = accuracy_score(test_labels,preds)
     return acc,no_information_flow_count
