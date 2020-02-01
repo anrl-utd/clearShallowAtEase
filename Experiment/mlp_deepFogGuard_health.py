@@ -1,8 +1,8 @@
 from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation
-from Experiment.LambdaLayers import add_node_layers
 from Experiment.mlp_Vanilla_health import define_MLP_architecture_cloud, define_MLP_architecture_edge, define_MLP_architecture_fog1, define_MLP_architecture_fog2
 from keras.models import Model
+import keras.layers as layers
 import random
 
 default_skip_hyperconnection_config = [1,1,1]
@@ -155,24 +155,24 @@ def define_MLP_deepFogGuard_architecture_edge(iot_output, hidden_units, multiply
 
 def define_MLP_deepFogGuard_architecture_fog2(iot_output, edge_output, hidden_units, multiply_hyperconnection_weight_layer_IoTf2 = None, multiply_hyperconnection_weight_layer_ef2 = None):
     if multiply_hyperconnection_weight_layer_IoTf2 == None or multiply_hyperconnection_weight_layer_ef2 == None:
-        fog2_input = Lambda(add_node_layers,name="node3_input")([edge_output,iot_output])
+        fog2_input = layers.add([edge_output,iot_output], name = "node3_input")
     else:
-        fog2_input = Lambda(add_node_layers,name="node3_input")([multiply_hyperconnection_weight_layer_ef2(edge_output),multiply_hyperconnection_weight_layer_IoTf2(iot_output)])
+        fog2_input = layers.add([multiply_hyperconnection_weight_layer_ef2(edge_output),multiply_hyperconnection_weight_layer_IoTf2(iot_output)], name = "node3_input")
     fog2_output = define_MLP_architecture_fog2(fog2_input, hidden_units)
     return fog2_output
 
 def define_MLP_deepFogGuard_architecture_fog1(edge_output, fog2_output, hidden_units, multiply_hyperconnection_weight_layer_ef1 = None, multiply_hyperconnection_weight_layer_f2f1 = None):
     if multiply_hyperconnection_weight_layer_ef1 == None or multiply_hyperconnection_weight_layer_f2f1 == None:
-        fog1_input = Lambda(add_node_layers,name="node2_input")([edge_output,fog2_output])
+        fog1_input = layers.add([edge_output,fog2_output], name = "node2_input")
     else:
-        fog1_input = Lambda(add_node_layers,name="node2_input")([multiply_hyperconnection_weight_layer_ef1(edge_output), multiply_hyperconnection_weight_layer_f2f1(fog2_output)])
+        fog1_input = layers.add([multiply_hyperconnection_weight_layer_ef1(edge_output), multiply_hyperconnection_weight_layer_f2f1(fog2_output)], name = "node2_input")
     fog1_output = define_MLP_architecture_fog1(fog1_input, hidden_units)  
     return fog1_output
 
 def define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer_f1c = None, multiply_hyperconnection_weight_layer_f2c = None):
     if multiply_hyperconnection_weight_layer_f1c == None or multiply_hyperconnection_weight_layer_f2c == None:
-        cloud_input = Lambda(add_node_layers,name="node1_input")([fog1_output,fog2_output])
+        cloud_input = layers.add([fog1_output,fog2_output], name = "node1_input")
     else:
-        cloud_input = Lambda(add_node_layers,name="node1_input")([multiply_hyperconnection_weight_layer_f1c(fog1_output),multiply_hyperconnection_weight_layer_f2c(fog2_output)])
+        cloud_input = layers.add([multiply_hyperconnection_weight_layer_f1c(fog1_output),multiply_hyperconnection_weight_layer_f2c(fog2_output)], name = "node1_input")
     cloud_output = define_MLP_architecture_cloud(cloud_input, hidden_units, num_classes)
     return cloud_output

@@ -1,7 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation, add, Flatten
-from Experiment.LambdaLayers import add_node_layers
 from keras.models import Model
+import keras.layers as layers
 
 def define_vanilla_model_MLP(input_shape,
                              num_classes,
@@ -38,7 +38,7 @@ def define_vanilla_model_MLP(input_shape,
     edge4 = define_MLP_architecture_edge(input_edge4, hidden_units, "edge4_output_layer")
 
     # fog node 4
-    fog4_input = Lambda(add_node_layers,name="node5_input")([edge2,edge3, edge4])
+    fog4_input = layers.add([edge2,edge3, edge4], name = "node5_input")
     fog4 = define_MLP_architecture_fog_with_two_layers(fog4_input, hidden_units,"fog4_output_layer","fog4_input_layer")
 
     # fog node 3
@@ -46,7 +46,7 @@ def define_vanilla_model_MLP(input_shape,
     fog3 = define_MLP_architecture_fog_with_one_layer(fog3, hidden_units, "fog3_output_layer")
 
     # fog node 2
-    fog2_input = Lambda(add_node_layers,name="node3_input")([fog3, fog4])
+    fog2_input = layers.add([fog3, fog4], name = "node3_input")
     fog2 = define_MLP_architecture_fog_with_two_layers(fog2_input, hidden_units, "fog2_output_layer", "fog2_input_layer")
 
     # fog node 1

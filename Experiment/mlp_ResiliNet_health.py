@@ -2,7 +2,6 @@ from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation
 import keras.backend as K
 import keras.layers as layers
-from Experiment.LambdaLayers import add_node_layers, switch
 from Experiment.mlp_deepFogGuard_health import define_MLP_deepFogGuard_architecture_edge, define_MLP_deepFogGuard_architecture_IoT
 from Experiment.mlp_deepFogGuard_health import define_hyperconnection_weight_lambda_layers, set_hyperconnection_weights
 from Experiment.mlp_Vanilla_health import define_MLP_architecture_cloud, define_MLP_architecture_fog1, define_MLP_architecture_fog2

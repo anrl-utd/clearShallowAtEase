@@ -2,7 +2,6 @@ from keras.models import Sequential
 from keras.layers import Dense,Input,Lambda, Activation, add
 import keras.backend as K
 import keras.layers as layers
-from Experiment.LambdaLayers import add_node_layers
 from Experiment.mlp_deepFogGuard_camera import define_MLP_deepFogGuard_architecture_edge, define_MLP_deepFogGuard_architecture_fog3, define_MLP_deepFogGuard_architecture_fog4
 from Experiment.mlp_Vanilla_camera import define_MLP_architecture_cloud, define_MLP_architecture_fog_with_two_layers
 from Experiment.mlp_deepFogGuard_camera import connection_ends, set_hyperconnection_weights, define_hyperconnection_weight_lambda_layers
@@ -11,6 +10,7 @@ from Experiment.mlp_deepFogGuard_camera import default_skip_hyperconnection_conf
 from keras.models import Model
 from keras.backend import constant
 import random 
+import keras.layers as layers
 
 from Experiment.Custom_Layers import Failout, InputMux
 def define_ResiliNet_MLP(input_shape,
@@ -128,7 +128,7 @@ def define_MLP_ResiliNet_architecture_fog2(edge1_output, edge2_output, edge3_out
         skip_hyperconnections = add([multiply_hyperconnection_weight_layer["e2f2"](edge2_output), multiply_hyperconnection_weight_layer["e3f2"](edge3_output), multiply_hyperconnection_weight_layer["e4f2"](edge4_output)])
         fog2_input_right = Lambda(InputMux(fog4_failure_lambda.has_failed),name="node3_input_right")([skip_hyperconnections, multiply_hyperconnection_weight_layer["f4f2"](fog4_output)]) 
     
-    fog2_input = Lambda(add_node_layers,name="node3_input")([fog2_input_left, fog2_input_right])
+    fog2_input = layers.add([fog2_input_left, fog2_input_right], name = "node3_input")
     fog2_output = define_MLP_architecture_fog_with_two_layers(fog2_input, hidden_units, "fog2_output_layer", "fog2_input_layer")
     return fog2_output
 
