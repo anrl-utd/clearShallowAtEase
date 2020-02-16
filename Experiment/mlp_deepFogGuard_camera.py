@@ -201,8 +201,8 @@ def define_MLP_deepFogGuard_architecture_fog1(fog2_output, fog3_output, fog4_out
 
 def define_MLP_deepFogGuard_architecture_cloud(fog2_output, fog1_output, hidden_units, num_classes, multiply_hyperconnection_weight_layer = None):
     if multiply_hyperconnection_weight_layer == None or multiply_hyperconnection_weight_layer["f1c"] == None or multiply_hyperconnection_weight_layer["f2c"] == None:
-        fog1_input = layers.add([fog1_output,fog2_output], name = "node1_input")
+        cloud_input = layers.add([fog1_output,fog2_output], name = "node1_input")
     else:
-        fog1_input = layers.add([multiply_hyperconnection_weight_layer["f1c"](fog1_output), multiply_hyperconnection_weight_layer["f2c"](fog2_output)], name = "node1_input")
+        cloud_input = layers.add([multiply_hyperconnection_weight_layer["f1c"](fog1_output), multiply_hyperconnection_weight_layer["f2c"](fog2_output)], name = "node1_input")
     cloud_output = define_MLP_architecture_cloud(cloud_input, hidden_units, num_classes)
     return cloud_output

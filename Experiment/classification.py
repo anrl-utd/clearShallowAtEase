@@ -23,8 +23,8 @@ def predict(model,no_information_flow,train_labels,test_data,test_labels, experi
             # make into 1d vector
             train_labels = [item for sublist in train_labels for item in sublist]
         elif experiment_name == "Camera" :
-                # reformat by switching the 1st and 2nd dimension
-                test_data = np.transpose(test_data,axes=[1,0,2,3,4])
+            # reformat by switching the 1st and 2nd dimension
+            test_data = np.transpose(test_data,axes=[1,0,2,3,4])
         # print("There is no data flow in the network")
         preds = random_guess(train_labels,test_data)
         no_information_flow_count = 1
